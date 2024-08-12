@@ -5,7 +5,7 @@
 // @description  try to take over the world!
 // @author       Lisandra
 // @match        *://*.plazmaburst2.com/level_editor/map_edit.php*
-// @icon         https://github.com/LisABC/ALEI/blob/main/icon.png?raw=true
+// @icon         https://github.com/Molisson/ALEI/blob/main/icon.png?raw=true
 // @run-at       document-start
 // ==/UserScript==
 

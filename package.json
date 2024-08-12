@@ -1,9 +1,9 @@
 {
   "name": "alei",
-  "version": "19.2",
+  "version": "19.5",
   "description": "Changes to make ALE better.",
   "main": "src/main.js",
-  "author": "mici1234, wanted2001, gcp5o",
+  "author": "molis, mici1234, wanted2001, gcp5o",
   "license": "",
   "keywords": [],
   "type": "module",
