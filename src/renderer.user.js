@@ -664,6 +664,7 @@ function RenderQuickPick(element, cns) {
 
 function RenderConnectionLines(element, cns) {
     if(!window.SHOW_CONNECTIONS) return;
+    if(!element.exists) return;
     if(!element.selected) return;
     if(!aleiRunning) return;
 
@@ -697,6 +698,9 @@ function RenderConnectionLines(element, cns) {
     // So it's best if we just batch them, but how do we do that?
 
     for(let to of referringTo) {
+        // Do not create invisible lines if the trigger or timer doesn't exist.
+        if ( !utem[to].exists ) continue;
+
         let ocns = GetObjectCoordAndSize(utem[to]);
         toX = ocns.x + ocns.w/2;
         toY = ocns.y + ocns.h/2;
@@ -712,6 +716,9 @@ function RenderConnectionLines(element, cns) {
     toY = fromY;
 
     for(let by of referredBy) {
+        // Do not create invisible lines if the trigger or timer doesn't exist.
+        if ( !utem[by].exists ) continue;
+
         let ocns = GetObjectCoordAndSize(utem[by]);
         fromX = ocns.x + ocns.w/2;
         fromY = ocns.y + ocns.h/2;
