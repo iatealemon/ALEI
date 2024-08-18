@@ -2589,7 +2589,7 @@ document.addEventListener("keydown", e => {
 
     if (e.ctrlKey && e.shiftKey) {
         if (newUpdate) {
-            window.open("https://github.com/Molisson/ALEI/raw/main/alei.user.js");
+            window.open(updateURL);
             newUpdate = false;
         }
     }
@@ -3861,8 +3861,11 @@ function notifyIfTheresUpdate(script) {
     aleiLog(INFO, `REMOTE: ${version}, LOCAL: ${GM_info.script.version} => No update detected.`);
 }
 
+let updateURL;
+let repository;
+
 async function checkForUpdates() {
-    let resp = await GM.xmlHttpRequest({  url: GM_info.script.updateURL  }).catch(e => console.error(e));
+    let resp = await GM.xmlHttpRequest({  url: updateURL  }).catch(e => console.error(e));
     notifyIfTheresUpdate(resp.responseText);
 }
 
@@ -5379,6 +5382,9 @@ let ALE_start = (async function() {
     registerCommentRemoverButton();
 
     if(isNative) {
+        updateURL = GM_info.script.updateURL;
+        repository = updateURL.split( "raw/" )[0];
+        console.log( repository );
         checkForUpdates();
     } else {
         // load this map twice to parse extended triggers.
