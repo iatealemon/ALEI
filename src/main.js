@@ -5384,7 +5384,6 @@ let ALE_start = (async function() {
     if(isNative) {
         updateURL = GM_info.script.updateURL;
         repository = updateURL.split( "raw/" )[0];
-        console.log( repository );
         checkForUpdates();
     } else {
         // load this map twice to parse extended triggers.
