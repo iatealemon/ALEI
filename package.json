@@ -1,6 +1,6 @@
 {
   "name": "alei",
-  "version": "19.8",
+  "version": "19.9",
   "description": "Changes to make ALE better.",
   "main": "src/main.js",
   "author": "molis, mici1234, wanted2001, gcp5o",
@@ -9,7 +9,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LisABC/ALEI"
+    "url": "https://github.com/Molisson/ALEI"
   },
   "scripts": {
     "build": "webpack"

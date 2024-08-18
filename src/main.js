@@ -2589,7 +2589,7 @@ document.addEventListener("keydown", e => {
 
     if (e.ctrlKey && e.shiftKey) {
         if (newUpdate) {
-            window.open("https://github.com/LisABC/ALEI/raw/main/alei.user.js");
+            window.open("https://github.com/Molisson/ALEI/raw/main/alei.user.js");
             newUpdate = false;
         }
     }
@@ -5412,7 +5412,7 @@ let ALE_start = (async function() {
     } else {
         let message = "You are running ALEI not under tampermonkey, this is not native ALEI, please load ALEI by tampermonkey when possible.";
         NewNote(`ALEI: ${message}`, "#FFFF00");
-        NewNote(`ALEI: Check https://github.com/LisABC/ALEI for more details.`, "#FFFF00");
+        NewNote(`ALEI: Check https://github.com/Molisson/ALEI for more details.`, "#FFFF00");
         aleiLog(INFO, message);
         NewNote(`ALEI: Reminder that ALEI under tampermonkey is bound to break less than without.`, "#FFFFFF");
     }
