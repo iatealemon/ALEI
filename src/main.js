@@ -5383,7 +5383,7 @@ let ALE_start = (async function() {
 
     if(isNative) {
         updateURL = GM_info.script.updateURL;
-        repository = updateURL.split( "raw/" )[0];
+        repository = updateURL.split( "/raw/" )[0];
         checkForUpdates();
     } else {
         // load this map twice to parse extended triggers.
@@ -5417,7 +5417,7 @@ let ALE_start = (async function() {
     } else {
         let message = "You are running ALEI not under tampermonkey, this is not native ALEI, please load ALEI by tampermonkey when possible.";
         NewNote(`ALEI: ${message}`, "#FFFF00");
-        NewNote(`ALEI: Check https://github.com/Molisson/ALEI for more details.`, "#FFFF00");
+        NewNote(`ALEI: Check ${repository} for more details.`, "#FFFF00");
         aleiLog(INFO, message);
         NewNote(`ALEI: Reminder that ALEI under tampermonkey is bound to break less than without.`, "#FFFFFF");
     }
