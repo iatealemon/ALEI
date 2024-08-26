@@ -65,9 +65,10 @@ function _readStorage(key_, defaultValue, func) {
 }
 
 let toggles = {
-    cartoonishEdges      : _readStorage("CartoonishEdges"      , false, (val) => val === "true"),
-    originalSelectOverlay: _readStorage("OriginalSelectOverlay", false, (val) => val === "true"),
-    boxRendering         : _readStorage("PreviewWalls"         , false, (val) => val === "true")
+    cartoonishEdges                   : _readStorage("CartoonishEdges"          , false, (val) => val === "true"),
+    originalSelectOverlay             : _readStorage("OriginalSelectOverlay"    , false, (val) => val === "true"),
+    boxRendering                      : _readStorage("PreviewWalls"             , false, (val) => val === "true"),
+    showTextPlaceholderDecors         : _readStorage("ShowTextPlaceholderDecors", true , (val) => val === "true")
 }
 let themes = {
     0: { // THEME_BLUE
@@ -482,7 +483,35 @@ function RenderSingleNonResizableObject(element, cns) {
             w2s_h(image.height)
         );
     } else {
-        draw_image(window.img_decide(element), objX, objY, objW, objH);
+        // Native
+        if ( toggles.showTextPlaceholderDecors && ( pm.model === "text" || pm.model === "text2" || pm.model === "text3" ) ) {
+            // Font
+            let size = 16 / zoom; // Hack.
+            switch( pm.model ) {
+                case "text":
+                    ctx.font = `${size}px EuropeExt`;
+                    break;
+
+                case "text2":
+                    ctx.font = `${size}px DejaVu Sans Mono`;
+                    break;
+                
+                default:
+                    ctx.font = `bold ${size}px Tahoma`;
+                    break;
+            }
+
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+
+            ctx.fillText(
+                pm.text ?? "Hello World!",
+                w2s_x( pm.x + 2 ),
+                w2s_y( pm.y + 4 )
+            );
+
+            ctx.textAlign = "start";
+        } else draw_image(window.img_decide(element), objX, objY, objW, objH);
     }
 
     if(factor == -1) ctx.restore();
@@ -981,6 +1010,9 @@ function RegisterSettingsToALEI() {
 
     settings.addText("[R] Preview walls:", false);
     settings.createButtons("ALEI_Renderer_PreviewWalls", toggles, "boxRendering", [["Yes", true], ["No", false]]);
+
+    settings.addText("[R] Render placeholders:", false);
+    settings.createButtons("ALEI_Renderer_ShowTextPlaceholderDecors", toggles, "showTextPlaceholderDecors", [["Yes", true], ["No", false]]);
 
     window.ALEI_settingUpdateButtons();
 }

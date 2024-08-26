@@ -1,7 +1,7 @@
 /*todo: rename these first ones to follow BEM naming methodology*/
 .ALEI_settingMenuText {
     font-size: 14px;
-    width: 150px;
+    width: 160px;
     height: 20px;
     background-color: var(--settings-menu-label-background-color);
     color: var(--settings-menu-label-color);

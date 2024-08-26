@@ -11,6 +11,9 @@ import { registerCommentAdderButton, registerCommentRemoverButton } from "./comm
 
 "use strict";
 
+document.fonts.load( "16px EuropeExt" );
+document.fonts.load( "16px DejaVu Sans Mono" );
+
 let window = unsafeWindow;
 let isNative;
 try {

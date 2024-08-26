@@ -6,6 +6,7 @@ import "./static/themeoverrides.css";
 import "./static/paramsidebuttons.css";
 import "./static/overridestyles.css";
 import "./static/aleistyles.css";
+import "./static/aleifonts.css";
 import "./static/comments.css";
 
 /*
