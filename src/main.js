@@ -3009,7 +3009,14 @@ function PasteFromClipBoard(ClipName) {
     return true;
 }
 
-function ServerRequest_handleMapData(mapCode) {
+function decodeUnicode(string) {
+    if(typeof string != 'string') return string;
+
+    const regex = /\\u([a-zA-Z0-9]{4})/g;
+    return string.replaceAll(regex, (match, group) => String.fromCharCode(parseInt(group, 16)));;
+}
+
+function ServerRequest_handleMapData(mapCode) {    
     // Branch of patchServerRequest
     // Made to deal with map source related things.
     aleiLog(DEBUG, "Parsing map source now.");
@@ -3077,8 +3084,7 @@ function ServerRequest_handleMapData(mapCode) {
             // Is a string. We just strip quotation marks and fix apostrophes.
             value = value.slice(1, -1).replaceAll("\\'", "'");
         }
-        currentElement.pm[key] = value;
-
+        currentElement.pm[key] = decodeUnicode(value);
     }
 
     if(aleiSettings.extendedTriggers) parseExtendedTriggers();
