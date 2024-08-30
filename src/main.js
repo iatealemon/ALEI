@@ -664,11 +664,11 @@ function updateDecors() {
 
     let decors_to_change = [
         // EuropeExt
-        ["text",  TEXT_OVERHEAD],
+        ["text",  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAAYCAYAAAAxkDmIAAAAAXNSR0IArs4c6QAABHNJREFUaEPtmVvoZWMYxn+PMznEBSGlxAVuJKUcQyTHUCahEZNG43wYx8HIMIjJjPk3MimD0EyMQ0oRrpxKkblwKBdDcoFBktNrPbt3a82atfde/zV/snfru137W+v93ud5n/d5vy26NdEZ0ESfrjscHcATToIO4A7gCc/AhB+vtoIj4gLgEeA9SScMy0FEHAc8AWyQdNB08xURnwC7ABcCezf97qjvRMROwFvAvsA8SU9X90TEAcCLwP7Ao5Lm1r23+J33ngNMSbpy1LfbPC/nQdIbo95RydvSfg6reycWYCcoIh4ArgBWSzqvBuCbgNuAbYHPgNOL331a/l1EHA48A2wHXCTp1VHJb/O8A7hF1iLiZOBx4CfglBrw3i7AP7h49j5wFHCXpHsqAJsEC4rnr0s6tUUYjbaMDcARcQZwJ2C53qpyuj+BLzKRT2aVDZToiDgQuA84Btix8q5I4F4C5koyiJusiHgZOB5YWAYvIk4DHgM+LyT6KWAx8G61JRUtyCQ4BJgPvNk0HuDMbDd/pUJYAfpraB4ssxFxTXG+a4E9i3xWlXZDcZ4tgB+ztbWW6I+KD6wYQcFdAbP8O+BiwP1qB+AWSSsr1eDndwO/AbPzIMMAdn88EVhl0kha339fSuf9gCV0haR5AwC+LMH7sPje0aX9U5ZcYEnG5H69V1mGI8KyvqyI9cskmYnQKB6TJQHeOlVkvkmY3sDgXQ18ayJIWlfpqbvn3l+A6yW5RfRWkt45NEG/2VyAbVSarnXAswV4NwMvSJo1IOEO1uxeJGnhIJOVpHkO+KNOXvOw/SpcL+nQAd/bxGyVzJWrapakdyLiXuAqg9E3W2muzi4MzEPAGqBxPEkcG9WPJR1RjS2V5VjgRknLKnk4C5gDLJV0Xc1em8NXCuJuv7kAT8tFZxIsZduMYIUreLGkBUMAXjTKnTd18AmeK2aNzVZE3FDEd0cSsWe+SmbqV5stYLc0V35sslqVhk4L5XgKU2bCDJxEImI2YEVZK2ltJQ+OyZNML0cDiFtWvtYS3RbgVYWcXtKk9P8jgPtO+HerAfBgSq5lc3lJ/tyve1UFuPLtsK1GJsXIcXA6ANdUZRmw/y3ATST69uwfKyVN/dsSXQLP3sCtwYCeD3xtkMvmLCL6/dr9eOd02L0ZOiIOaynRI4skFaQM8LnpDx5uKNG+q7DCLK9OCjM6BwPuFx5LvOpM1knuKyl/cyQ9P+yiIyJssjzqrE6zUTZZdtg2QB5vBpqsEsB9w2RXa0e+RJIr9Z9VuhzxxceWwAcVY9Y4npLJagPwfunWf25ostyL7Sdeq04TMwqwb7LS3l8O7JNJ2iiHwPd5I3RrDXM3uslKx2iDc2QytPquHwCPSa6y2jGpAqBHHhPiK5uTuhujvBzxbZXNXXW0MqkaxVMak6YNcE4X9giXFrnaY8bHpCa9s/vNeGSg+zdpPHBqHWUHcOvUjcfGDuDxwKl1lB3ArVM3Hhs7gMcDp9ZRdgC3Tt14bOwAHg+cWkf5N7oPsDdbjPHbAAAAAElFTkSuQmCC"],
         // DejaVu Sans Mono
-        ["text2", TEXT_SCORE],
+        ["text2", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHwAAAAYCAYAAAA4e5nyAAAAAXNSR0IArs4c6QAAA0hJREFUaEPtmbuvTUEUxn/TiAbREUElEXqJQiIoNKIRhYQGlUY0HoVCpxGNaFC4EYmKRhQehUShFaKg9AeIimac2Zk5WXfOmsfeZ3Ozc+d29+6ZWbO+bz2+NdfQftYVAmZdeducpRG+zoKgEd4IB2vtWeAe8MwYc0FiYq19DRwALhljVkp4ibM2ibUPlXMfAOfFml+1Nkp30L5ba28BV4H3xphj8RrxfSW+6xB7YY/H76g44wdwzhjztnSutfYI8Bj4aYzZH/ESOPuo+RPWqhk+JuHRpQLIWRD7BlUJqAThWYCstS4A3ZrbxpibQ2yU9lhrPwNbGuE9q0gJ2AThyWxx6xvhHjUt+5Sy/UfLjNoyWZPhPjv2CTK/xGWuFAgyw4AzvqW8cSUx4afLyKxN6SNwUKzvzo0qXjbDFVw/ALvXtKRrvdCDdSgmfSzCPVE7Q48Xvc3hWdUPfRY7PbLX7QFuzPq5661d4MTlttam8NFpkOeh/1trn860z0upe3IlXevXIsgXglsEx1I9XAotGZydoAKc4FgQESlxMQbhqTNqz44yzPXp096Xa8BGYDNwBXC/48lXtYdmU/ztW6niFAhf0BC5s8ciPKvSPXg5Nd9lT1CgtaTkSrrvrR1JUbZUqVRFRF4GHgEngHfASeAJcAr46sv7PDBKNmt99BUmWdI9BjF+OZUevnV3TrWzpVT6DJg9frTZkDCwauSoBaNAuDoWiqqSdVgZZe4AL4DjwHWf2d+Bw2EsTd1Hs1nrYwXhC8FQGMsC4a9yY+SyhLt7qxmeUMZLj2UjZ3ioCp+AbbMWddH38q2zrN8F3HcjWR+bIxI+1xeiQmYni5JI7VpUYUYtlfTQw6uyKjffp3pr/Lgzcg8PAO4QYi2Ub3elu57wIT28+GCjle2AgzYW9tEH/6SkOzJSL1beme1SuORKktJb3SuYClqtYq6JeKF8u9c/4c9vqRNqbfbM8OTjzlqp9Kqn1cTzqToXC0BC31+YT8XIFJ4gF+b6MeZwYWc+QuZGvBqbfQgXfTzM9quek//bHF6TGW3NNBFo/y2bJm+Db90IHwzdNDc2wqfJ2+BbN8IHQzfNjY3wafI2+NaN8MHQTXNjI3yavA2+9V/XCzNGz/W2wgAAAABJRU5ErkJggg=="],
         // Tahoma Bold
-        ["text3", TEXT_CHAT]
+        ["text3", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAG4AAAAYCAYAAAAbIMgnAAAAAXNSR0IArs4c6QAAAwZJREFUaEPtma+OFEEQxn9tQKFwoDHwBKAIkPACCAwYcCgUYBAYcgpBCIYz8BKQcARCwhuAxIHDgALTXE26J7W11bM9dzObm0uvup0/W9Xf1/XVV32B9lkkAmGRWbekacQtdBNslbgY4xPgAXAC+BZCuBBjfA9cTfjthhDuLhTLPu0Y41fgPPAP2AkhPPbWpJ77A9wLIbypXbtLXIzxCvAaOGuDm3ujAs5NnAJC1t9vghjjK+BOAuUHcDuE8OEwaxkC+KDEAZKbi7uNd9yI0wTthRCuyYJNVfebLcZ4C3gBnEqgdYTW7vrSc424kQh6FZ2Iy9IlX3v5Ms/3RI8Mu/b4QYkTqax9d9KKMzs4L6jrZQnA6h5X+K1e5go9Q0t892yS+1xV+bWOJCOhWlp1JeZ3VmIbgF8CN1KsXeCi1+OMlOslaBWo6o+TEad2ryS0A3xUep1BvFxjTkwldIAquRvsq7bhA+dSzL/A7wRuNkZrINXGHiDBJc4zIhuuDRqbGuKGlKMD0TRVXWG658iCflYSlwEt9aM+hk3OVlG6L8ZENs9n4Gb6+xHwNBGpDUtV7CFJs/dSDtlN697rxVq75hFQQ9wK854TU7tabL5OTEvjHvBlE3HAJ88wmLhFybR9Ky1axg0dX6rvGXA/GZNcga5Z8WIDz0uW3yHukjfy1FbhtogrVeiUxBXl0oD8fb+qTqrekzeFXHsHXE8zZZbjGuKyyjycibg81w62hFkrzpGxjebksBVnXKQsXkjq+q4MwmqX/9qvmtPGZdYQl/v1XBW3VeL04FgrY8WTk4KEaFCLPc6Z2+SS7pX6pEbuldziYH8d2ePOqAMA7V6r+tlsUpnmj9Lwmy362xHmRFfmKFfpjB1yqWSYVu457xZjjyTOc9hyKpXHFM/kSTrFI8BJpDKfsZn+YjdKtatMAG6cpUrN1JkBtWGyv7sGTs0MOYa4JNE2rpCVx5NpiBvy/+3e0UBgq/8dOBpLPh5ZNOIWymMjrhG3UAQWmnaruEbcQhFYaNqt4hZK3H+hgmxGYcqn0gAAAABJRU5ErkJggg=="]
     ];
 
     for(let i = 0; i < decors.length; i++) {
@@ -684,7 +684,8 @@ function updateDecors() {
         CUSTOM_IMAGES_APPROVED[decor_model] = true; // Since it's obviously vanilla, and other vanilla decors are approved, it's only natural if we approve added decors too
     }
 
-    for ( const decor of decors_to_change ) {
+    for (let i = 0; i < decors_to_change.length; i++) {
+        let decor                             = decors_to_change[i];
         let decor_model                       = decor[0];
         let decor_change_image                = decor[1];
 
