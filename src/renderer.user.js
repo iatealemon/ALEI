@@ -433,8 +433,6 @@ function RenderSingleNonResizableObject(element, cns) {
         opacityFactor = currentTheme.selectEdgeOpacityFactor;
     }
 
-    RenderNRObjectBox(element, color, layerAlpha * opacityFactor);
-
     ctx.globalAlpha = layerAlpha;
     let transformedDecor = false;
 
@@ -513,6 +511,8 @@ function RenderSingleNonResizableObject(element, cns) {
             ctx.textAlign = "start";
         } else draw_image(window.img_decide(element), objX, objY, objW, objH);
     }
+
+    RenderNRObjectBox(element, color, layerAlpha * opacityFactor);
 
     if(factor == -1) ctx.restore();
     if(transformedDecor) ctx.restore();
