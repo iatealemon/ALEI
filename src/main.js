@@ -689,7 +689,10 @@ function updateDecors() {
         let decor_change_image                = decor[1];
 
         // if these decor models get duplicated for no reason i will literally...
-        img_decors[decor_model]               = new Image(); // In case if anyone opens new ALE tab, do this just for convenience
+        if ( !( img_decors[decor_model] instanceof Image ) ) {
+            img_decors[decor_model]           = new Image(); // In case if anyone opens new ALE tab, do this just for convenience
+        }
+
         img_decors[decor_model].src           = decor_change_image;
         img_decors[decor_model].native        = true;
         CACHED_DECORS[decor_model]            = img_decors[decor_model];
