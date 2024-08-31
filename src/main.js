@@ -2114,11 +2114,6 @@ function addTriggerActionCount(value){
         NewNote("Converted this to an extended trigger.", note_passive);
         NewNote("Be mindful about your number of triggers.", note_neutral);
         NewNote("Behind the scenes, this creates 1 trigger for every additional 9 trigger actions.", note_neutral);
-        
-        if(selectedTrigger.pm["maxcalls"] != -1) {
-            NewNote(`Non-infinite call triggers are not supported by ALEI extended triggers design. You won't be able to save this map until you change max calls to be infinite.`, note_neutral);
-        }
-
     }
 
     selectedTrigger.pm["totalNumOfActions"] += value;
