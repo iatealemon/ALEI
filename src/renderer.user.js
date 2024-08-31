@@ -546,9 +546,12 @@ function GetObjectCoordAndSize(element) {
 }
 
 function RenderObjectMarkAndName(element, cns) {
-    if(!window.ENABLE_TEXT) return;
-    if(element.pm.uid == undefined) return;
-    if(!window.MatchLayer(element)) return;
+    // render the object even if layers dont match the object due to quick pick mode.
+    let shouldRenderRegardless = window.quick_pick && window.lqpc.indexOf(element._class) !== -1
+
+    if(!window.ENABLE_TEXT)                                     return;
+    if(element.pm.uid == undefined)                             return;
+    if(!shouldRenderRegardless && !window.MatchLayer(element))  return;
 
     if(window.last_title_density == undefined) window.last_title_density = 0;
 
@@ -656,7 +659,6 @@ function ChangeCursorIfHitsBorder(element, cns) {
 
 function RenderQuickPick(element, cns) {
     if(!(window.quick_pick && window.lqpc.indexOf(element._class) != -1)) return;
-    if(!window.MatchLayer(element)) return;
 
     let x = cns.x;
     let y = cns.y;
