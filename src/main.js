@@ -1691,11 +1691,17 @@ function rotateObjects() {
     }
 }
 
-function RandomizeName(oldName) {
+function ALEI_OrderedName(oldName) {
     let takenUids = es.filter(e => e.exists).map(o => o.pm.uid);
     let actualName = oldName;
+
+    // Early quit if name is already unique
+    if(takenUids.indexOf(actualName) == -1) return actualName;
+    
+    // Getting name before *
     if(oldName.indexOf("*") !== -1) actualName = oldName.slice(0, oldName.indexOf("*"));
 
+    // Testing every number through bruteforce.
     let current = 1;
     while(takenUids.indexOf(`${actualName}*${current}`) !== -1) current++;
 
@@ -1703,7 +1709,7 @@ function RandomizeName(oldName) {
 }
 
 function patchRandomizeName() {
-    window.RandomizeName = RandomizeName;
+    window.RandomizeName = ALEI_OrderedNaming;
 }
 
 function patchAllowedCharacters() {
