@@ -1709,7 +1709,7 @@ function ALEI_OrderedName(oldName) {
 }
 
 function patchRandomizeName() {
-    window.RandomizeName = ALEI_OrderedNaming;
+    window.RandomizeName = ALEI_OrderedName;
 }
 
 function patchAllowedCharacters() {
