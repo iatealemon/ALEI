@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ALEI Renderer
 // @namespace    http://tampermonkey.net/
-// @version      5.0
+// @version      5.1
 // @description  try to take over the world!
 // @author       Lisandra
 // @match        *://*.plazmaburst2.com/level_editor/map_edit.php*
@@ -512,10 +512,10 @@ function RenderSingleNonResizableObject(element, cns) {
         } else draw_image(window.img_decide(element), objX, objY, objW, objH);
     }
 
-    RenderNRObjectBox(element, color, layerAlpha * opacityFactor);
-
-    if(factor == -1) ctx.restore();
     if(transformedDecor) ctx.restore();
+    if(factor == -1) ctx.restore();
+
+    RenderNRObjectBox(element, color, layerAlpha * opacityFactor);
 }
 
 function GetObjectCoordAndSize(element) {
