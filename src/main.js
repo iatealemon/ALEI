@@ -501,7 +501,8 @@ function updateSkins() {
         [213, "Walker (by Serpent)"],
         [214, "Space Grub (by Broforce1)"],
         [215, "Blue Phantom (play map ID 'therealon3-phantom' to unlock it)"],
-        [216, "Red Phantom (play map ID 'therealon3-phantom' to unlock it)"]
+        [216, "Red Phantom (play map ID 'therealon3-phantom' to unlock it)"],
+        [217, "Misfit"]
     ]
     for(let li = 0; li < charlists.length; li++) {
         let charID = charlists[li][0];
