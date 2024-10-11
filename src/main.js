@@ -2659,6 +2659,14 @@ function PasteFromClipBoard(ClipName) {
                 for (let param of ocmParamsToCheckPerClass[es[i3]._class]) {
                     es[i3].pm[param] = replaceParamValueUID(es[i3].pm[param], old_uid, es[i2].pm.uid);
                 }
+
+                // replace uid references in additional trigger actions
+                if (aleiSettings.extendedTriggers && es[i3]._class == "trigger" && es[i3].pm.extended) {
+                    for (let i4 = 0; i4 < es[i3].pm.additionalActions.length; i4++) {
+                        es[i3].pm.additionalParamA[i4] = replaceParamValueUID(es[i3].pm.additionalParamA[i4], old_uid, es[i2].pm.uid);
+                        es[i3].pm.additionalParamB[i4] = replaceParamValueUID(es[i3].pm.additionalParamB[i4], old_uid, es[i2].pm.uid);
+                    }
+                }
             }
         }
         if (typeof(es[i2].pm.x) !== 'undefined')
