@@ -1148,7 +1148,9 @@ function UpdatePhysicalParam(paramname, chvalue, toShowNote = true) {
                 undoEvalString += `ocmHandleObjectUIDChange(es[${elems}]);`;
                 redoEvalString += `ocmHandleObjectUIDChange(es[${elems}]);`;
             }
-            else if (ocmParamsToCheckPerClass[es[elems]._class].includes(paramname)) {
+            else if ((ocmParamsToCheckPerClass[es[elems]._class].includes(paramname) ||
+                      (aleiSettings.extendedTriggers && es[elems]._class == "trigger" && es[elems].pm.extended)
+                    )) {
                 ocmHandleObjectParametersChange(es[elems]);
                 undoEvalString += `ocmHandleObjectParametersChange(es[${elems}]);`;
                 redoEvalString += `ocmHandleObjectParametersChange(es[${elems}]);`;
