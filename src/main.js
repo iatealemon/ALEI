@@ -1148,7 +1148,9 @@ function UpdatePhysicalParam(paramname, chvalue, toShowNote = true) {
                 undoEvalString += `ocmHandleObjectUIDChange(es[${elems}]);`;
                 redoEvalString += `ocmHandleObjectUIDChange(es[${elems}]);`;
             }
-            else if (ocmParamsToCheckPerClass[es[elems]._class].includes(paramname)) {
+            else if ((ocmParamsToCheckPerClass[es[elems]._class].includes(paramname) ||
+                      (aleiSettings.extendedTriggers && es[elems]._class == "trigger" && es[elems].pm.extended)
+                    )) {
                 ocmHandleObjectParametersChange(es[elems]);
                 undoEvalString += `ocmHandleObjectParametersChange(es[${elems}]);`;
                 redoEvalString += `ocmHandleObjectParametersChange(es[${elems}]);`;
@@ -2658,6 +2660,14 @@ function PasteFromClipBoard(ClipName) {
                 // update uid references to the new uid in the params that are relevant to uid references
                 for (let param of ocmParamsToCheckPerClass[es[i3]._class]) {
                     es[i3].pm[param] = replaceParamValueUID(es[i3].pm[param], old_uid, es[i2].pm.uid);
+                }
+
+                // replace uid references in additional trigger actions
+                if (aleiSettings.extendedTriggers && es[i3]._class == "trigger" && es[i3].pm.extended) {
+                    for (let i4 = 0; i4 < es[i3].pm.additionalActions.length; i4++) {
+                        es[i3].pm.additionalParamA[i4] = replaceParamValueUID(es[i3].pm.additionalParamA[i4], old_uid, es[i2].pm.uid);
+                        es[i3].pm.additionalParamB[i4] = replaceParamValueUID(es[i3].pm.additionalParamB[i4], old_uid, es[i2].pm.uid);
+                    }
                 }
             }
         }

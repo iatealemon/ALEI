@@ -9,7 +9,7 @@ import {
 import { aleiLog, logLevel } from "../log.js";
 import { aleiSettings } from "../storage/settings.js";
 
-const debugMode = true; // debug mode will check the validity of the ocm after each update and report any problems
+const debugMode = false; // debug mode will check the validity of the ocm after each update and report any problems. causes lag
 
 // these map entity objects to arrays of entity objects. these always contain every item of es even if the object doesn't have 
 // connections or doesn't exist (entity.exists == false). it's possible for an entity object to have a connection to itself.
@@ -52,10 +52,8 @@ ocm needs to update when:
 export function ocmHandleObjectsCreation(objects) {
     initializeConnectionsForObjects(objects, incomingConnectionsMap, outgoingConnectionsMap);
 
-    if (debugMode) {
-        aleiLog(logLevel.VERBOSE, "ocmHandleObjectsCreation called");
-        checkValidityForDebugging("ocmHandleObjectsCreation");
-    }
+    aleiLog(logLevel.VERBOSE, "ocmHandleObjectsCreation called");
+    if (debugMode) checkValidityForDebugging("ocmHandleObjectsCreation");
 }
 
 // should be called when object.pm.uid changes
@@ -89,10 +87,8 @@ export function ocmHandleObjectUIDChange(object) {
         }
     }
 
-    if (debugMode) {
-        aleiLog(logLevel.VERBOSE, "ocmHandleObjectUIDChange called");
-        checkValidityForDebugging("ocmHandleObjectUIDChange");
-    }
+    aleiLog(logLevel.VERBOSE, "ocmHandleObjectUIDChange called");
+    if (debugMode) checkValidityForDebugging("ocmHandleObjectUIDChange");
 }
 
 // should be called when properties except uid are set in object.pm
@@ -107,10 +103,8 @@ export function ocmHandleObjectParametersChange(object) {
     // then make new connections
     findAndMakeOutgoingConnections(object, incomingConnectionsMap, outgoingConnectionsMap);
 
-    if (debugMode) {
-        aleiLog(logLevel.VERBOSE, "ocmHandleObjectParametersChange called");
-        checkValidityForDebugging("ocmHandleObjectParametersChange");
-    }
+    aleiLog(logLevel.VERBOSE, "ocmHandleObjectParametersChange called");
+    if (debugMode) checkValidityForDebugging("ocmHandleObjectParametersChange");
 }
 
 // clear ocm (when making a new map)

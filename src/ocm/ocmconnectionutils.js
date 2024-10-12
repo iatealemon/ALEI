@@ -109,13 +109,9 @@ export function initializeConnectionsForObjects(newObjects, incomingConnectionsM
 }
 
 /*
-this doesn't work the same way as the original code in Render.
-in the original code:
-- shows green line (outgoing connection) if typeof fromvalue == "string" && fromvalue.length > 1 && fromvalue.charAt(0) == "#" && toObject.pm.uid == fromvalue (&& toObject.exists)
-- shows white line (incoming connection) if tovalue == fromObject.pm.uid (&& toObject.exists)
-with the original code, a decor named after a variable would draw a white line to all triggers where the variable is used, but those triggers would not draw a 
-green line to the decor. the ocm depends on symmetry in the connections so this code works differently, which also means that trick no longer works.
-additionally, this only checks the parameters that are relevant to connections and it doesn't consider if the object exists because it makes the ocm code simpler.
+this doesn't work the same way as the original code in Render as there are some cases where connections wouldn't be symmetric when using the original code. this 
+code makes a symmetric connection in those special cases. additionally, this only checks the parameters that are relevant to connections and it doesn't consider 
+if the object exists because it makes the ocm code simpler.
 */
 export function shouldConnectionExist(fromObject, toObject) {
     const uid = toObject.pm.uid;
