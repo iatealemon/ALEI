@@ -335,8 +335,8 @@ function RenderSingleResizableObject(element, cns) {
 
                 ctx.globalCompositeOperation = "multiply"; // We multiply the rectangle.
                 _DrawRectangle(pm.c, 1, x, y, w, h, false);
-                //ctx.globalCompositeOperation = "lighter";
-                //ctx.drawImage(ctx.canvas, x, y, w, h, x, y, w, h); // We then overlay the rectangle on backgroud itself.
+                ctx.globalCompositeOperation = "lighter";
+                ctx.drawImage(ctx.canvas, x, y, w, h, x, y, w, h); // We then overlay the rectangle on background itself.
 
                 ctx.globalCompositeOperation = comp;
             }
