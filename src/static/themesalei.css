@@ -19,6 +19,31 @@
     --param-side-button-hover-background-color: hsl(215, 35%, 20%);
     --param-side-button-active-background-color: hsl(215, 35%, 25%);
     --gui-render-info-color: #fff;
+    --draggable-window-text-color: hsl(215, 30%, 90%);
+	--select-indicator-color: hsl(120, 100%, 40%);
+	--dropdown-background-color: hsl(215, 100%, 95%);
+	--dropdown-opener-border-color: hsl(215, 10%, 80%);
+	--dropdown-item-color: #000;
+	--dropdown-arrow-color: #555;
+	--color-text-input-background-color: hsl(215, 20%, 55%);
+	--color-text-input-color: #fff;
+	--selectable-target-item-hover-color: #858585;
+	--selected-target-item-color: #d1cb09;
+	--target-quick-delete-button-color: #f00;
+    draggable-window {
+        --header-background-color: #728eb5;
+        --header-color: #fff;
+        --header-button-background-color: hsl(210, 37.5%, 55%);
+        --header-button-hover-background-color: hsl(210, 37.5%, 50%);
+        --header-button-active-background-color: hsl(210, 37.5%, 45%);
+        --header-button-color: #fff;
+        --header-button-border-color: hsl(210, 18.5%, 43.5%);
+        --content-background-color: #536b8d;
+        --shadow-color: #222;
+    }
+	color-spectrum, hue-slider {
+		--dot-border-color: #fff;
+	}
 }
 
 .dark-theme, .purple-theme, .green-theme {
@@ -40,6 +65,31 @@
     --param-side-button-hover-background-color: #3b3b3b;
     --param-side-button-active-background-color: #494949;
     --gui-render-info-color: #aaa;
+    --draggable-window-text-color: rgb(170, 170, 170);
+	--select-indicator-color: hsl(120, 65%, 30%);
+	--dropdown-background-color: rgb(184, 184, 184);
+	--dropdown-opener-border-color: rgb(142, 142, 142);
+	--dropdown-item-color: #000;
+	--dropdown-arrow-color: rgb(38, 38, 38);
+	--color-text-input-background-color: rgb(80, 80, 80);
+	--color-text-input-color: rgb(200, 200, 200);
+	--selectable-target-item-hover-color: rgb(75, 75, 75);
+	--selected-target-item-color: #ffff4d;
+	--target-quick-delete-button-color: #c00;
+    draggable-window {
+        --header-background-color: rgb(86, 86, 86);
+        --header-color: rgb(200, 200, 200);
+        --header-button-background-color: rgb(81, 81, 81);
+        --header-button-hover-background-color: rgb(70, 70, 70);
+        --header-button-active-background-color: rgb(60, 60, 60);
+        --header-button-color: rgb(200, 200, 200);
+        --header-button-border-color: rgb(57, 57, 57);
+        --content-background-color: rgb(56, 56, 56);
+        --shadow-color: rgb(9, 9, 9);
+    }
+	color-spectrum, hue-slider {
+		--dot-border-color: #ccc;
+	}
 }
 
 .alei-dark-theme {
@@ -60,5 +110,30 @@
     --param-side-button-background-color: #202020;
     --param-side-button-hover-background-color: #303030;
     --param-side-button-active-background-color: #404040;
-    --gui-render-info-color: #fff;
+    --gui-render-info-color: #FFFFFFD0;
+    --draggable-window-text-color: #d2d2d2;
+	--select-indicator-color: hsl(120, 75%, 30%);
+	--dropdown-background-color: rgb(150, 150, 150);
+	--dropdown-opener-border-color: rgb(95, 95, 95);
+	--dropdown-item-color: #000;
+	--dropdown-arrow-color: rgb(14, 14, 14);
+	--color-text-input-background-color: rgb(60, 60, 60);
+	--color-text-input-color: rgb(220, 220, 220);
+	--selectable-target-item-hover-color: rgb(85, 85, 85);
+	--selected-target-item-color: #f2f20d;
+	--target-quick-delete-button-color: #b00;
+    draggable-window {
+        --header-background-color: rgb(49, 49, 49);
+        --header-color: rgb(210, 210, 210);
+        --header-button-background-color: hsl(220, 30%, 40%);
+        --header-button-hover-background-color: hsl(220, 30%, 32.5%);
+        --header-button-active-background-color: hsl(220, 30%, 27.5%);
+        --header-button-color: rgb(210, 210, 210);
+        --header-button-border-color: hsl(220, 16%, 17%);
+        --content-background-color: rgb(33, 33, 33);
+        --shadow-color: #000;
+    }
+	color-spectrum, hue-slider {
+		--dot-border-color: rgb(220, 220, 220);
+	}
 }

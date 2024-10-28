@@ -17,6 +17,9 @@ import { readStorage, writeStorage } from "./storage/storageutils.js";
 import { aleiSettings } from "./storage/settings.js";
 import { createALEISettingsMenu, showSettings } from "./storage/settingsmenu.js";
 import { patchUpdateTools } from "./toolbar.js";
+import "./draggablewindow/draggablewindow.js";
+import "./colorpicker/colorwindow.js";
+import { registerOpenInColorEditorButton } from "./colorpicker/opencoloreditorbutton.js";
 
 "use strict";
 
@@ -4553,6 +4556,7 @@ let ALE_start = (async function() {
     // register param side buttons
     registerCommentAdderButton();
     registerCommentRemoverButton();
+    registerOpenInColorEditorButton();
 
     ocmpatches.patchUpdatePhysicalParams();
     ocmpatches.patchStartNewMap();

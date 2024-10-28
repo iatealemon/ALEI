@@ -30,6 +30,10 @@ module.exports = {
                     },
                 ],
             },
+            {
+                test: /\.(glsl|vert|frag)$/,
+                use: "webpack-glsl-loader",
+            },
         ],
     },
     plugins: [

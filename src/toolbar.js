@@ -2,6 +2,7 @@ import { aleiSettings } from "./storage/settings.js";
 import { aleiLog, logLevel } from "./log.js";
 import { themeNames, aleiThemesCount } from "./themes.js";
 import { writeStorage } from "./storage/storageutils.js";
+import { makeNewColorWindow } from "./colorpicker/colorwindow.js";
 
 unsafeWindow.ALEI_CustomSnapping = () => {
     let snapping = prompt("Enter snapping:", "");
@@ -187,12 +188,35 @@ function addAleiThemeButtons() {
     }
 }
 
+function addWindowCategoryToToolbar() {
+    const elementAtEnd = document.querySelector('a[onmousedown="ShowTexturesSet(false);"]').previousElementSibling.previousElementSibling;
+
+    elementAtEnd.insertAdjacentHTML("beforebegin", 
+        '<span class="gui_sel_info">Windows:<br></span>' +
+        '<div style="height:5px"></div>'
+    );
+
+    const colorWindowButton = document.createElement("a");
+    colorWindowButton.className = "tool_btn tool_wid";
+    colorWindowButton.textContent = "Color picker";
+    colorWindowButton.addEventListener("click", () => makeNewColorWindow(null));
+
+    elementAtEnd.insertAdjacentElement("beforebegin", colorWindowButton);
+
+    elementAtEnd.insertAdjacentHTML("beforebegin", 
+        '<br>' +
+        '<div class="q"></div>' +
+        '<br>'
+    );
+}
+
 function onToolUpdate() {
     removeParamPanelSizeOptions();
     addSnappingOptions();
     addRematchUIDOptions();
     addShowObjectNamesOptions();
     addAleiThemeButtons();
+    //addWindowCategoryToToolbar(); // currently obsolete
 }
 
 export function patchUpdateTools() {

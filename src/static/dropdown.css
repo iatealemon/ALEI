@@ -1,0 +1,244 @@
+/*some of these are unused cuz i scrapped the feature that required them*/
+
+
+.select-indicator {
+	margin: 0 5px;
+	font-size: 14px;
+    color: var(--select-indicator-color);
+}
+
+.select-indicator::before {
+    content: "✓";
+}
+
+.select-indicator--hidden {
+    display: none;
+}
+
+.warning-indicator {
+	font-size: 14px;
+	cursor: default; /* use default cursor cuz warning indicator probably has a tooltip */
+}
+
+.warning-indicator::before {
+    content: "⚠️";
+}
+
+.warning-indicator--hidden {
+    display: none;
+}
+
+.dropdown-container {
+	position: relative;
+	display: inline-block;
+}
+
+.dropdown-opener {
+	background-color: var(--dropdown-background-color);
+	width: 150px;
+	height: 25px;
+	border-radius: 4px;
+	border: 1px solid var(--dropdown-opener-border-color);
+	overflow: hidden;
+}
+
+.dropdown {
+	background-color: var(--dropdown-background-color);
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+	position: absolute;
+	top: 30px;
+	left: 0px;
+    width: 300px;
+	border-radius: 4px;
+	display: none;
+	overflow: auto;
+	max-height: 400px;
+	z-index: 1;
+}
+
+.dropdown--visible {
+	display: block;
+}
+
+.dropdown--smaller {
+	width: 200px;
+	max-height: 300px;
+}
+
+.dropdown--small {
+	width: 100px;
+	max-height: 200px;
+}
+
+.dropdown--closer {
+	top: 25px;
+}
+
+.dropdown::-webkit-scrollbar {
+	width: 6px; /*vertical scrollbar*/
+	height: 6px; /*horizontal scrollbar*/
+}
+
+.dropdown::-webkit-scrollbar-track {
+	border-radius: 6px;
+	background-color: rgba(0, 0, 0, 0.15);
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+	border-radius: 6px;
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-clickable-element:hover {
+	cursor: pointer;
+	background-color: rgba(0, 0, 0, 0.0588);
+}
+
+.dropdown-item {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 35px;
+	color: var(--dropdown-item-color);
+}
+
+.dropdown-item--small {
+	height: 25px;
+}
+
+.dropdown-item-label {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-grow: 1;
+	padding-left: 10px;
+	height: 100%;
+	min-width: 0; /*allow content to shrink if necessary*/
+}
+
+.dropdown-item-label__left {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	overflow: hidden;
+}
+
+.dropdown-item-label__right {
+	display: flex;
+	align-items: center;
+	height: 100%;
+}
+
+.dropdown-item-text {
+	font-size: 14px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.dropdown-item-text--small {
+	font-size: 12px;
+}
+
+.dropdown-item-control {
+	display: flex;
+	height: 100%
+}
+
+.dropdown-arrow-container {
+	width: 40px;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.dropdown-arrow-container--small {
+	width: 30px;
+}
+
+.dropdown-arrow {
+	color: var(--dropdown-arrow-color);
+	font-size: 14px;
+	font-family: "Verdana", "Tahoma", "Georgia";
+	transition: transform 0.3s ease;
+	transform: translate(0px, -1.5px) rotate(0deg);
+}
+
+.dropdown-arrow::before {
+	content: ">";
+}
+
+.dropdown-arrow--open {
+	transform: translate(1.5px, 0px) rotate(90deg);
+}
+
+.dropdown-submenu-container {
+	background-color: rgba(0, 0, 0, 0.04);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	width: 100%;
+	display: none;
+}
+
+.dropdown-submenu-container--visible {
+	display: inline-block;
+}
+
+.dropdown-submenu-content {
+	margin: 5px;
+	margin-right: 0;
+	border-left: 2px solid rgba(0, 0, 0, 0.1);
+	padding: 10px;
+	padding-bottom: 5px;
+}
+
+.dropdown-control-buttons-container {
+	display: flex;
+	gap: 10px;
+	padding: 5px 10px;
+}
+
+.dropdown-normal-button {
+    border: 2px solid rgba(0, 0, 0, 0.2);
+	border-radius: 4px;
+	background-color: rgba(0, 0, 0, 0.25);
+	color: #fff;
+	margin-right: 15px;
+	margin-bottom: 5px;
+	cursor: pointer;
+}
+
+.dropdown-normal-button:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-normal-text {
+    color: #000;
+	font-size: 14px;
+	margin: 0;
+	margin-bottom: 5px;
+}
+
+.dropdown-square-button {
+	width: 25px;
+    height: 25px;
+    background-color: rgba(0, 0, 0, 0.1);
+	color: rgba(0, 0, 0, 0.4813);
+	border: none;
+	border-radius: 4px;
+    font-size: 22px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.dropdown-square-button--smaller-font {
+	font-size: 18px;
+}
+
+.dropdown-square-button:hover {
+	background-color: rgba(0, 0, 0, 0.15);
+}

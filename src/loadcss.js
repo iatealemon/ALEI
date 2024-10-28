@@ -8,6 +8,8 @@ import "./static/overridestyles.css";
 import "./static/aleistyles.css";
 import "./static/aleifonts.css";
 import "./static/comments.css";
+import "./static/coloreditor.css";
+import "./static/dropdown.css";
 
 /*
 for some reason the vanilla ThemeSet function does this:
