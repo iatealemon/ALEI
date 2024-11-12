@@ -1,9 +1,6 @@
-#version 300 es
-
 precision mediump float;
 
-in vec2 vertex_position;
-out vec4 out_color;
+varying vec2 vertex_position;
 
 uniform float hue;
 
@@ -37,5 +34,5 @@ void main() {
     float value = vertex_position.y * 0.5 + 0.5;
     vec3 rgb = hsvToRgb(hue, saturation, value);
 
-    out_color = vec4(rgb, 1.0);
+    gl_FragColor = vec4(rgb, 1.0);
 }
