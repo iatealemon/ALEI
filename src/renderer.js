@@ -674,8 +674,7 @@ function RenderConnectionLines(element, cns) {
     if(!element.exists) return;
     if(!element.selected) return;
     if(!aleiSettings.ocmEnabled) return;
-    if((outgoingConnectionsMap.get(element) === undefined || incomingConnectionsMap.get(element) === undefined)) return; // this shouldn't happen but just in case
-    if((outgoingConnectionsMap.get(element).length == 0) && (incomingConnectionsMap.get(element).length == 0)) return;
+    if(!outgoingConnectionsMap.has(element) && !incomingConnectionsMap.has(element)) return;
 
     let fromX, toX;
     let fromY, toY;
@@ -693,7 +692,7 @@ function RenderConnectionLines(element, cns) {
     // All of them will have same color. (By all, I mean every line that a loop handles.)
     // So it's best if we just batch them, but how do we do that?
 
-    for(let to of outgoingConnectionsMap.get(element)) {
+    for(let to of outgoingConnectionsMap.get(element) || []) {
         // Do not draw lines if the object doesn't exist.
         if (!to.exists) continue;
 
@@ -711,7 +710,7 @@ function RenderConnectionLines(element, cns) {
     toX = fromX;
     toY = fromY;
 
-    for(let by of incomingConnectionsMap.get(element)) {
+    for(let by of incomingConnectionsMap.get(element) || []) {
         // Do not draw lines if the object doesn't exist.
         if (!by.exists) continue;
 

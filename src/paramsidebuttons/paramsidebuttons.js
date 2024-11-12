@@ -89,7 +89,7 @@ export function registerParamSideButton(id, className, text, tooltip, func, loca
     }
 }
 
-export function rparamsWasUpdated() {
+export function addParamSideButtonsToRparams() {
     // stop observing the previous rparams
     rparamsChildrenResizeObserver.disconnect();
     rparamsMutationObserver.disconnect();

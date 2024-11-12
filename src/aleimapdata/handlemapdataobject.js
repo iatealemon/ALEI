@@ -1,5 +1,4 @@
-import { ocmHandleObjectsCreation } from "../ocm/ocm.js";
-import { aleiSettings } from "../storage/settings.js";
+import { onEntitiesCreated } from "../entity/entity.js";
 
 // TODO: rparams of alei map data object should contain options to change or remove map data
 
@@ -15,8 +14,7 @@ export function makeALEIMapDataObject(data) {
     need_redraw = true;
     UpdateGUIObjectsList();
 
-    // ocm update so it doesn't become invalid
-    if (aleiSettings.ocmEnabled) ocmHandleObjectsCreation([mapDataObject]);
+    onEntitiesCreated([mapDataObject]);
 }
 
 export function makeBackupObject(aleiMapData) {
@@ -28,8 +26,7 @@ export function makeBackupObject(aleiMapData) {
     need_redraw = true;
     UpdateGUIObjectsList();
 
-    // ocm update so it doesn't become invalid
-    if (aleiSettings.ocmEnabled) ocmHandleObjectsCreation([backupObject]);
+    onEntitiesCreated([backupObject]);
 }
 
 export function findALEIMapDataObject() {

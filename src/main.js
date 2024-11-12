@@ -1,25 +1,35 @@
-import { fixWebpackStyleSheets } from "./loadcss.js";
-import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./themes.js";
 import { parse as alescriptParse } from "./alescript.js";
-import { Renderer_initialize } from "./renderer.js"
-import { getALEIMapDataFromALEIMapDataObject, loadALEIMapDataIntoUse } from "./aleimapdata/aleimapdata.js";
+import { fixWebpackStyleSheets } from "./loadcss.js";
+import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
+import { Renderer_initialize } from "./renderer.js";
+import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./themes.js";
+import { patchUpdateTools } from "./toolbar.js";
+
+import { getALEIMapDataFromALEIMapDataObject, loadALEIMapDataIntoUse, initializeALEIMapData } from "./aleimapdata/aleimapdata.js";
 import * as aleimapdatapatches from "./aleimapdata/aleimapdatapatches.js";
+
+import "./colorpicker/colorwindow.js";
+import { registerOpenInColorEditorButton } from "./colorpicker/opencoloreditorbutton.js";
+
+import { registerCommentAdderButton, registerCommentRemoverButton } from "./comments/commentbuttons.js";
 import { getCommentPositions } from "./comments/commentdata.js";
 import { makeCommentBox, setCurrentCommentedTrigger, setCommentsResizeObserverTarget, setupCommentBoxAfterAddedToDOM } from "./comments/commenttextarea.js";
-import { rparamsWasUpdated } from "./paramsidebuttons/paramsidebuttons.js";
-import { registerCommentAdderButton, registerCommentRemoverButton } from "./comments/commentbuttons.js";
-import { loadOCM, ocmHandleObjectsCreation, ocmHandleObjectUIDChange, ocmHandleObjectParametersChange } from "./ocm/ocm.js";
-import { ocmParamsToCheckPerClass } from "./ocm/ocmconnectionutils.js";
-import * as ocmpatches from "./ocm/ocmpatches.js";
-import { updateUIDReferences, replaceParamValueUID } from "./rematchuid/rematchuid.js";
-import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
+
+import "./draggablewindow/draggablewindow.js";
+
+import { onEntitiesCreated } from "./entity/entity.js";
+import { patchUpdatePhysicalParam } from "./entity/parameter.js";
+import { loadParameterMap, parameterMapHandleParametersRemoval, clearParameterMap } from "./entity/parametermap.js";
+import { replaceParamValueUID } from "./entity/parameterutils.js";
+import { loadUIDMap, clearUIDMap } from "./entity/uidmap.js";
+
+import { loadOCM, clearOCM, ocmHandleEntityParametersChange } from "./ocm/ocm.js";
+
+import { addParamSideButtonsToRparams } from "./paramsidebuttons/paramsidebuttons.js";
+
 import { readStorage, writeStorage } from "./storage/storageutils.js";
 import { aleiSettings } from "./storage/settings.js";
 import { createALEISettingsMenu, showSettings } from "./storage/settingsmenu.js";
-import { patchUpdateTools } from "./toolbar.js";
-import "./draggablewindow/draggablewindow.js";
-import "./colorpicker/colorwindow.js";
-import { registerOpenInColorEditorButton } from "./colorpicker/opencoloreditorbutton.js";
 
 "use strict";
 
@@ -974,8 +984,7 @@ function insertXML(xml) {
         es.push(eo);
     }
 
-    // ocm update
-    if (aleiSettings.ocmEnabled) ocmHandleObjectsCreation(es.slice(originalEsLength));
+    onEntitiesCreated(es.slice(originalEsLength));
 
     need_redraw = 1;
     need_GUIParams_update = 1;
@@ -1032,165 +1041,6 @@ function exportXML() {
     download.remove();
 }
 ///////////////////////////////
-
-/**
- *  This function updates the actual entity class's pm property based on selection.
- *  This function is invoked from setletedit().
- *
- *  @param {*}          paramname            Property to update   Eg: actions_1_type
- *  @param {*}          chvalue              Value to update with Eg: 0
- *  @param {boolean}    toShowNote           Default parameter (true). Indicates whether to show confirmation note.
- */
-function UpdatePhysicalParam(paramname, chvalue, toShowNote = true) {
-    lcz();
-
-    var layer_mismatch = false;
-    var list_changes = '';
-
-    // Finds selection.
-    for (var elems = 0; elems < es.length; elems++) {
-        if (!es[elems].exists)                                                    continue;
-        if (!es[elems].selected)                                                  continue;
-        if (!es[elems].pm.hasOwnProperty(paramname) && !es[elems].pm["extended"]) continue;
-        if (!MatchLayer(es[elems])) {
-            layer_mismatch = true;
-            continue;
-        }
-
-        // For extended triggers.
-        // Find action_XX_YYYY, where XX is the number representing trigger action 12 for example and YYYY is either targetA, targetB or type.
-        let regex = /actions_(\d+)_(targetA|targetB|type)/g;
-        let match = Array.from(paramname.matchAll(regex))[0];
-
-        // For undo and redo.
-        let lup = (typeof (paramname) == 'string') ? '"' + paramname + '"' : paramname;
-        chvalue = (typeof (chvalue) == 'number' || chvalue == 0) ? chvalue : _encodeXMLChars(`${chvalue}`);
-
-        let oldValue;
-
-        // it's necessary to add the "set parameter" and "update ocm" eval strings to these before adding them to undo/redo via lnd/ldn because 
-        // we need the operations in this order: `es[${elems}].pm[${lup}] = ${oldValue}; ocmHandleObjectUIDChange(es[${elems}]);` while taking
-        // into account that the "set parameter" string varies depending on extended triggers and "update ocm" string varies depending on what 
-        // paramname is. the operations need to be in that order specifically because ocm needs to update after the parameter is set, not before
-        let undoEvalString = "";
-        let redoEvalString = "";
-
-        // Not a trigger or below action10 and below. Proceed with the usual Eric's implementation.
-        if (!match || Number(match[1]) - 11 < 0){
-            oldValue = es[elems].pm[paramname];
-
-            if (typeof chvalue == "number" || chvalue == 0) {
-                undoEvalString = `es[${elems}].pm[${lup}] = ${oldValue};`;
-                redoEvalString = `es[${elems}].pm[${lup}] = ${chvalue};`;
-                es[elems].pm[paramname] = Number(chvalue);
-            }
-            else if (typeof chvalue == "string") {
-                undoEvalString = `es[${elems}].pm[${lup}] = "${oldValue}";`;
-                redoEvalString = `es[${elems}].pm[${lup}] = "${chvalue}";`;
-                es[elems].pm[paramname] = chvalue;
-            }
-            else {
-                alert('Unknown value type: ' + typeof chvalue);
-            }
-
-            if(paramname == "__id") {
-                NewNote(`ALEI: Changing Object ID does not do anything, don't expect that to apply.`, "#FFFFFF");
-            }
-
-            if(paramname == "__priority") {
-                ApplyObjectProperties(es[elems]);
-            }
-        }
-        // Handling extended trigger's >10 trigger action.
-        else {
-            let index = Number(match[1]) - 11;      // action_11_... starts at element 0.
-
-            let propertyName = '';
-            if(match[2] === "type"){
-                propertyName = "additionalActions";
-            }
-            else if(match[2] === "targetA"){
-                propertyName = "additionalParamA";
-            }
-            else if(match[2] === "targetB"){
-                propertyName = "additionalParamB";
-            }
-            else{
-                aleiLog(logLevel.WARN, "Something went wrong with regex. " + match[2]);
-                return;
-            }
-
-            oldValue = es[elems].pm[propertyName][index];
-
-            if (typeof chvalue == "number" || chvalue == 0) {
-                undoEvalString = `es[${elems}].pm["${propertyName}"][${index}] = ${oldValue};`;
-                redoEvalString = `es[${elems}].pm["${propertyName}"][${index}] = ${chvalue};`;
-                es[elems].pm[propertyName][index] = Number(chvalue);
-            }
-            else if (typeof chvalue == "string") {
-                undoEvalString = `es[${elems}].pm["${propertyName}"][${index}] = "${oldValue}";`;
-                redoEvalString = `es[${elems}].pm["${propertyName}"][${index}] = "${chvalue}";`;
-                es[elems].pm[propertyName][index] = chvalue;
-            }
-            else {
-                alert('Unknown value type: ' + typeof chvalue);
-            }
-        }
-
-        // rematch uid (automatically update uid references)
-        if (aleiSettings.rematchUID && aleiSettings.ocmEnabled && paramname == "uid" && chvalue != oldValue) {
-            const undosnredos = updateUIDReferences(es[elems], oldValue, chvalue);
-            undoEvalString += undosnredos.undo;
-            redoEvalString += undosnredos.redo;
-        }
-
-        // ocm patch (1/3)
-        if (aleiSettings.ocmEnabled && chvalue != oldValue) {
-            if (paramname == "uid") {
-                ocmHandleObjectUIDChange(es[elems]);
-                undoEvalString += `ocmHandleObjectUIDChange(es[${elems}]);`;
-                redoEvalString += `ocmHandleObjectUIDChange(es[${elems}]);`;
-            }
-            else if ((ocmParamsToCheckPerClass[es[elems]._class].includes(paramname) ||
-                      (aleiSettings.extendedTriggers && es[elems]._class == "trigger" && es[elems].pm.extended)
-                    )) {
-                ocmHandleObjectParametersChange(es[elems]);
-                undoEvalString += `ocmHandleObjectParametersChange(es[${elems}]);`;
-                redoEvalString += `ocmHandleObjectParametersChange(es[${elems}]);`;
-            }
-        }
-
-        if (undoEvalString !== "") {
-            // at this point the eval strings look like this: "{set parameter};{update ocm};"
-            // or just "{set parameter};" if ocm update isn't necessary
-            // can also include rematch uid stuff between "set parameter" and "update ocm" strings
-            lnd(undoEvalString);
-            ldn(redoEvalString);
-        }
-
-        if(paramname == "uses_timer") { // I do not have to do this, but i will for convenience
-            if([true, "true"].includes(es[elems].pm.uses_timer)) {
-                param_type[REGION_EXECUTE_PARAM_ID][1] = "timer+none";
-            } else {
-                param_type[REGION_EXECUTE_PARAM_ID][1] = "trigger+none";
-            }
-            need_GUIParams_update = true;
-        }
-
-        list_changes += 'Parameter "' + paramname + '" of object "' + (es[elems].pm.uid != null ? es[elems].pm.uid : es[elems]._class) + '" was set to "' + chvalue + '"<br>';
-    }
-
-    need_redraw = true;
-
-    if(toShowNote) {
-        NewNote('Operation complete:<br><br>' + list_changes, note_passive);
-    }
-
-    if (layer_mismatch) {
-        NewNote('Note: Some changes weren\'t made due to missmatch of active layer and class of selected objects', note_neutral);
-    }
-    lfz(false);
-}
 
 let imageContextMap = {};
 let last_element;
@@ -1762,6 +1612,26 @@ function addTriggerActionCount(value){
 
     selectedTrigger.pm["totalNumOfActions"] += value;
 
+    // handle removal of parameters for parameter map
+    if (value < 0) {
+        let removedParamNames = [];
+        let removedParamValues = [];
+        const upperBound = selectedTrigger.pm.additionalActions.length
+        const startIndex = Math.max(0, upperBound + value);
+        for (let i = startIndex; i < upperBound; i++) {
+            const actionNum = i + 11;
+            removedParamNames.push(`actions_${actionNum}_type`);
+            removedParamValues.push(selectedTrigger.pm.additionalActions[i]);
+
+            removedParamNames.push(`actions_${actionNum}_targetA`);
+            removedParamValues.push(selectedTrigger.pm.additionalParamA[i]);
+
+            removedParamNames.push(`actions_${actionNum}_targetB`);
+            removedParamValues.push(selectedTrigger.pm.additionalParamB[i]);
+        }
+        parameterMapHandleParametersRemoval(selectedTrigger, removedParamNames, removedParamValues);
+    }
+
     // It has less than 10 trigger actions, let's convert this extended trigger back to a normal trigger.
     if(selectedTrigger.pm["totalNumOfActions"] <= 10 || isNaN(selectedTrigger.pm["totalNumOfActions"])){
         delete selectedTrigger.pm["additionalActions"];
@@ -1783,6 +1653,9 @@ function addTriggerActionCount(value){
             selectedTrigger.pm["additionalParamB"].length += value;
         }
     }
+
+    // handle removal of parameters for ocm
+    if (value < 0) ocmHandleEntityParametersChange(selectedTrigger);
 
     UpdateGUIParams();
 
@@ -2354,7 +2227,7 @@ function toBoolean(str) {
     }
 }
 
-const parameterMap = {
+const classParametersMap = {
     "box": {"m": "box_model"},
     "door": {
         "moving": "bool",
@@ -2389,8 +2262,8 @@ function fixParameterValue(name, value, objectType) {
     if (VAL_TABLE[name]) {
         fixedValue = VAL_TABLE[name][value];
     } else {
-        if (parameterMap[objectType] && parameterMap[objectType][name]) {
-            fixedValue = VAL_TABLE[ parameterMap[objectType][name] ][value];
+        if (classParametersMap[objectType] && classParametersMap[objectType][name]) {
+            fixedValue = VAL_TABLE[ classParametersMap[objectType][name] ][value];
         }else if (name.slice(0, 8) == "actions_" && name.slice(-5) == "_type") {
             fixedValue = VAL_TABLE["trigger_type"][value];
         }else {
@@ -2487,11 +2360,8 @@ function patch_m_down() {
         og_mdown(e);
 
         if (es.length > previousEsLength) { // New element is made.
-            // ocm patch (2/3)
-            if(aleiSettings.ocmEnabled) {
-                const newObjects = es.slice(previousEsLength);
-                ocmHandleObjectsCreation(newObjects);
-            }
+
+            onEntitiesCreated(es.slice(previousEsLength));
 
             let element = es[es.length - 1];
             if (!("x" in element.pm)) return;
@@ -2660,16 +2530,19 @@ function PasteFromClipBoard(ClipName) {
 
 
             for (let i3 = from_obj; i3 < es.length; i3++) {
-                // update uid references to the new uid in the params that are relevant to uid references
-                for (let param of ocmParamsToCheckPerClass[es[i3]._class]) {
-                    es[i3].pm[param] = replaceParamValueUID(es[i3].pm[param], old_uid, es[i2].pm.uid);
+                const newUID = es[i2].pm.uid;
+                // update uid references to the new uid
+                for (const param in es[i3].pm) {
+                    if (param != "uid" && typeof es[i3].pm[param] != "object") {
+                        es[i3].pm[param] = replaceParamValueUID(es[i3].pm[param], old_uid, newUID);
+                    }
                 }
 
                 // replace uid references in additional trigger actions
-                if (aleiSettings.extendedTriggers && es[i3]._class == "trigger" && es[i3].pm.extended) {
+                if (es[i3].pm.extended && ExtendedTriggersLoaded) {
                     for (let i4 = 0; i4 < es[i3].pm.additionalActions.length; i4++) {
-                        es[i3].pm.additionalParamA[i4] = replaceParamValueUID(es[i3].pm.additionalParamA[i4], old_uid, es[i2].pm.uid);
-                        es[i3].pm.additionalParamB[i4] = replaceParamValueUID(es[i3].pm.additionalParamB[i4], old_uid, es[i2].pm.uid);
+                        es[i3].pm.additionalParamA[i4] = replaceParamValueUID(es[i3].pm.additionalParamA[i4], old_uid, newUID);
+                        es[i3].pm.additionalParamB[i4] = replaceParamValueUID(es[i3].pm.additionalParamB[i4], old_uid, newUID);
                     }
                 }
             }
@@ -2686,12 +2559,8 @@ function PasteFromClipBoard(ClipName) {
             }
     }
 
-    // ocm patch (3/3)
-    // initialize connections after old uids have been replaced with new unique uids and uid references have been updated
-    if (aleiSettings.ocmEnabled) {
-        const newObjects = es.slice(from_obj);
-        ocmHandleObjectsCreation(newObjects);
-    }
+    // update ocm and stuff after old uids have been replaced with new unique uids and uid references have been updated
+    onEntitiesCreated(es.slice(from_obj));
 
     // Again by Prosu
     x1 = Math.round((m_pos_x - m_down_x) / GRID_SNAPPING) * GRID_SNAPPING;
@@ -2799,6 +2668,8 @@ function handleServerRequestResponse(request, operation, response) {
         ServerRequest_handleMapData(response);
         getALEIMapDataFromALEIMapDataObject(); //map data object >>> aleiMapData
         loadALEIMapDataIntoUse(); //aleiMapData >>> data in use
+        loadUIDMap();
+        loadParameterMap();
         if (aleiSettings.ocmEnabled) loadOCM();
     }else if (response.indexOf("knownmaps = [") !== -1) {
         window.knownmaps = [];
@@ -2970,7 +2841,7 @@ function SortObjectsByPriority() {
     window.es = es.sort(getPriority);
 }
 
-
+unsafeWindow.ApplyObjectProperties = ApplyObjectProperties; // temporary fix to allow UpdatePhysicalParams to access this in ./entity/parameter.js
 function ApplyObjectProperties(e) {
     if(["bg", "decor"].indexOf(e._class) == -1) return;
     if(e.aleiPriority !== e.pm.__priority) {
@@ -3071,7 +2942,7 @@ function patchUpdateGUIParams() {
         }
         ////////////////////////
 
-        rparamsWasUpdated(); // paramsidebuttons integration. needs to be after addAdditionalButtons
+        addParamSideButtonsToRparams(); // paramsidebuttons integration. needs to be after addAdditionalButtons
 
         GenParamValEscapeDoubleQuotes = false;
         if(sortRequired) SortObjectsByPriority();
@@ -3271,31 +3142,6 @@ function ALEI_DoWorldScale() {
 function patchPercentageTool() {
     window.DoWorldScale = ALEI_DoWorldScale;
     aleiLog(logLevel.DEBUG, "Patched percentage tool");
-}
-
-function _encodeXMLChars(value) {
-    return value.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;")
-}
-
-function patchCompileTrigger() {
-    let _og = window.CompileTrigger;
-
-    window.CompileTrigger = () => {
-        let result = _og();
-        let selected = SelectedObjects;
-        for (let i = 0; i < selected.length; i++) {
-            let obj = selected[i];
-            let keys = Object.keys(obj.pm);
-
-            for (let j = 0; j < keys.length; j++) {
-                if (typeof obj.pm[keys[j]] == "string") {
-                    obj.pm[keys[j]] = _encodeXMLChars(obj.pm[keys[j]]);
-                }
-            }
-        }
-        return result;
-    }
-    aleiLog(logLevel.DEBUG, "Patched CompileTrigger");
 }
 
 function addPasteFromPermanentClipboard() {
@@ -4178,8 +4024,7 @@ function extendTriggerList() {
             index++;
         }
 
-        // ocm update so it doesn't become invalid
-        if (aleiSettings.ocmEnabled) ocmHandleObjectsCreation(allGeneratedTriggers);
+        onEntitiesCreated(allGeneratedTriggers);
 
         // Delete all generated triggers.
         for(const newTrigger of allGeneratedTriggers){
@@ -4191,17 +4036,15 @@ function extendTriggerList() {
 
     /**
      *  This function is responsible for compiling the text portion of the trigger action when saved.
-     *  It is further patched to support more than 10 triggers.
+     *  It is further patched to support more than 10 trigger actions.
      */
     function CompileTrigger() {
         const skipTriggerActions = [123, 361, 364, 365];
-        const selection = SelectedObjects;
 
-        if(selection.length != 1){
+        if(SelectedObjects.length != 1){
             return;
         }
-
-        const selectedTrigger = selection[0];
+        const selectedTrigger = SelectedObjects[0];
 
         var opcode_field = document.getElementById('opcode_field');
         var code = opcode_field.value;
@@ -4233,8 +4076,8 @@ function extendTriggerList() {
                 else {
                     action_type = trigger_opcode_aliases.indexOf(opcode);
                     if (action_type == -1) {
-                        NewNote('Error: Changes were not applied because &quot;' + opcode + '&quot; seems to be an unknown operation code.', note_neutral);
-                        return;
+                        NewNote('Error: Changes were not applied because "' + opcode + '" seems to be an unknown operation code.', note_neutral);
+                        return false;
                     }
                 }
                 var valueA = '';
@@ -4262,11 +4105,11 @@ function extendTriggerList() {
                 if (left_part == 'uid' || left_part == 'enabled' || left_part == 'maxcalls' || left_part == 'execute')
                     ScheduleParamSet(left_part, right_part);
                 else {
-                    NewNote('Error: Changes were not applied because &quot;' + left_part + '&quot; seems to be not a default property.', note_neutral);
+                    NewNote('Error: Changes were not applied because "' + left_part + '" seems to be not a default property.', note_neutral);
                     return false;
                 }
             } else if (line != '') {
-                NewNote('Error: Changes were not applied because line &quot;' + line + '&quot; wasn\'t recognized or contains unsupported syntax.', note_neutral);
+                NewNote('Error: Changes were not applied because line "' + line + '" wasn\'t recognized or contains unsupported syntax.', note_neutral);
                 return false;
             }
         }
@@ -4285,37 +4128,26 @@ function extendTriggerList() {
             ScheduleParamSet('actions_' + (i + 1) + '_targetB', new_trigger_actions[i][2]);
         }
 
-        // Populate the rest with empty trigger actions if it's lesser than 10.
-        for(let i = new_trigger_actions.length + 1; i <= 10; i++){
-            ScheduleParamSet('actions_' + i + '_type', -1);
-            ScheduleParamSet('actions_' + i + '_targetA', 0);
-            ScheduleParamSet('actions_' + i + '_targetB', 0);
-        }
-
         if(hasEncounteredSkipTrigger){
             NewNote("Skip trigger actions encountered in every 9th trigger action. Inserted an 'Do Nothing' trigger action.", note_neutral);
         }
 
-        // Convert it back to a normal trigger if it doesnt have more than 10 actions
-        if(new_trigger_actions.length <= 10 && selectedTrigger.pm["extended"]){
-            addTriggerActionCount(-selectedTrigger.pm["totalNumOfActions"]);
+        const currentActionsCount = !selectedTrigger.pm.extended ? 10 : selectedTrigger.pm.totalNumOfActions;
+        if (new_trigger_actions.length > currentActionsCount) {
+            // extend trigger to fit new number of actions
+            const diff = new_trigger_actions.length - currentActionsCount;
+            addTriggerActionCount(diff);
         }
-        else{
-            // Adjust extended trigger's size
-            if(selectedTrigger.pm["extended"]){
-                let difference = new_trigger_actions.length - selectedTrigger.pm["totalNumOfActions"] ;
-                addTriggerActionCount(difference);
-            }
-            // Convert normal trigger to extended trigger.
-            else{
-                let addOn = new_trigger_actions.length - 10;
-                addTriggerActionCount(addOn);
+        else {
+            // Populate the rest with empty trigger actions if not all trigger actions are used
+            for(let i = new_trigger_actions.length + 1; i <= currentActionsCount; i++){
+                ScheduleParamSet('actions_' + i + '_type', -1);
+                ScheduleParamSet('actions_' + i + '_targetA', 0);
+                ScheduleParamSet('actions_' + i + '_targetB', 0);
             }
         }
 
-        for(let i = 0; i < direct_update_params.length; ++i){
-            UpdatePhysicalParam(direct_update_params[i], direct_update_values[i], false);
-        }
+        UpdatePhysicalParams(direct_update_params, direct_update_values, false, false);
 
         NewNote("Trigger updated successfully.", note_good);
         return true;
@@ -4476,6 +4308,23 @@ function patchRender() {
     window.Render = eval(`(${fn})`);
 }
 
+function patchStartNewMap() {
+    // necessary cuz of patching via direct code replacement
+    unsafeWindow.initializeALEIMapData = initializeALEIMapData;
+    unsafeWindow.clearOCM = clearOCM;
+    unsafeWindow.clearUIDMap = clearUIDMap;
+    unsafeWindow.clearParameterMap = clearParameterMap;
+
+    const oldCode = unsafeWindow.StartNewMap.toString();
+
+    let newCode = oldCode.replace("ClearUndos();", "ClearUndos(); initializeALEIMapData(); clearOCM(); clearUIDMap(); clearParameterMap();");
+    if (newCode === oldCode) {
+        aleiLog(logLevel.WARN, "StartNewMap direct code replacement failed");
+    }
+
+    unsafeWindow.StartNewMap = eval("(" + newCode + ")");
+}
+
 let alreadyStarted = false;
 let ALE_start = (async function() {
     if(alreadyStarted) return;
@@ -4518,7 +4367,7 @@ let ALE_start = (async function() {
     patchNewNote();
     patchEvalSet();
     // Allowing for spaces in parameters.
-    window.UpdatePhysicalParam = UpdatePhysicalParam;
+    patchUpdatePhysicalParam();
     window.PasteFromClipBoard = PasteFromClipBoard;
     patchANI();
     // Tooltip.
@@ -4537,7 +4386,6 @@ let ALE_start = (async function() {
     patchSpecialValue();
     UpdateTools();
     patchPercentageTool();
-    patchCompileTrigger();
     createClipboardDiv();
     addPasteFromPermanentClipboard();
 
@@ -4551,15 +4399,13 @@ let ALE_start = (async function() {
     createALEISettingsMenu();
 
     aleimapdatapatches.patchSaveThisMap();
-    aleimapdatapatches.patchStartNewMap();
+    
+    patchStartNewMap();
 
     // register param side buttons
     registerCommentAdderButton();
     registerCommentRemoverButton();
     registerOpenInColorEditorButton();
-
-    ocmpatches.patchUpdatePhysicalParams();
-    ocmpatches.patchStartNewMap();
 
     if(isNative && !GM_info.script.name.includes("Local")) {
         updateURL = GM_info.script.updateURL;
@@ -4603,6 +4449,10 @@ let ALE_start = (async function() {
         need_redraw = true;
         need_GUIParams_update = true;
         ClearUndos();
+        initializeALEIMapData();
+        clearOCM();
+        clearUIDMap();
+        clearParameterMap();
         
         LoadThisMap();
     }

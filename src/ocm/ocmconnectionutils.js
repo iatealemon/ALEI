@@ -1,152 +1,103 @@
 import { aleiLog, logLevel } from "../log.js";
 import { aleiSettings } from "../storage/settings.js";
+import { uidMap } from "../entity/uidmap.js";
+import { parameterMap } from "../entity/parametermap.js";
+import { getParameterValueParts } from "../entity/parameterutils.js";
 
-export const ocmParamsToCheckPerClass = {
-    player: ["incar", "ondeath"],
-    enemy: ["incar", "ondeath"],
-    lamp: [],
-    gun: [],
-    box: [],
-    bg: ["a"],
-    water: ["attach"],
-    region: ["use_target", "attach"],
-    pushf: ["attach"],
-    door: ["attach"],
-    timer: ["target"],
-    decor: ["attach"],
-    inf: [],
-    song: ["callback"],
-    image: [],
-    vehicle: [],
-    barrel: [],
-    trigger: [
-        ...Array.from({ length: 10 }, (_, i) => `actions_${i+1}_targetA`),
-        ...Array.from({ length: 10 }, (_, i) => `actions_${i+1}_targetB`)
-    ]
-};
+export function removeIncomingConnections(entity, incomingConnectionsMap, outgoingConnectionsMap) {
+    const connectionPartnersToRemove = incomingConnectionsMap.get(entity);
+    if (connectionPartnersToRemove !== undefined) {
+        // remove connections from this entity
+        incomingConnectionsMap.delete(entity);
 
-// returns false if there is an error
-export function removeIncomingConnections(object, incomingConnectionsMap, outgoingConnectionsMap) {
-    const connectionPartnersToRemove = incomingConnectionsMap.get(object);
-    for (const partner of connectionPartnersToRemove) {
-        const index = outgoingConnectionsMap.get(partner).indexOf(object);
-        if (index == -1) {
-            aleiLog(logLevel.DEBUG, "removeIncomingConnections error: ocm connections are not symmetrical");
-            return false;
-        }
-        outgoingConnectionsMap.get(partner).splice(index, 1);
-    }
-    incomingConnectionsMap.set(object, []);
-    return true;
-}
-
-export function findAndMakeIncomingConnections(object, incomingConnectionsMap, outgoingConnectionsMap) {
-    for (const potential of es) {
-        if (shouldConnectionExist(potential, object)) {
-            outgoingConnectionsMap.get(potential).push(object);
-            incomingConnectionsMap.get(object).push(potential);
-        }
-    }
-}
-
-// returns false if there is an error
-export function removeOutgoingConnections(object, incomingConnectionsMap, outgoingConnectionsMap) {
-    const connectionPartnersToRemove = outgoingConnectionsMap.get(object);
-    for (const partner of connectionPartnersToRemove) {
-        const index = incomingConnectionsMap.get(partner).indexOf(object);
-        if (index == -1) {
-            aleiLog(logLevel.DEBUG, "removeOutgoingConnections error: ocm connections are not symmetrical");
-            return false;
-        }
-        incomingConnectionsMap.get(partner).splice(index, 1);
-    }
-    outgoingConnectionsMap.set(object, []);
-    return true;
-}
-
-export function findAndMakeOutgoingConnections(object, incomingConnectionsMap, outgoingConnectionsMap) {
-    for (const potential of es) {
-        if (shouldConnectionExist(object, potential)) {
-            outgoingConnectionsMap.get(object).push(potential);
-            incomingConnectionsMap.get(potential).push(object);
-        }
-    }
-}
-
-export function initializeConnectionsForObjects(newObjects, incomingConnectionsMap, outgoingConnectionsMap) {
-    // initialize all connections to empty array first to avoid errors
-    for (const newObject of newObjects) {
-        outgoingConnectionsMap.set(newObject, []);
-        incomingConnectionsMap.set(newObject, []);
-    }
-
-    // find and make all connections
-    // this makes sure not to consider any new object twice, as that would cause 2 connected objects within newObjects to get double 
-    // connections, ex. incomingConnectionsMap.get(es[0]) == [es[1], es[1]] and outgoingConnectionsMap.get(es[1]) == [es[0], es[0]].
-    // that problem is relevant when multiple objects are created through copy&paste
-    for (const newObject of newObjects) {
-        for (const potential of es) {
-            // skip this one if potential is one of newObjects that was processed previously
-            if (potential.connectionsAdded === true) {
-                continue;
+        // remove the same connections from connection partners
+        connectionPartnersToRemove.forEach(partner => {
+            const partnersConnections = outgoingConnectionsMap.get(partner);
+            if (partnersConnections !== undefined) {
+                partnersConnections.delete(entity);
+                if (partnersConnections.size === 0) {
+                    outgoingConnectionsMap.delete(partner);
+                }
             }
-
-            // outgoing connection
-            if (shouldConnectionExist(newObject, potential)) {
-                outgoingConnectionsMap.get(newObject).push(potential);
-                incomingConnectionsMap.get(potential).push(newObject);
+            else {
+                aleiLog(logLevel.DEBUG, "removeIncomingConnections warning: ocm connections are not symmetrical");
             }
-
-            // incoming connection. avoid adding connection twice if object connects to itself
-            if (potential !== newObject && shouldConnectionExist(potential, newObject)) {
-                outgoingConnectionsMap.get(potential).push(newObject);
-                incomingConnectionsMap.get(newObject).push(potential);
-            }
-        }
-        newObject.connectionsAdded = true;
+        });
     }
-    newObjects.forEach((newObject) => delete newObject.connectionsAdded);
 }
 
-/*
-this doesn't work the same way as the original code in Render as there are some cases where connections wouldn't be symmetric when using the original code. this 
-code makes a symmetric connection in those special cases. additionally, this only checks the parameters that are relevant to connections and it doesn't consider 
-if the object exists because it makes the ocm code simpler.
-*/
-export function shouldConnectionExist(fromObject, toObject) {
-    const uid = toObject.pm.uid;
-    if (uid === undefined) {
-        return false;
+export function findAndMakeIncomingConnections(entity, incomingConnectionsMap, outgoingConnectionsMap) {
+    const newConnectionPartners = getIncomingConnections(entity);
+    if (newConnectionPartners.size > 0) {
+        incomingConnectionsMap.set(entity, newConnectionPartners);
     }
+    newConnectionPartners.forEach(partner => {
+        if (!outgoingConnectionsMap.has(partner)) {
+            outgoingConnectionsMap.set(partner, new Set());
+        }
+        outgoingConnectionsMap.get(partner).add(entity);
+    });
+}
+
+export function removeOutgoingConnections(entity, incomingConnectionsMap, outgoingConnectionsMap) {
+    const connectionPartnersToRemove = outgoingConnectionsMap.get(entity);
+    if (connectionPartnersToRemove !== undefined) {
+        // remove connections from this entity
+        outgoingConnectionsMap.delete(entity);
+
+        // remove the same connections from connection partners
+        connectionPartnersToRemove.forEach(partner => {
+            const partnersConnections = incomingConnectionsMap.get(partner);
+            if (partnersConnections !== undefined) {
+                partnersConnections.delete(entity);
+                if (partnersConnections.size === 0) {
+                    incomingConnectionsMap.delete(partner);
+                }
+            }
+            else {
+                aleiLog(logLevel.DEBUG, "removeOutgoingConnections warning: ocm connections are not symmetrical");
+            }
+        });
+    }
+}
+
+export function findAndMakeOutgoingConnections(entity, incomingConnectionsMap, outgoingConnectionsMap) {
+    const newConnectionPartners = getOutgoingConnections(entity);
+    if (newConnectionPartners.size > 0) {
+        outgoingConnectionsMap.set(entity, newConnectionPartners);
+    }
+    newConnectionPartners.forEach(partner => {
+        if (!incomingConnectionsMap.has(partner)) {
+            incomingConnectionsMap.set(partner, new Set());
+        }
+        incomingConnectionsMap.get(partner).add(entity);
+    });
+}
+
+export function getOutgoingConnections(entity) {
+    let normalParamValues = [];
+    for (const paramName in entity.pm) {
+        if (paramName != "uid" && typeof entity.pm[paramName] != "object") {
+            normalParamValues.push(entity.pm[paramName]);
+        }
+    }
+
+    const allParamValues = aleiSettings.extendedTriggers && entity.pm.extended
+        ? [...normalParamValues, ...entity.pm.additionalParamA, ...entity.pm.additionalParamB]
+        : normalParamValues;
     
-    // check params for uid
-    for (let param of ocmParamsToCheckPerClass[fromObject._class]) {
-        if (containsUID(fromObject.pm[param], uid)) {
-            return true;
+    const connectionPartners = new Set();
+    for (const paramValue of allParamValues) {
+        for (const part of getParameterValueParts(paramValue)) {
+            uidMap.get(part)?.forEach(partner => connectionPartners.add(partner));
         }
     }
-
-    // check additional params on extended triggers
-    if (aleiSettings.extendedTriggers && fromObject._class == "trigger" && fromObject.pm.extended) {
-        for (let i = 0; i < fromObject.pm.additionalActions.length; i++) {
-            const paramA = fromObject.pm.additionalParamA[i];
-            const paramB = fromObject.pm.additionalParamB[i];
-            if (containsUID(paramA, uid) || containsUID(paramB, uid)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return connectionPartners;
 }
 
-function containsUID(paramValue, uid) {
-    if (typeof paramValue !== "string") return false;
-    // check each part separated by comma to support multiple parameters (#region*1, #region*2)
-    for (const part of paramValue.split(", ")) {
-        if (part == uid) {
-            return true;
-        }
-    }
-    return false;
+export function getIncomingConnections(entity) {
+    const uid = entity.pm.uid;
+    return (uid === undefined || !parameterMap.has(uid))
+        ? new Set()
+        : new Set(parameterMap.get(uid).keys());
 }
