@@ -2525,8 +2525,9 @@ function PasteFromClipBoard(ClipName) {
     for (let i2 = from_obj; i2 < es.length; i2++) {
         if (typeof(es[i2].pm.uid) !== 'undefined') {
             var old_uid = es[i2].pm.uid;
-            es[i2].exists = true;
+            es[i2].exists = false;
             es[i2].pm.uid = RandomizeName(es[i2].pm.uid);
+            es[i2].exists = true;
 
 
             for (let i3 = from_obj; i3 < es.length; i3++) {
