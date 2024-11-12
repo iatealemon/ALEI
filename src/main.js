@@ -364,6 +364,15 @@ function updateStyles() {
     ThemeSet(_th);
 }
 
+function updateRegionActivations() {
+
+    /** @type { Array } */
+    let region_activations = VAL_TABLE['region_activation'];
+
+    region_activations[17] = "Actor";
+    region_activations[18] = "Actor not ally to player";
+};
+
 function updateSkins() {
     // Adds skins that exist in game but not in ALE.
     let charlists = [
@@ -4350,6 +4359,7 @@ let ALE_start = (async function() {
     initTheme();
 
     updateStyles();
+    updateRegionActivations();
     updateSkins();
     updateSounds();
     updateVoicePresets();
