@@ -421,7 +421,7 @@ function RenderSingleNonResizableObject(element, cns) {
         if((pm.r != 0) || (pm.sx != 1) || (pm.sy != 1)) {
             ctx.save();
             ctx.translate(w2s_x(x), w2s_y(y));
-            ctx.rotate(pm.r / 180 * Math.PI);
+            ctx.rotate(asRadians(pm.r));
             ctx.scale(pm.sx, pm.sy);
             ctx.translate(-w2s_x(x), -w2s_y(y));
             transformedDecor = true;
@@ -748,14 +748,10 @@ function RenderAllObjects() {
     let cy = Math.round(s2w_y(tp.height + tp.y));
     let cw = Math.round(s2w_w(rp.x - (lp.width + lp.x)));
     let ch = Math.round(s2w_h(canvasHeight - (tp.height + tp.y)));
+    let cx2 = cx + cw; // right x
+    let cy2 = cy + ch; // bottom y
 
     for(let element of window.es) {
-        let pm = element.pm;
-        let x = pm.x;
-        let y = pm.y;
-        let w = pm.w ? pm.w : 0;
-        let h = pm.h ? pm.h : 0;
-
         if(!element.exists) continue;
         if(!element._isphysical) continue;
 
@@ -765,15 +761,171 @@ function RenderAllObjects() {
             RenderConnectionLines(element, cns);
         }
         // Actual culling
-        if( (x+w) < cx ) continue;
-        if( (y+h) < cy ) continue;
-        if( (cx+cw) < x ) continue;
-        if( (cy+ch) < y ) continue;
+        if (CullObject(element, cx, cx2, cy, cy2)) continue;
 
         if(cns == undefined) cns = GetObjectCoordAndSize(element);
         RenderSingleObject(element, cns);
         totalRenderedObjects++;
     }
+}
+
+/**
+ * determines if object should be culled
+ * @param {E} element 
+ * @param {number} leftEdge - left x of the visible area in world coordinates
+ * @param {number} rightEdge - right x of the visible area in world coordinates
+ * @param {number} topEdge - top y of the visible area in world coordinates
+ * @param {number} bottomEdge - bottom y of the visible area in world coordinates
+ * @returns {boolean}
+ */
+function CullObject(element, leftEdge, rightEdge, topEdge, bottomEdge) {
+    const pm = element.pm;
+
+    if (element._isresizable) {
+        return pm.x + pm.w < leftEdge || pm.x > rightEdge ||
+               pm.y + pm.h < topEdge  || pm.y > bottomEdge;
+    }
+
+    // get object bounding box (the thing that can be selected)
+    const bboxClass = ThinkOfBBoxClass(element._class, element);
+    const bboxWidth = bo_w[bboxClass];
+    const bboxHeight = bo_h[bboxClass];
+    const bboxX = pm.side != -1
+        ? pm.x + bo_x[bboxClass]
+        : pm.x - bo_x[bboxClass] - bboxWidth;
+    const bboxY = pm.y + bo_y[bboxClass];
+
+    // don't cull object if the bounding box is visible
+    if (!(bboxX + bboxWidth < leftEdge || bboxX > rightEdge ||
+          bboxY + bboxHeight < topEdge || bboxY > bottomEdge)) {
+        return false;
+    }
+
+    // if object bounding box is not visible, check if decor image is visible
+    if (element._class === "decor" && window.CACHED_DECORS[pm.model]?.loaded) {
+        return CullDecorImage(element, leftEdge, rightEdge, topEdge, bottomEdge);
+    }
+    else {
+        return true; // object bounding box was not visible and there is no decor image
+    }
+}
+
+/**
+ * determines if decor image should be culled. helper function for CullObject
+ * @returns {boolean}
+ */
+function CullDecorImage(element, leftEdge, rightEdge, topEdge, bottomEdge) {
+    const pm = element.pm;
+    const image = window.CACHED_DECORS[pm.model];
+    const degreesRotation = pm.r;
+    const scaleX = pm.sx;
+    const scaleY = pm.sy;
+
+    let offsetX, offsetY, imgWidth, imgHeight;
+    if (image.native) {
+        const offsetClass = ThinkOfOffsetClass("decor", element);
+        offsetX = lo_x[offsetClass] * scaleX;
+        offsetY = lo_y[offsetClass] * scaleY;
+        imgWidth = lo_w[offsetClass] * scaleX;
+        imgHeight = lo_h[offsetClass] * scaleY;
+    }
+    else {
+        offsetX = pm.u * scaleX;
+        offsetY = pm.v * scaleY;
+        imgWidth = image.width * scaleX;
+        imgHeight = image.height * scaleY;
+    }
+    
+    if (degreesRotation % 90 == 0) {
+        return CullAxisAlignedDecorImage(pm, offsetX, offsetY, imgWidth, imgHeight, degreesRotation, leftEdge, rightEdge, topEdge, bottomEdge);
+    }
+    else {
+        return CullNonAxisAlignedDecorImage(pm, offsetX, offsetY, imgWidth, imgHeight, degreesRotation, leftEdge, rightEdge, topEdge, bottomEdge);
+    }
+}
+
+/**
+ * determines if decor image should be culled when rotation is a multiple of 90. helper function for CullDecorImage
+ * @returns {boolean}
+ */
+function CullAxisAlignedDecorImage(pm, offsetX, offsetY, imgWidth, imgHeight, degreesRotation, leftEdge, rightEdge, topEdge, bottomEdge) {
+    const quadrant = mod(Math.floor(degreesRotation / 90), 4);
+    let left, top, rotatedWidth, rotatedHeight;
+    switch (quadrant) {
+        case 0:
+            left = pm.x + offsetX;
+            top = pm.y + offsetY;
+            rotatedWidth = imgWidth;
+            rotatedHeight = imgHeight;
+            break;
+        case 1:
+            left = pm.x - offsetY - imgHeight;
+            top = pm.y + offsetX;
+            rotatedWidth = imgHeight;
+            rotatedHeight = imgWidth;
+            break;
+        case 2:
+            left = pm.x - offsetX - imgWidth;
+            top = pm.y - offsetY - imgHeight;
+            rotatedWidth = imgWidth;
+            rotatedHeight = imgHeight;
+            break;
+        case 3:
+            left = pm.x + offsetY;
+            top = pm.y - offsetX - imgWidth;
+            rotatedWidth = imgHeight;
+            rotatedHeight = imgWidth;
+            break;
+        default:
+            return true;
+    }
+    /*_DrawRectangle(
+        "#FF7700", 1, 
+        w2s_x(left), 
+        w2s_y(top), 
+        w2s_w(rotatedWidth), 
+        w2s_h(rotatedHeight), 
+        true
+    );*/
+    return left + rotatedWidth < leftEdge || left > rightEdge ||
+           top + rotatedHeight < topEdge  || top > bottomEdge;
+}
+
+/**
+ * determines if decor image should be culled when rotation is not a multiple of 90. helper function for CullDecorImage
+ * @returns {boolean}
+ */
+function CullNonAxisAlignedDecorImage(pm, offsetX, offsetY, imgWidth, imgHeight, degreesRotation, leftEdge, rightEdge, topEdge, bottomEdge) {
+    const radiansRotation = asRadians(degreesRotation);
+    const cosine = Math.cos(radiansRotation);
+    const sine = Math.sin(radiansRotation);
+
+    // calculate transformedCenterX, transformedCenterY (image center pos after transformations are applied)
+    // apply translation
+    const translatedCenterX = offsetX + imgWidth*0.5;
+    const translatedCenterY = offsetY + imgHeight*0.5;
+    // apply rotation
+    const rotatedCenterX = translatedCenterX*cosine - translatedCenterY*sine;
+    const rotatedCenterY = translatedCenterX*sine   + translatedCenterY*cosine;
+    // make it relative to global origin
+    const transformedCenterX = pm.x + rotatedCenterX;
+    const transformedCenterY = pm.y + rotatedCenterY;
+
+    // check minimum bounding box
+    const minimumWidth  = Math.abs(imgWidth  * cosine) + Math.abs(imgHeight * sine);
+    const minimumHeight = Math.abs(imgHeight * cosine) + Math.abs(imgWidth  * sine);
+    const halfWidth  = minimumWidth*0.5;
+    const halfHeight = minimumHeight*0.5;
+    /*_DrawRectangle(
+        "#FFFF00", 1, 
+        w2s_x(transformedCenterX - halfWidth), 
+        w2s_y(transformedCenterY - halfHeight), 
+        w2s_w(minimumWidth), 
+        w2s_h(minimumHeight), 
+        true
+    );*/
+    return transformedCenterX + halfWidth < leftEdge || transformedCenterX - halfWidth > rightEdge ||
+           transformedCenterY + halfHeight < topEdge || transformedCenterY - halfHeight > bottomEdge;
 }
 
 function RenderSelectionBox() {
@@ -946,6 +1098,20 @@ function PreviewModeUpdateVariables(val) {
             return;
         }
     }
+}
+
+/** converts degrees to radians */
+const asRadians = (function() {
+    // not sure if it's necessary to precompute this value. javascript engine may do constant folding. can't hurt tho
+    const multiplier = Math.PI / 180;
+    return function(degrees) {
+        return degrees * multiplier;
+    }
+})();
+
+/** modulo operator */
+function mod(n, d) {
+    return ((n % d) + d) % d;
 }
 
 export function Renderer_initialize() {
