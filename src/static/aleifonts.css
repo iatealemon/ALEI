@@ -2,7 +2,7 @@
     font-family: "EuropeExt Regular";
     font-display: block;
     src:
-        /*local("EuropeExt Regular"),*/
+        local("EuropeExt Regular"),
         url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/EuropeExt.woff2") format("woff2"),
         url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/EuropeExt.woff") format("woff"),
         url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/EuropeExt.otf") format("opentype");
@@ -12,7 +12,7 @@
     font-family: "DejaVu Sans Mono";
     font-display: block;
     src: 
-        /*local("DejaVu Sans Mono"),*/
+        local("DejaVu Sans Mono"),
         url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/DejaVuLGCSansMono.woff2") format("woff2"),
         url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/DejaVuLGCSansMono.woff") format("woff"),
         url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/DejaVuLGCSansMono.ttf") format("truetype");
