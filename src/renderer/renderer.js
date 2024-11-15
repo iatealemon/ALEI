@@ -465,7 +465,7 @@ function RenderSingleNonResizableObject(element, cns) {
             let size = 16 / zoom; // Hack.
             switch( pm.model ) {
                 case "text":
-                    ctx.font = `${size}px EuropeExt`;
+                    ctx.font = `${size}px EuropeExt Regular`;
                     break;
 
                 case "text2":

@@ -33,7 +33,7 @@ import { createALEISettingsMenu, showSettings } from "./storage/settingsmenu.js"
 
 "use strict";
 
-document.fonts.load( "16px EuropeExt" );
+document.fonts.load( "16px EuropeExt Regular" );
 document.fonts.load( "16px DejaVu Sans Mono" );
 
 let window = unsafeWindow;
