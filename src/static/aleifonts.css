@@ -3,9 +3,9 @@
     font-display: block;
     src:
         /*local("EuropeExt Regular"),*/
-        url("https://github.com/Molisson/ALEI/raw/refs/heads/main/resources/EuropeExt.woff2") format("woff2"),
-        url("https://github.com/Molisson/ALEI/raw/refs/heads/main/resources/EuropeExt.woff") format("woff"),
-        url("https://github.com/Molisson/ALEI/raw/refs/heads/main/resources/EuropeExt.otf") format("opentype");
+        url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/EuropeExt.woff2") format("woff2"),
+        url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/EuropeExt.woff") format("woff"),
+        url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/EuropeExt.otf") format("opentype");
 }
 
 @font-face {
@@ -13,7 +13,7 @@
     font-display: block;
     src: 
         /*local("DejaVu Sans Mono"),*/
-        url("https://github.com/Molisson/ALEI/raw/refs/heads/main/resources/DejaVuLGCSansMono.woff2") format("woff2"),
-        url("https://github.com/Molisson/ALEI/raw/refs/heads/main/resources/DejaVuLGCSansMono.woff") format("woff"),
-        url("https://github.com/Molisson/ALEI/raw/refs/heads/main/resources/DejaVuLGCSansMono.ttf") format("truetype");
+        url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/DejaVuLGCSansMono.woff2") format("woff2"),
+        url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/DejaVuLGCSansMono.woff") format("woff"),
+        url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/DejaVuLGCSansMono.ttf") format("truetype");
 }
