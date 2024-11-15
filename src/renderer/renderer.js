@@ -1,6 +1,8 @@
-import { outgoingConnectionsMap, incomingConnectionsMap } from "./ocm/ocm.js";
-import { aleiSettings } from "./storage/settings.js";
-import { aleiLog, logLevel } from "./log.js";
+import { outgoingConnectionsMap, incomingConnectionsMap } from "../ocm/ocm.js";
+import { aleiSettings } from "../storage/settings.js";
+import { aleiLog, logLevel } from "../log.js";
+import { asRadians, mod } from "../math.js"
+import { fixedVisualBBoxes } from "./fixedbboxes.js";
 
 let window = unsafeWindow;
 
@@ -823,11 +825,21 @@ function CullDecorImage(element, leftEdge, rightEdge, topEdge, bottomEdge) {
 
     let offsetX, offsetY, imgWidth, imgHeight;
     if (image.native) {
-        const offsetClass = ThinkOfOffsetClass("decor", element);
-        offsetX = lo_x[offsetClass] * scaleX;
-        offsetY = lo_y[offsetClass] * scaleY;
-        imgWidth = lo_w[offsetClass] * scaleX;
-        imgHeight = lo_h[offsetClass] * scaleY;
+        if (!(pm.model in fixedVisualBBoxes)) {
+            const offsetClass = ThinkOfOffsetClass("decor", element);
+            offsetX = lo_x[offsetClass] * scaleX;
+            offsetY = lo_y[offsetClass] * scaleY;
+            imgWidth = lo_w[offsetClass] * scaleX;
+            imgHeight = lo_h[offsetClass] * scaleY;
+        }
+        else {
+            // use better values for fanart update decors
+            const visualBBox = fixedVisualBBoxes[pm.model];
+            offsetX = visualBBox.x * scaleX;
+            offsetY = visualBBox.y * scaleY;
+            imgWidth = visualBBox.w * scaleX;
+            imgHeight = visualBBox.h * scaleY;
+        }
     }
     else {
         offsetX = pm.u * scaleX;
@@ -1098,20 +1110,6 @@ function PreviewModeUpdateVariables(val) {
             return;
         }
     }
-}
-
-/** converts degrees to radians */
-const asRadians = (function() {
-    // not sure if it's necessary to precompute this value. javascript engine may do constant folding. can't hurt tho
-    const multiplier = Math.PI / 180;
-    return function(degrees) {
-        return degrees * multiplier;
-    }
-})();
-
-/** modulo operator */
-function mod(n, d) {
-    return ((n % d) + d) % d;
 }
 
 export function Renderer_initialize() {

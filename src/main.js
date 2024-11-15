@@ -1,7 +1,7 @@
 import { parse as alescriptParse } from "./alescript.js";
 import { fixWebpackStyleSheets } from "./loadcss.js";
 import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
-import { Renderer_initialize } from "./renderer.js";
+import { Renderer_initialize } from "./renderer/renderer.js";
 import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./themes.js";
 import { patchUpdateTools } from "./toolbar.js";
 
@@ -639,6 +639,7 @@ function updateDecors() {
         img_decors[decor_model] = new Image();
         img_decors[decor_model].src = decor_image;
         img_decors[decor_model].native = true;
+        img_decors[decor_model].loaded = true;
         CACHED_DECORS[decor_model] = img_decors[decor_model];
         CUSTOM_IMAGES_APPROVED[decor_model] = true; // Since it's obviously vanilla, and other vanilla decors are approved, it's only natural if we approve added decors too
     }
