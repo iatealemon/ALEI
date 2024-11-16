@@ -1616,8 +1616,7 @@ function addTriggerActionCount(value){
         selectedTrigger.pm["extended"] = true;
 
         NewNote("Converted this to an extended trigger.", note_passive);
-        NewNote("Be mindful about your number of triggers.", note_neutral);
-        NewNote("Behind the scenes, this creates 1 trigger for every additional 9 trigger actions.", note_neutral);
+        NewNote("Behind the scenes, this creates 1 trigger for every additional 9 trigger actions. Be mindful about your number of triggers.", note_neutral);
     }
 
     selectedTrigger.pm["totalNumOfActions"] += value;
