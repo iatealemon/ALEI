@@ -3721,7 +3721,7 @@ function extendTriggerList() {
                     let rowHtml = `
                         <div class="p_i"><span class="pa1 p_u1">
                         Action '${i + 1}' type:
-                        </span><span class="pa2 p_u2 r_rt" onclick="letedit(this, 'trigger_type')" onmouseover="letover(this, 'trigger_type')" id='pm_actions_${i + 1}_type'>
+                        </span><span class="pa2 p_u2" onclick="letedit(this, 'trigger_type')" onmouseover="letover(this, 'trigger_type')" id='pm_actions_${i + 1}_type'>
                             <pvalue real='${triggerAction}'>
                             ${special_values_table['trigger_type'][triggerAction]}
                             </pvalue>
@@ -3729,7 +3729,7 @@ function extendTriggerList() {
 
                         <div class="p_i"><span class="pa1 p_u1">
                         - parameter A:
-                        </span><span class="pa2 p_u2 r_rt" onclick="letedit(this, 'no_change')" onmouseover="letover(this, 'no_change')" id='pm_actions_${i + 1}_targetA'>
+                        </span><span class="pa2 p_u2" onclick="letedit(this, 'no_change')" onmouseover="letover(this, 'no_change')" id='pm_actions_${i + 1}_targetA'>
                             <pvalue real='${paramA}'>
                             '${paramA}'
                             </pvalue>
@@ -3737,7 +3737,7 @@ function extendTriggerList() {
 
                         <div class="p_i"><span class="pa1 p_u1">
                         - parameter B:
-                        </span><span class="pa2 p_u2 r_rt" onclick="letedit(this, 'no_change')" onmouseover="letover(this, 'no_change')" id='pm_actions_${i + 1}_targetB'>
+                        </span><span class="pa2 p_u2" onclick="letedit(this, 'no_change')" onmouseover="letover(this, 'no_change')" id='pm_actions_${i + 1}_targetB'>
                             <pvalue real='${paramB}'>
                             '${paramB}'
                             </pvalue>
