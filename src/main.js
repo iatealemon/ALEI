@@ -2316,17 +2316,6 @@ function patch_m_down() {
     }
 }
 
-function ReorderTriggerProperty(result) {
-    let execute = result.pm.execute;
-    execute = execute ? execute : false;
-
-    delete result.pm.execute;
-
-    let entries = Object.entries(result.pm);
-    entries.splice(5, 0, ["execute", execute]);
-    result.pm = Object.fromEntries(entries);
-}
-
 window.SelectedObjects = [];
 
 function patchEntityClass() {
@@ -2338,7 +2327,9 @@ function patchEntityClass() {
         if(_class == "water") result.pm.attach = -1;
         else if(_class == "decor") result.pm.text = "Hello World!";
         else if(_class == "trigger") {
-            ReorderTriggerProperty(result);
+            let entries = Object.entries(result.pm);
+            entries.splice(5, 0, ["execute", false]);
+            result.pm = Object.fromEntries(entries);
         }
         else if(_class == "region") result.pm.uses_timer = false;
 
@@ -2828,7 +2819,6 @@ function patchUpdateGUIParams() {
 
         // Represents all the selected entity class.
         let selected = SelectedObjects;
-        selected.filter(e => e._class == "trigger").map(e => ReorderTriggerProperty(e));
 
         //selected.map(o => ApplyObjectProperties(o));
 
