@@ -13,20 +13,16 @@ export function updateParameters() {
         param_type[param_type.length] = [key, type, name, "", objType];
     }
     // Adding parameters that the game accepts but ALE does not have.
-    add("moving", "bool", "Is Moving?", "door");
+    add("moving", "bool", "Is moving", "door");
     add("tarx", "value", "Target X", "door");
     add("tary", "value", "Target Y", "door");
     // Adding our own parameter.
     add("__id", "value", "Object ID", "*");
     add("__priority", "value", "Object priority", "*");
-    add("execute", "bool", "Executes directly?", "trigger");
-    add("uses_timer", "bool", "Calls timer?", "region");
+    add("execute", "bool", "Executes directly", "trigger");
+    add("uses_timer", "bool", "Calls timer", "region");
     add("text", "string", "Placeholder text", "decor");
     add("attach", "door+none", "Attach to", "water");
-
-    // add("extended", "bool", "Extended?", "trigger");
-    // add("totalNumOfActions", "value", "Total No. Of Actions: ", "trigger");
-    // add("nextTrigger", "trigger+none", "Next trigger", "trigger");
 
     // Patching parameters
     param_type[0] = ['uid', 'string', 'Name', 'Object Name', '*'];
