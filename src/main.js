@@ -951,18 +951,18 @@ function insertXML(xml) {
 
     onEntitiesCreated(es.slice(originalEsLength));
 
-    need_redraw = 1;
-    need_GUIParams_update = 1;
+    need_redraw = true;
+    need_GUIParams_update = true;
 }
 
 function exportXML() {
-    let exportSelection = 0;
+    let exportSelection = false;
     let newstr = "";
     let download = document.createElement("a");
 
     for (let i = 0; i < es.length; i++) {
         if (es[i].selected) {
-            exportSelection = 1;
+            exportSelection = true;
         }
     }
 
@@ -1089,7 +1089,7 @@ function ImageContext(id, e, old_name, element, moderator_menu, awaiting_approva
 
 function findObjects(name) {
     let exact = confirm("Exact name?");
-    let notFound = 1;
+    let notFound = true;
 
     function pred(d) {
         if (exact) {return d == name;}
@@ -1097,18 +1097,18 @@ function findObjects(name) {
     }
 
     for (let i = 0; i < es.length; i++) {
-        es[i].selected = 0;
+        es[i].selected = false;
 
         if (es[i].pm.uid) {
             if (pred(es[i].pm.uid) && MatchLayer(es[i])) {
-                es[i].selected = 1;
-                notFound = 0;
+                es[i].selected = true;
+                notFound = false;
             }
         }
     }
 
-    need_GUIParams_update = 1;
-    need_redraw = 1;
+    need_GUIParams_update = true;
+    need_redraw = true;
 
     return notFound;
 }
@@ -1253,7 +1253,7 @@ function getSelectionImage() {
 
     THEME = 4;
     GRID_ALPHA = 0;
-    SHOW_CONNECTIONS = 0;
+    SHOW_CONNECTIONS = false;
     zoom = 1;
     zoom_validate();
 
@@ -1427,7 +1427,7 @@ function updateClipboardDiv() {
     dis_from_y = cs.dfy;
     ConsoleTraceMessages = cs.ctm;
     zoom = cs.zoom;
-    need_redraw = 1;
+    need_redraw = true;
     zoom_validate();
 }
 
@@ -1799,8 +1799,8 @@ function centerImageX() {
         }
     }
 
-    need_redraw = 1;
-    need_GUIParams_update = 1;
+    need_redraw = true;
+    need_GUIParams_update = true;
 }
 
 function centerImageY() {
@@ -1819,8 +1819,8 @@ function centerImageY() {
         }
     }
 
-    need_redraw = 1;
-    need_GUIParams_update = 1;
+    need_redraw = true;
+    need_GUIParams_update = true;
 }
 
 function addFunctionToWindow() {
@@ -1830,7 +1830,7 @@ function addFunctionToWindow() {
     window.addTriggerActionCount = addTriggerActionCount;
 }
 
-let newUpdate = 0;
+let newUpdate = false;
 
 let targetElement;
 
@@ -1887,7 +1887,7 @@ document.addEventListener("keydown", e => {
 
         zoom *= 2;
         zoom_validate();
-        need_redraw = 1;
+        need_redraw = true;
     }
 
     if ((e.code == "Equal" || e.code == "NumpadAdd") && e.ctrlKey && canvas_focus) {
@@ -1895,7 +1895,7 @@ document.addEventListener("keydown", e => {
 
         zoom *= 0.5;
         zoom_validate();
-        need_redraw = 1;
+        need_redraw = true;
     }
 
     if (e.ctrlKey && e.altKey) {
@@ -1903,7 +1903,7 @@ document.addEventListener("keydown", e => {
 
         zoom = 1;
         zoom_validate();
-        need_redraw = 1;
+        need_redraw = true;
     }
 
     if (e.code == "KeyH" && e.ctrlKey) {
@@ -1961,21 +1961,21 @@ document.addEventListener("keydown", e => {
 
                             if (typeof parsed == "number") {
                                 for (let j = 0; j < selected.length; j++) {
-                                    selected[j].selected = 0;
+                                    selected[j].selected = false;
                                 }
 
-                                selected[i].selected = 1;
+                                selected[i].selected = true;
 
                                 UpdatePhysicalParam(param, parsed);
                             }
 
                             for (let j = 0; j < selected.length; j++) {
-                                selected[j].selected = 1;
+                                selected[j].selected = true;
                             }
                         }
                     }
 
-                    need_GUIParams_update = 1;
+                    need_GUIParams_update = true;
                 }
             }
         }
@@ -2130,11 +2130,11 @@ function getSelection() { // DEPRECATED! USE SelectedObjects DIRECTLY!
 }
 
 function areObjectsOfSameType(objects) {
-    let same = 1;
+    let same = true;
 
     for (let i = 0; i < objects.length; i++) {
         if (objects[i]._class != objects[0]._class) {
-            same = 0;
+            same = false;
         }
     }
 
@@ -3023,7 +3023,7 @@ function patchSpecialValue() {
 }
 
 function notifyUpdate(version) {
-    newUpdate = 1;
+    newUpdate = true;
 
     aleiLog(logLevel.INFO, `New update: ${version}`);
     NewNote(`ALEI: There is new update: ${version}, you are currently in ${GM_info.script.version}<br>Press Ctrl + Shift to update`, "#FFFFFF");
@@ -3186,18 +3186,18 @@ function updateTriggerActionElements() {
 }
 
 function isOnlyTriggerSelected() {
-    let result = 0;
+    let result = false;
     let selection = getSelection();
 
     if (selection.length == 1 && selection[0]._class == "trigger") {
-        result = 1;
+        result = true;
     }
 
     return result;
 }
 
 function getTriggerActions() {
-    edit_triggers_as_text = 1;
+    edit_triggers_as_text = true;
 
     UpdateGUIParams();
 
@@ -3208,7 +3208,7 @@ function getTriggerActions() {
         arr.push("");
     }
 
-    edit_triggers_as_text = 0;
+    edit_triggers_as_text = false;
     UpdateGUIParams();
 
     return arr;
@@ -3239,7 +3239,7 @@ function getSelectedTriggerAction() {
 }
 
 function getTriggerInfo() {
-    edit_triggers_as_text = 1;
+    edit_triggers_as_text = true;
     UpdateGUIParams();
 
     let textarea = document.getElementById("opcode_field");
@@ -3257,7 +3257,7 @@ function pasteTriggerActions() {
     let clipboard = triggerActionsClipboard.join("\n");
     let info = getTriggerInfo();
 
-    edit_triggers_as_text = 1;
+    edit_triggers_as_text = true;
     UpdateGUIParams();
 
     if (isNothingSelected()) { // Adds action at end of no action was selected.
@@ -3275,7 +3275,7 @@ function pasteTriggerActions() {
 
     CompileTrigger();
 
-    edit_triggers_as_text = 0;
+    edit_triggers_as_text = false;
     UpdateGUIParams();
 }
 
@@ -3283,7 +3283,7 @@ function deleteTriggerActions() {
     let actions = getTriggerActions();
     let info = getTriggerInfo();
 
-    edit_triggers_as_text = 1;
+    edit_triggers_as_text = true;
     UpdateGUIParams();
 
     for (let i = 0; i < 10; i++) {
@@ -3298,7 +3298,7 @@ function deleteTriggerActions() {
 
     CompileTrigger();
 
-    edit_triggers_as_text = 0;
+    edit_triggers_as_text = false;
     UpdateGUIParams();
 }
 
@@ -3308,7 +3308,7 @@ function reverseTriggerActions() {
     let indexes = [];
     let info = getTriggerInfo();
 
-    edit_triggers_as_text = 1;
+    edit_triggers_as_text = true;
     UpdateGUIParams();
 
     for (let i = 0; i < 10; i++) {
@@ -3336,7 +3336,7 @@ function reverseTriggerActions() {
     displayOperationCompleteNotes = true;
     NewNote("Reversed actions.", "#FFFFFF");
 
-    edit_triggers_as_text = 0;
+    edit_triggers_as_text = false;
     UpdateGUIParams();
 }
 

@@ -241,10 +241,10 @@ function exec(str) {
 
     for (let order = 1; order <= maxOrder; order++) {
         let i = 0;
-        let loop = 1;
+        let loop = true;
 
         while (loop) {
-            loop = 0;
+            loop = false;
 
             let newstr = [];
             let length;
@@ -259,7 +259,7 @@ function exec(str) {
                         index = i;
                     }
                 } else if (newstr.length != 0) {
-                    loop = 1;
+                    loop = true;
                     break;
                 }
             }
