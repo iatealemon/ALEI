@@ -18,7 +18,7 @@ import { makeCommentBox, setCurrentCommentedTrigger, setCommentsResizeObserverTa
 import "./draggablewindow/draggablewindow.js";
 
 import { onEntitiesCreated } from "./entity/entity.js";
-import { patchUpdatePhysicalParam } from "./entity/parameter.js";
+import { patchUpdatePhysicalParam, updateParameters, REGION_EXECUTE_PARAM_ID } from "./entity/parameter.js";
 import { loadParameterMap, parameterMapHandleParametersRemoval, clearParameterMap } from "./entity/parametermap.js";
 import { replaceParamValueUID } from "./entity/parameterutils.js";
 import { loadUIDMap, clearUIDMap } from "./entity/uidmap.js";
@@ -62,7 +62,6 @@ let ROOT_ELEMENT = document.documentElement;
 let stylesheets = document.styleSheets;
 let VAL_TABLE = {}; // Will be filled later.
 let displayOperationCompleteNotes = true;
-let REGION_EXECUTE_PARAM_ID; // Will be set later.
 let ExtendedTriggersLoaded = false;
 
 const TEXT_OVERHEAD         = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAAYCAYAAAAxkDmIAAAAAXNSR0IArs4c6QAABHNJREFUaEPtmVvoZWMYxn+PMznEBSGlxAVuJKUcQyTHUCahEZNG43wYx8HIMIjJjPk3MimD0EyMQ0oRrpxKkblwKBdDcoFBktNrPbt3a82atfde/zV/snfru137W+v93ud5n/d5vy26NdEZ0ESfrjscHcATToIO4A7gCc/AhB+vtoIj4gLgEeA9SScMy0FEHAc8AWyQdNB08xURnwC7ABcCezf97qjvRMROwFvAvsA8SU9X90TEAcCLwP7Ao5Lm1r23+J33ngNMSbpy1LfbPC/nQdIbo95RydvSfg6reycWYCcoIh4ArgBWSzqvBuCbgNuAbYHPgNOL331a/l1EHA48A2wHXCTp1VHJb/O8A7hF1iLiZOBx4CfglBrw3i7AP7h49j5wFHCXpHsqAJsEC4rnr0s6tUUYjbaMDcARcQZwJ2C53qpyuj+BLzKRT2aVDZToiDgQuA84Btix8q5I4F4C5koyiJusiHgZOB5YWAYvIk4DHgM+LyT6KWAx8G61JRUtyCQ4BJgPvNk0HuDMbDd/pUJYAfpraB4ssxFxTXG+a4E9i3xWlXZDcZ4tgB+ztbWW6I+KD6wYQcFdAbP8O+BiwP1qB+AWSSsr1eDndwO/AbPzIMMAdn88EVhl0kha339fSuf9gCV0haR5AwC+LMH7sPje0aX9U5ZcYEnG5H69V1mGI8KyvqyI9cskmYnQKB6TJQHeOlVkvkmY3sDgXQ18ayJIWlfpqbvn3l+A6yW5RfRWkt45NEG/2VyAbVSarnXAswV4NwMvSJo1IOEO1uxeJGnhIJOVpHkO+KNOXvOw/SpcL+nQAd/bxGyVzJWrapakdyLiXuAqg9E3W2muzi4MzEPAGqBxPEkcG9WPJR1RjS2V5VjgRknLKnk4C5gDLJV0Xc1em8NXCuJuv7kAT8tFZxIsZduMYIUreLGkBUMAXjTKnTd18AmeK2aNzVZE3FDEd0cSsWe+SmbqV5stYLc0V35sslqVhk4L5XgKU2bCDJxEImI2YEVZK2ltJQ+OyZNML0cDiFtWvtYS3RbgVYWcXtKk9P8jgPtO+HerAfBgSq5lc3lJ/tyve1UFuPLtsK1GJsXIcXA6ANdUZRmw/y3ATST69uwfKyVN/dsSXQLP3sCtwYCeD3xtkMvmLCL6/dr9eOd02L0ZOiIOaynRI4skFaQM8LnpDx5uKNG+q7DCLK9OCjM6BwPuFx5LvOpM1knuKyl/cyQ9P+yiIyJssjzqrE6zUTZZdtg2QB5vBpqsEsB9w2RXa0e+RJIr9Z9VuhzxxceWwAcVY9Y4npLJagPwfunWf25ostyL7Sdeq04TMwqwb7LS3l8O7JNJ2iiHwPd5I3RrDXM3uslKx2iDc2QytPquHwCPSa6y2jGpAqBHHhPiK5uTuhujvBzxbZXNXXW0MqkaxVMak6YNcE4X9giXFrnaY8bHpCa9s/vNeGSg+zdpPHBqHWUHcOvUjcfGDuDxwKl1lB3ArVM3Hhs7gMcDp9ZRdgC3Tt14bOwAHg+cWkf5N7oPsDdbjPHbAAAAAElFTkSuQmCC";
@@ -79,50 +78,6 @@ let ALE_Render;
 
 let aleiSessionID = null; // ID of this session
 let aleiSessionList = []; // Set of known session IDs
-
-function updateParameters() {
-    // Does things to parameters depending on purpose.
-    function add(key, type, name, objType) {
-        param_type[param_type.length] = [key, type, name, "", objType];
-    }
-    // Adding parameters that the game accepts but ALE does not have.
-    add("moving", "bool", "Is Moving?", "door");
-    add("tarx", "value", "Target X", "door");
-    add("tary", "value", "Target Y", "door");
-    // Adding our own parameter.
-    add("__id", "value", "Object ID", "*");
-    add("__priority", "value", "Object priority", "*");
-    add("execute", "bool", "Executes directly?", "trigger");
-    add("uses_timer", "bool", "Calls timer?", "region");
-    add("text", "string", "Placeholder text", "decor");
-    add("attach", "door+none", "Attach to", "water");
-
-    // add("extended", "bool", "Extended?", "trigger");
-    // add("totalNumOfActions", "value", "Total No. Of Actions: ", "trigger");
-    // add("nextTrigger", "trigger+none", "Next trigger", "trigger");
-
-    // Patching parameters
-    param_type[0] = ['uid', 'string', 'Name', 'Object Name', '*'];
-
-    // Setting global variables for future use
-    for(let i = 0; i < param_type.length; i++) {
-        let param = param_type[i];
-        let key = param[0];
-        let selector = param[4];
-
-        if((key == "use_target") && (selector == "region")) {
-            REGION_EXECUTE_PARAM_ID = i;
-            continue;
-        }
-        if(["w", "h"].indexOf(key) != -1) { // Enables height and width parameters to be able to have negative height and width.
-            param_type[i][1] = "value+round10";
-            continue;
-        }
-    }
-    VAL_TABLE["timer+none"] = new Array();
-    VAL_TABLE["timer+none"][-1] = "- No timer -";
-    VAL_TABLE["timer+none"]["[listof]"] = "timer"; // Somebody save me.
-}
 
 function updateSounds() {
     // Adds sounds that exist in game but not in ALE

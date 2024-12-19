@@ -5,6 +5,52 @@ import { ocmHandleEntityUIDChange, ocmHandleEntityParametersChange } from "../oc
 import { updateUIDMap } from "./uidmap.js";
 import { parameterMap, updateParameterMap } from "./parametermap.js";
 
+export let REGION_EXECUTE_PARAM_ID; // set in updateParameters
+
+export function updateParameters() {
+    // Does things to parameters depending on purpose.
+    function add(key, type, name, objType) {
+        param_type[param_type.length] = [key, type, name, "", objType];
+    }
+    // Adding parameters that the game accepts but ALE does not have.
+    add("moving", "bool", "Is Moving?", "door");
+    add("tarx", "value", "Target X", "door");
+    add("tary", "value", "Target Y", "door");
+    // Adding our own parameter.
+    add("__id", "value", "Object ID", "*");
+    add("__priority", "value", "Object priority", "*");
+    add("execute", "bool", "Executes directly?", "trigger");
+    add("uses_timer", "bool", "Calls timer?", "region");
+    add("text", "string", "Placeholder text", "decor");
+    add("attach", "door+none", "Attach to", "water");
+
+    // add("extended", "bool", "Extended?", "trigger");
+    // add("totalNumOfActions", "value", "Total No. Of Actions: ", "trigger");
+    // add("nextTrigger", "trigger+none", "Next trigger", "trigger");
+
+    // Patching parameters
+    param_type[0] = ['uid', 'string', 'Name', 'Object Name', '*'];
+
+    // Setting global variables for future use
+    for(let i = 0; i < param_type.length; i++) {
+        let param = param_type[i];
+        let key = param[0];
+        let selector = param[4];
+
+        if((key == "use_target") && (selector == "region")) {
+            REGION_EXECUTE_PARAM_ID = i;
+            continue;
+        }
+        if(["w", "h"].indexOf(key) != -1) { // Enables height and width parameters to be able to have negative height and width.
+            param_type[i][1] = "value+round10";
+            continue;
+        }
+    }
+    special_values_table["timer+none"] = new Array();
+    special_values_table["timer+none"][-1] = "- No timer -";
+    special_values_table["timer+none"]["[listof]"] = "timer"; // Somebody save me.
+}
+
 const triggerActionsRegex = /^actions_(\d+)_(targetA|targetB|type)$/;
 const boolParams = new Set(["flare", "vis", "enabled", "friction", "loop", "s", "moving", "execute", "uses_timer"]);
 const stringParams = new Set(["uid", "c", "url", "text"]);
