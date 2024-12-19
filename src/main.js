@@ -1138,25 +1138,29 @@ function rotateObjects() {
     }
 }
 
-function ALEI_OrderedName(oldName) {
-    let takenUids = es.filter(e => e.exists).map(o => o.pm.uid);
-    let actualName = oldName;
-
-    // Early quit if name is already unique
-    if(takenUids.indexOf(actualName) == -1) return actualName;
-    
-    // Getting name before *
-    if(oldName.indexOf("*") !== -1) actualName = oldName.slice(0, oldName.indexOf("*"));
-
-    // Testing every number through bruteforce.
-    let current = 1;
-    while(takenUids.indexOf(`${actualName}*${current}`) !== -1) current++;
-
-    return `${actualName}*${current}`;
-}
-
 function patchRandomizeName() {
-    window.RandomizeName = ALEI_OrderedName;
+    const originalRandomizeName = window.RandomizeName;
+    window.RandomizeName = function(oldName) {
+        if (!aleiSettings.orderedNaming) {
+            return originalRandomizeName(oldName);
+        }
+        else {
+            let takenUids = new Set(es.filter(e => e.exists).map(o => o.pm.uid));
+            let actualName = oldName;
+
+            // Early quit if name is already unique
+            if(!takenUids.has(actualName)) return actualName;
+            
+            // Getting name before *
+            if(oldName.indexOf("*") !== -1) actualName = oldName.slice(0, oldName.indexOf("*"));
+
+            // Testing every number through bruteforce.
+            let current = 1;
+            while(takenUids.has(`${actualName}*${current}`)) current++;
+
+            return `${actualName}*${current}`;
+        }
+    }
 }
 
 function patchAllowedCharacters() {
@@ -4296,7 +4300,7 @@ let ALE_start = (async function() {
     }
     patchUpdateGUIParams();
     patchTeamList();
-    if(aleiSettings.orderedNaming) patchRandomizeName();
+    patchRandomizeName();
     patchAllowedCharacters();
     addProjectileModels();
     patchSpecialValue();

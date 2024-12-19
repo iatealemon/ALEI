@@ -70,8 +70,8 @@ export function createALEISettingsMenu() {
                 <button class="settings-button" data-value="true">Enabled</button>
                 <button class="settings-button" data-value="false">Disabled</button>
             </div>
-            <div class="settings-item settings-item--requires-refresh" data-key="orderedNaming">
-                <div class="settings-label" title="Ensure similar object names are numbered sequentially. Requires a page refresh.">Ordered Naming:</div>
+            <div class="settings-item" data-key="orderedNaming">
+                <div class="settings-label" title="Ensure similar object names are numbered sequentially.">Ordered Naming:</div>
                 <button class="settings-button" data-value="true">Yes (Slow)</button>
                 <button class="settings-button" data-value="false">No (Fast)</button>
             </div>
