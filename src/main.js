@@ -1474,6 +1474,10 @@ function copyToPermanentClipboard() {
     }
 }
 
+function addPasteFromPermanentClipboard() {
+    window.pasteFromPermanentClipboard = pasteFromPermanentClipboard;
+}
+
 function changeTopRightText() {
     let containerElem = document.getElementById("version_rights");
     let elem = containerElem.childNodes[0];
@@ -3068,10 +3072,6 @@ function ALEI_DoWorldScale() {
 function patchPercentageTool() {
     window.DoWorldScale = ALEI_DoWorldScale;
     aleiLog(logLevel.DEBUG, "Patched percentage tool");
-}
-
-function addPasteFromPermanentClipboard() {
-    window.pasteFromPermanentClipboard = pasteFromPermanentClipboard;
 }
 
 let selectedTriggerActions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
