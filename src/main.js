@@ -956,16 +956,10 @@ function insertXML(xml) {
 }
 
 function exportXML() {
-    let exportSelection = false;
     let newstr = "";
     let download = document.createElement("a");
 
-    for (let i = 0; i < es.length; i++) {
-        if (es[i].selected) {
-            exportSelection = true;
-        }
-    }
-
+    let exportSelection = es.some(entity => entity.selected);
     if (exportSelection) {
         if(!confirm("Only selection will be exported.")) return;
         for (let i = 0; i < es.length; i++) {
@@ -1175,14 +1169,14 @@ function getObjectBox(obj) {
     let w = obj.pm.w;
     let h = obj.pm.h;
 
-    if (!"box door region pushf bg water".includes(obj._class)) {
+    if (!obj._isresizable) {
         x = bo_x[obj._class];
         y = bo_y[obj._class];
         w = bo_w[obj._class];
         h = bo_h[obj._class];
     }
 
-    if ("player enemy".includes(obj._class)) {
+    if (["player", "enemy"].includes(obj._class)) {
         x = -15;
         y = -81;
         w = 30;
@@ -1213,8 +1207,6 @@ function getObjectBox(obj) {
 
 function getSelectionImage() {
     let selection = SelectedObjects;
-    let arr1 = [];
-    let arr2 = [];
     let minX = +Infinity;
     let minY = +Infinity;
     let maxX = -Infinity;
@@ -2125,20 +2117,9 @@ function setParameter(index, value) {
     }
 }
 
-function getSelection() { // DEPRECATED! USE SelectedObjects DIRECTLY!
-    return SelectedObjects;
-}
-
 function areObjectsOfSameType(objects) {
-    let same = true;
-
-    for (let i = 0; i < objects.length; i++) {
-        if (objects[i]._class != objects[0]._class) {
-            same = false;
-        }
-    }
-
-    return same;
+    if (objects.length === 0) return true;
+    return !objects.some(obj => obj._class !== objects[0]._class);
 }
 
 function removeSameItems(array) {
@@ -2156,13 +2137,7 @@ function removeItems(array, items) {
 }
 
 function parameterNamesToIndexes(parameters, objectParameters) {
-    let indexes = [];
-
-    for (let i = 0; i < parameters.length; i++) {
-        indexes.push(objectParameters.indexOf(parameters[i]));
-    }
-
-    return indexes;
+    return parameters.map(param => objectParameters.indexOf(param));
 }
 
 function getSameParameters(objects) {
@@ -2181,14 +2156,6 @@ function getSameParameters(objects) {
     differentParameters = removeItems(parameters, differentParameters);
 
     return parameterNamesToIndexes(differentParameters, parameters);
-}
-
-function toBoolean(str) {
-    if (isNaN(Number(str))) {
-        return str == "true";
-    } else {
-        return Boolean(str);
-    }
 }
 
 const classParametersMap = {
@@ -2239,7 +2206,7 @@ function fixParameterValue(name, value, objectType) {
 }
 
 function setSameParameters() {
-    let objects = getSelection();
+    let objects = SelectedObjects;
 
     if (areObjectsOfSameType(objects) && objects.length >= 2) {
         let indexes = getSameParameters(objects);
@@ -3186,14 +3153,7 @@ function updateTriggerActionElements() {
 }
 
 function isOnlyTriggerSelected() {
-    let result = false;
-    let selection = getSelection();
-
-    if (selection.length == 1 && selection[0]._class == "trigger") {
-        result = true;
-    }
-
-    return result;
+    return SelectedObjects.length === 1 && SelectedObjects[0]._class === "trigger";
 }
 
 function getTriggerActions() {
@@ -4275,19 +4235,19 @@ function patchRender() {
 
 function patchStartNewMap() {
     // necessary cuz of patching via direct code replacement
-    unsafeWindow.initializeALEIMapData = initializeALEIMapData;
-    unsafeWindow.clearOCM = clearOCM;
-    unsafeWindow.clearUIDMap = clearUIDMap;
-    unsafeWindow.clearParameterMap = clearParameterMap;
+    window.initializeALEIMapData = initializeALEIMapData;
+    window.clearOCM = clearOCM;
+    window.clearUIDMap = clearUIDMap;
+    window.clearParameterMap = clearParameterMap;
 
-    const oldCode = unsafeWindow.StartNewMap.toString();
+    const oldCode = window.StartNewMap.toString();
 
     let newCode = oldCode.replace("ClearUndos();", "ClearUndos(); initializeALEIMapData(); clearOCM(); clearUIDMap(); clearParameterMap();");
     if (newCode === oldCode) {
         aleiLog(logLevel.WARN, "StartNewMap direct code replacement failed");
     }
 
-    unsafeWindow.StartNewMap = eval("(" + newCode + ")");
+    window.StartNewMap = eval("(" + newCode + ")");
 }
 
 let alreadyStarted = false;
@@ -4356,9 +4316,9 @@ let ALE_start = (async function() {
     addPasteFromPermanentClipboard();
 
     if (!aleiSettings.extendedTriggers) {
-        registerClipboardItemAction();
         patchClipboardFunctions();
     }
+    registerClipboardItemAction();
 
     patchDrawGrid();
     addFunctionToWindow();
