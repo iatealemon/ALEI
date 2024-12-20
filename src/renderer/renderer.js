@@ -3,8 +3,11 @@ import { aleiSettings } from "../storage/settings.js";
 import { aleiLog, logLevel } from "../log.js";
 import { asRadians, mod } from "../math.js"
 import { fixedVisualBBoxes } from "./fixedbboxes.js";
+import { canvasThemes } from "./canvasthemes.js";
 
 let window = unsafeWindow;
+
+window.canvasThemes = canvasThemes; // add canvasThemes to window so it can be changed via console
 
 // Variables that Renderer actively uses.
 let decorRequestsOnProgress = [];
@@ -48,105 +51,9 @@ let s2w_w;
 // For Preview mode.
 let previewBackground = "1";
 
-let themes = {
-    0: { // THEME_BLUE
-        // Grid colors.
-        backgroundColor: "#5880AB",
-        gridColor: "#FFFFFF",
-        // Object select colors.
-        selectOutlineColor: "#A5A500",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        // Selection area colors.
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1, // Note that this and below is NOT opacity FACTOR
-        selectionEdgeOpacity: 0.8,
-        // Highlighted object edge color. (When included in selection area)
-        highLightedObjEdgeColor: window.selgrd3, // NOTE: #FFFF00 seems nice. Bright but it is clearly noticeable.
-        highLightedObjEdgeOpacity: 1,
-        // Object connection line.
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66", // old name objectConnectionToColor
-        objectConnectionIncomingColor: "#ffffff", // old name objectConnectionFromColor
-        objectConnectionOpacityFactor: 1 // TODO: Should this just be "opacity" and not "opacity factor"?
-
-    },
-    1: { // THEME_DARK
-        backgroundColor: "#222222",
-        gridColor: "#888888",
-        selectOutlineColor: "#FFFF00",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1,
-        selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: window.selgrd3,
-        highLightedObjEdgeOpacity: 1,
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66",
-        objectConnectionIncomingColor: "#ffffff",
-        objectConnectionOpacityFactor: 1
-    },
-    2: { // THEME_GREEN
-        backgroundColor: "#222222",
-        gridColor: "#FFFFFF",
-        selectOutlineColor: "#FFFF00",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1,
-        selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: window.selgrd3,
-        highLightedObjEdgeOpacity: 1,
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66",
-        objectConnectionIncomingColor: "#ffffff",
-        objectConnectionOpacityFactor: 1
-    },
-    3: { // THEME_PURPLE
-        backgroundColor: "#222222",
-        gridColor: "#FFFFFF",
-        selectOutlineColor: "#FFFF00",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1,
-        selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: window.selgrd3,
-        highLightedObjEdgeOpacity: 1,
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66",
-        objectConnectionIncomingColor: "#ffffff",
-        objectConnectionOpacityFactor: 1
-    },
-    4: { // ALEI Black Theme
-        backgroundColor: "#222222",
-        gridColor: "#FFFFFF50",
-        selectOutlineColor: "#FFFF00",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1,
-        selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: window.selgrd3,
-        highLightedObjEdgeOpacity: 1,
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66",
-        objectConnectionIncomingColor: "#ffffff",
-        objectConnectionOpacityFactor: 1
-    }
-}
 let currentTheme;
+
+let regionImages = {} // Will be filled later.
 
 function RenderGrid() {
     // Grid lines.
@@ -162,19 +69,6 @@ function RenderGrid() {
     draw_rect(0, w2s_y(0), canvasWidth, 1); // Center Grid - Horizontal
     draw_rect(w2s_x(0), 0, 1, canvasHeight); // Center Grid - Vertical
 }
-
-let objectColors = {
-    box: {col: "#FFF", edgeCol: "#FFF"},
-    door: {col: "#000", edgeCol: "#000", invisibleOpacityFactor: 0.05},
-    water: {
-        col: "#3592B9", edgeCol: "#91EAFF", opacityFactor: 0.24,
-        acidCol: "#BBFB59", acidEdgeCol: "#91EAFF", acidOpacityFactor: 0.81
-    },
-    pushf: {col: "#2BFF40", edgeCol: "#3CFF4F"},
-    region: {col: "#FFD52B", edgeCol: "#FFB03C", edgeOpacityFactor: 0.5, buttonOpacityFactor: 0.5},
-    bg: {col: "#000", edgeCol: "#910000", edgeOpacityFactor: 0.3, coloredOpacityFactor: 0.22}
-}
-let regionImages = {} // Will be filled later.
 
 function _DrawRectangle(color, opacity, x, y, w, h, edge) {
     ctx.globalAlpha = opacity;
@@ -212,7 +106,7 @@ function ObjIsHighlighted(element, cns) {
 // Function responsible for rendering resizable objects. (Region, door, box, pusher, water)
 function RenderSingleResizableObject(element, cns) {
     let elemClass = element._class;
-    let objectColor = objectColors[elemClass];
+    let objectColor = currentTheme.objectColors[elemClass];
     if(objectColor === undefined) return;
 
     let layerAlpha = window.MatchLayer(element) ? 1: 0.3;
@@ -987,7 +881,7 @@ function RenderFrame() {
     if(!window.need_redraw) return;
     canvasWidth = window.lsu;
     canvasHeight = window.lsv;
-    currentTheme = themes[window.THEME];
+    currentTheme = canvasThemes[window.THEME] ?? canvasThemes[window.THEME_BLUE];
     gridOpacity = window.GRID_ALPHA;
 
     mClickX = window.lmdrwa;
