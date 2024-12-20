@@ -1,5 +1,8 @@
-export const canvasThemes = {
-    0: { // THEME_BLUE
+/**
+ * creates the canvas theme map for blue theme and applies any overwrites that a theme may have. returns the result.
+ */
+function createCanvasThemeMap(overwrites={}) {
+    const canvasTheme = {
         // Grid colors.
         backgroundColor: "#5880AB",
         gridColor: "#FFFFFF",
@@ -32,123 +35,50 @@ export const canvasThemes = {
             region: {col: "#FFD52B", edgeCol: "#FFB03C", edgeOpacityFactor: 0.5, buttonOpacityFactor: 0.5},
             bg: {col: "#000", edgeCol: "#910000", edgeOpacityFactor: 0.3, coloredOpacityFactor: 0.22}
         },
-    },
-    1: { // THEME_DARK
+    };
+
+    /** checks if an object is a Plain Old Javascript Object */
+    const isPlainObject = (obj) => obj !== null && typeof obj === "object" && Object.getPrototypeOf(obj) === Object.prototype;
+
+    function deepMerge(target, source) {
+        for (const key in source) {
+            if (isPlainObject(target[key]) && isPlainObject(source[key])) {
+                deepMerge(target[key], source[key]);
+            }
+            else {
+                target[key] = source[key];
+            }
+        }
+    }
+
+    // apply overwrites
+    deepMerge(canvasTheme, overwrites);
+
+    return canvasTheme;
+}
+
+export const canvasThemes = {
+    0: createCanvasThemeMap(), // THEME_BLUE
+    1: createCanvasThemeMap({ // THEME_DARK
         backgroundColor: "#222222",
         gridColor: "#888888",
         selectOutlineColor: "#FFFF00",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1,
-        selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: undefined,
-        highLightedObjEdgeOpacity: 1,
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66",
-        objectConnectionIncomingColor: "#ffffff",
-        objectConnectionOpacityFactor: 1,
-        objectColors: {
-            box: {col: "#FFF", edgeCol: "#FFF"},
-            door: {col: "#000", edgeCol: "#000", invisibleOpacityFactor: 0.05},
-            water: {
-                col: "#3592B9", edgeCol: "#91EAFF", opacityFactor: 0.24,
-                acidCol: "#BBFB59", acidEdgeCol: "#91EAFF", acidOpacityFactor: 0.81
-            },
-            pushf: {col: "#2BFF40", edgeCol: "#3CFF4F"},
-            region: {col: "#FFD52B", edgeCol: "#FFB03C", edgeOpacityFactor: 0.5, buttonOpacityFactor: 0.5},
-            bg: {col: "#000", edgeCol: "#910000", edgeOpacityFactor: 0.3, coloredOpacityFactor: 0.22}
-        },
-    },
-    2: { // THEME_GREEN
+    }),
+    2: createCanvasThemeMap({ // THEME_GREEN
         backgroundColor: "#222222",
-        gridColor: "#FFFFFF",
+        gridColor: "#888888",
         selectOutlineColor: "#FFFF00",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1,
-        selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: undefined,
-        highLightedObjEdgeOpacity: 1,
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66",
-        objectConnectionIncomingColor: "#ffffff",
-        objectConnectionOpacityFactor: 1,
-        objectColors: {
-            box: {col: "#FFF", edgeCol: "#FFF"},
-            door: {col: "#000", edgeCol: "#000", invisibleOpacityFactor: 0.05},
-            water: {
-                col: "#3592B9", edgeCol: "#91EAFF", opacityFactor: 0.24,
-                acidCol: "#BBFB59", acidEdgeCol: "#91EAFF", acidOpacityFactor: 0.81
-            },
-            pushf: {col: "#2BFF40", edgeCol: "#3CFF4F"},
-            region: {col: "#FFD52B", edgeCol: "#FFB03C", edgeOpacityFactor: 0.5, buttonOpacityFactor: 0.5},
-            bg: {col: "#000", edgeCol: "#910000", edgeOpacityFactor: 0.3, coloredOpacityFactor: 0.22}
-        },
-    },
-    3: { // THEME_PURPLE
+    }),
+    3: createCanvasThemeMap({ // THEME_PURPLE
         backgroundColor: "#222222",
-        gridColor: "#FFFFFF",
+        gridColor: "#888888",
         selectOutlineColor: "#FFFF00",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1,
-        selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: undefined,
-        highLightedObjEdgeOpacity: 1,
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66",
-        objectConnectionIncomingColor: "#ffffff",
-        objectConnectionOpacityFactor: 1,
-        objectColors: {
-            box: {col: "#FFF", edgeCol: "#FFF"},
-            door: {col: "#000", edgeCol: "#000", invisibleOpacityFactor: 0.05},
-            water: {
-                col: "#3592B9", edgeCol: "#91EAFF", opacityFactor: 0.24,
-                acidCol: "#BBFB59", acidEdgeCol: "#91EAFF", acidOpacityFactor: 0.81
-            },
-            pushf: {col: "#2BFF40", edgeCol: "#3CFF4F"},
-            region: {col: "#FFD52B", edgeCol: "#FFB03C", edgeOpacityFactor: 0.5, buttonOpacityFactor: 0.5},
-            bg: {col: "#000", edgeCol: "#910000", edgeOpacityFactor: 0.3, coloredOpacityFactor: 0.22}
-        },
-    },
-    4: { // ALEI Black Theme
+    }),
+    4: createCanvasThemeMap({ // ALEI Black Theme
         backgroundColor: "#222222",
         gridColor: "#FFFFFF50",
         selectOutlineColor: "#FFFF00",
-        selectEdgeOpacityFactor: 1,
-        selectTextColor: "#FF0",
-        selectionColor: "#FFF",
-        selectionCtrlColor: "#AFA",
-        selectionAltColor: "#FAA",
-        selectionOpacity: 0.1,
-        selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: undefined,
-        highLightedObjEdgeOpacity: 1,
-        objectConnectionDash: [4, 4],
-        objectConnectionOutgoingColor: "#66ff66",
-        objectConnectionIncomingColor: "#ffffff",
-        objectConnectionOpacityFactor: 1,
-        objectColors: {
-            box: {col: "#FFF", edgeCol: "#FFF"},
-            door: {col: "#000", edgeCol: "#000", invisibleOpacityFactor: 0.05},
-            water: {
-                col: "#3592B9", edgeCol: "#91EAFF", opacityFactor: 0.24,
-                acidCol: "#BBFB59", acidEdgeCol: "#91EAFF", acidOpacityFactor: 0.81
-            },
-            pushf: {col: "#2BFF40", edgeCol: "#3CFF4F"},
-            region: {col: "#FFD52B", edgeCol: "#FFB03C", edgeOpacityFactor: 0.5, buttonOpacityFactor: 0.5},
-            bg: {col: "#000", edgeCol: "#910000", edgeOpacityFactor: 0.3, coloredOpacityFactor: 0.22}
-        },
-    }
+    }),
 };
 
 /**
