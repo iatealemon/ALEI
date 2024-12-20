@@ -18,7 +18,9 @@ import { makeCommentBox, setCurrentCommentedTrigger, setCommentsResizeObserverTa
 import "./draggablewindow/draggablewindow.js";
 
 import { onEntitiesCreated, patchEntityClass, SelectedObjects, clearSelectedObjects } from "./entity/entity.js";
-import { patchUpdatePhysicalParam, updateParameters, REGION_EXECUTE_PARAM_ID } from "./entity/parameter.js";
+import { patchUpdatePhysicalParam, updateParameters, REGION_EXECUTE_PARAM_ID, 
+    assignObjectIDs, assignObjectPriority, propertyAppliedObjects, AssignObjectProperties, sortRequired, SortObjectsByPriority, RemoveObjectProperties
+ } from "./entity/parameter.js";
 import { loadParameterMap, parameterMapHandleParametersRemoval, clearParameterMap } from "./entity/parametermap.js";
 import { replaceParamValueUID } from "./entity/parameterutils.js";
 import { loadUIDMap, clearUIDMap } from "./entity/uidmap.js";
@@ -2685,67 +2687,6 @@ window.eval = function(code) { // Temporarily overriding eval so we can patch Se
         debugger;
     }
 };
-
-function assignObjectIDs() {
-    // TODO: Refactor
-    let idmap = {};
-    for (let element of es) {
-        if (!element.exists) continue;
-        if (idmap[element._class] === undefined) idmap[element._class] = -1;
-
-        idmap[element._class] += 1;
-        element.aleiID = idmap[element._class];
-    }
-}
-function assignObjectPriority() {
-    // TODO: Refactor
-    for (let element of es) {
-        if (!element.exists) continue;
-        if(element.aleiPriority == undefined) element.aleiPriority = 1;
-    }
-}
-
-let propertyAppliedObjects = [];
-function AssignObjectProperties(e) {
-    if(e.aleiID == undefined) assignObjectIDs();
-    if(e.aleiPriority == undefined) assignObjectPriority();
-
-    if(propertyAppliedObjects.indexOf(e) == -1) propertyAppliedObjects.push(e);
-
-    let entries = Object.entries(e.pm);
-    entries.splice(0, 0, ["__id", e.aleiID]);
-
-    if(["bg", "decor"].indexOf(e._class) !== -1) {
-        entries.splice(1, 0, ["__priority", e.aleiPriority]);
-    };
-
-    e.pm = Object.fromEntries(entries);
-}
-
-let sortRequired = false;
-function SortObjectsByPriority() {
-    function getPriority(a, b) {
-        return b.aleiPriority - a.aleiPriority;
-    }
-    window.es = es.sort(getPriority);
-}
-
-unsafeWindow.ApplyObjectProperties = ApplyObjectProperties; // temporary fix to allow UpdatePhysicalParams to access this in ./entity/parameter.js
-function ApplyObjectProperties(e) {
-    if(["bg", "decor"].indexOf(e._class) == -1) return;
-    if(e.aleiPriority !== e.pm.__priority) {
-        e.aleiPriority = e.pm.__priority;
-        sortRequired = true;
-
-        // TODO: How can I force update GUI object list?
-        // UpdateGUIObjectsList does not do it.
-    }
-}
-
-function RemoveObjectProperties(e) {
-    delete e.pm.__id;
-    delete e.pm.__priority;
-}
 
 function patchUpdateGUIParams() {
     let oldCodeSnippet = "if ( i >= 4 && (i-4) % 3 == 0 ) {";

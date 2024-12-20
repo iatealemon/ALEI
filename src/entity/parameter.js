@@ -326,3 +326,63 @@ function updateUIDReferences(oldUID, newUID) {
         redo: redoEvalString
     };
 }
+
+export function assignObjectIDs() {
+    // TODO: Refactor
+    let idmap = {};
+    for (let element of es) {
+        if (!element.exists) continue;
+        if (idmap[element._class] === undefined) idmap[element._class] = -1;
+
+        idmap[element._class] += 1;
+        element.aleiID = idmap[element._class];
+    }
+}
+export function assignObjectPriority() {
+    // TODO: Refactor
+    for (let element of es) {
+        if (!element.exists) continue;
+        if(element.aleiPriority == undefined) element.aleiPriority = 1;
+    }
+}
+
+export let propertyAppliedObjects = [];
+export function AssignObjectProperties(e) {
+    if(e.aleiID == undefined) assignObjectIDs();
+    if(e.aleiPriority == undefined) assignObjectPriority();
+
+    if(propertyAppliedObjects.indexOf(e) == -1) propertyAppliedObjects.push(e);
+
+    let entries = Object.entries(e.pm);
+    entries.splice(0, 0, ["__id", e.aleiID]);
+
+    if(["bg", "decor"].indexOf(e._class) !== -1) {
+        entries.splice(1, 0, ["__priority", e.aleiPriority]);
+    };
+
+    e.pm = Object.fromEntries(entries);
+}
+
+export let sortRequired = false;
+export function SortObjectsByPriority() {
+    function getPriority(a, b) {
+        return b.aleiPriority - a.aleiPriority;
+    }
+    es = es.sort(getPriority);
+}
+
+function ApplyObjectProperties(e) {
+    if(["bg", "decor"].indexOf(e._class) == -1) return;
+    if(e.aleiPriority !== e.pm.__priority) {
+        e.aleiPriority = e.pm.__priority;
+        sortRequired = true;
+
+        // TODO: How can I force update GUI object list?
+        // UpdateGUIObjectsList does not do it.
+    }
+}
+
+export function RemoveObjectProperties(e) {
+    delete e.pm.__id;
+    delete e.pm.__priority;
+}
