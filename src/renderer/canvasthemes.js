@@ -16,7 +16,7 @@ function createCanvasThemeMap(overwrites={}) {
         selectionAltColor: "#FAA",
         selectionOpacity: 0.1, // Note that this and below is NOT opacity FACTOR
         selectionEdgeOpacity: 0.8,
-        // Highlighted object edge color. (When included in selection area)
+        // Highlighted object edge color. (When included in selection area). undefined means to use selgrd3 (dotted line)
         highLightedObjEdgeColor: undefined, // NOTE: #FFFF00 seems nice. Bright but it is clearly noticeable.
         highLightedObjEdgeOpacity: 1,
         // Object connection line.
@@ -64,12 +64,12 @@ export const canvasThemes = {
         gridColor: "#888888",
         selectOutlineColor: "#FFFF00",
     }),
-    2: createCanvasThemeMap({ // THEME_GREEN
+    2: createCanvasThemeMap({ // THEME_PURPLE
         backgroundColor: "#222222",
         gridColor: "#888888",
         selectOutlineColor: "#FFFF00",
     }),
-    3: createCanvasThemeMap({ // THEME_PURPLE
+    3: createCanvasThemeMap({ // THEME_GREEN
         backgroundColor: "#222222",
         gridColor: "#888888",
         selectOutlineColor: "#FFFF00",
@@ -82,12 +82,15 @@ export const canvasThemes = {
 };
 
 /**
- * sets highLightedObjEdgeColor of each theme in canvasThemes. they have to be set like this because selgrd3 is undefined at first
+ * sets highLightedObjEdgeColor of each theme in canvasThemes that should use selgrd3 to selgrd3. they have to be set like this because selgrd3 is undefined at first.  
+ * it's assumed that the theme should use selgrd3 if highLightedObjEdgeColor is undefined
  */
 export function setHighLightedObjEdgeColors() {
     const ready = () => {
         for (const theme in canvasThemes) {
-            canvasThemes[theme].highLightedObjEdgeColor = unsafeWindow.selgrd3;
+            if (canvasThemes[theme].highLightedObjEdgeColor === undefined) {
+                canvasThemes[theme].highLightedObjEdgeColor = unsafeWindow.selgrd3;
+            }
         }
     };
 
