@@ -3,7 +3,7 @@ import { aleiSettings } from "../storage/settings.js";
 import { aleiLog, logLevel } from "../log.js";
 import { asRadians, mod } from "../math.js"
 import { fixedVisualBBoxes } from "./fixedbboxes.js";
-import { canvasThemes } from "./canvasthemes.js";
+import { canvasThemes, setHighLightedObjEdgeColors } from "./canvasthemes.js";
 
 let window = unsafeWindow;
 
@@ -1021,6 +1021,9 @@ export function Renderer_initialize() {
         9: window.img_region_red,
         10: window.img_region_blue
     }
+
+    // set highLightedObjEdgeColor of each theme to window.selgrd3 once it's loaded
+    setHighLightedObjEdgeColors();
 
     // Storing functions into our scope. (To avoid tampermonkey warning)
     w2s_x = window.w2s_x;

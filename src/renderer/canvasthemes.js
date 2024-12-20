@@ -14,7 +14,7 @@ export const canvasThemes = {
         selectionOpacity: 0.1, // Note that this and below is NOT opacity FACTOR
         selectionEdgeOpacity: 0.8,
         // Highlighted object edge color. (When included in selection area)
-        highLightedObjEdgeColor: window.selgrd3, // NOTE: #FFFF00 seems nice. Bright but it is clearly noticeable.
+        highLightedObjEdgeColor: undefined, // NOTE: #FFFF00 seems nice. Bright but it is clearly noticeable.
         highLightedObjEdgeOpacity: 1,
         // Object connection line.
         objectConnectionDash: [4, 4],
@@ -44,7 +44,7 @@ export const canvasThemes = {
         selectionAltColor: "#FAA",
         selectionOpacity: 0.1,
         selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: window.selgrd3,
+        highLightedObjEdgeColor: undefined,
         highLightedObjEdgeOpacity: 1,
         objectConnectionDash: [4, 4],
         objectConnectionOutgoingColor: "#66ff66",
@@ -73,7 +73,7 @@ export const canvasThemes = {
         selectionAltColor: "#FAA",
         selectionOpacity: 0.1,
         selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: window.selgrd3,
+        highLightedObjEdgeColor: undefined,
         highLightedObjEdgeOpacity: 1,
         objectConnectionDash: [4, 4],
         objectConnectionOutgoingColor: "#66ff66",
@@ -102,7 +102,7 @@ export const canvasThemes = {
         selectionAltColor: "#FAA",
         selectionOpacity: 0.1,
         selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: window.selgrd3,
+        highLightedObjEdgeColor: undefined,
         highLightedObjEdgeOpacity: 1,
         objectConnectionDash: [4, 4],
         objectConnectionOutgoingColor: "#66ff66",
@@ -131,7 +131,7 @@ export const canvasThemes = {
         selectionAltColor: "#FAA",
         selectionOpacity: 0.1,
         selectionEdgeOpacity: 0.8,
-        highLightedObjEdgeColor: window.selgrd3,
+        highLightedObjEdgeColor: undefined,
         highLightedObjEdgeOpacity: 1,
         objectConnectionDash: [4, 4],
         objectConnectionOutgoingColor: "#66ff66",
@@ -150,3 +150,25 @@ export const canvasThemes = {
         },
     }
 };
+
+/**
+ * sets highLightedObjEdgeColor of each theme in canvasThemes. they have to be set like this because selgrd3 is undefined at first
+ */
+export function setHighLightedObjEdgeColors() {
+    const ready = () => {
+        for (const theme in canvasThemes) {
+            canvasThemes[theme].highLightedObjEdgeColor = unsafeWindow.selgrd3;
+        }
+    };
+
+    if (unsafeWindow.selgrd3 instanceof CanvasPattern) {
+        ready();
+    }
+    else {
+        const originalOnLoad = unsafeWindow.img_slct3.onload;
+        unsafeWindow.img_slct3.onload = () => {
+            originalOnLoad();
+            ready();
+        };
+    }
+}
