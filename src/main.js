@@ -4132,10 +4132,11 @@ function patchStartNewMap() {
     window.clearOCM = clearOCM;
     window.clearUIDMap = clearUIDMap;
     window.clearParameterMap = clearParameterMap;
+    window.clearSelectedObjects = clearSelectedObjects;
 
     const oldCode = window.StartNewMap.toString();
 
-    let newCode = oldCode.replace("ClearUndos();", "ClearUndos(); initializeALEIMapData(); clearOCM(); clearUIDMap(); clearParameterMap();");
+    let newCode = oldCode.replace("ClearUndos();", "ClearUndos(); initializeALEIMapData(); clearOCM(); clearUIDMap(); clearParameterMap(); clearSelectedObjects();");
     if (newCode === oldCode) {
         aleiLog(logLevel.WARN, "StartNewMap direct code replacement failed");
     }
