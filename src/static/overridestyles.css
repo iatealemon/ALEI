@@ -32,3 +32,35 @@ these padding and margin changes have almost no visual effect except for allowin
 .mrpopup {
     z-index: 300;
 }
+
+
+
+/* top panel stuff. improves the way padding and gapping is applied */
+.topui {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px;
+    padding-bottom: 16px;
+    height: 20px;
+}
+
+.field_btn, .field_dis_left, .field_dis_right {
+    margin: 0;
+}
+
+.field_btn {
+    flex: 0 0 auto;
+}
+
+/*this isn't actually an override style but it doesn't make sense to put this elsewhere.
+contains field_dis_left and field_dis_right so that a gap isn't added between them*/
+.field_dis_container {
+    flex: 0 0 auto;
+}
+
+/*this isn't actually an override style but it doesn't make sense to put this elsewhere.
+this is applied to the last element of a section (of the top buttons) so that sections have 42px gap*/
+.topui__section-end {
+    margin-right: 28px;
+}

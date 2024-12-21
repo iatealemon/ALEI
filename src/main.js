@@ -4,6 +4,7 @@ import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
 import { Renderer_initialize } from "./renderer/renderer.js";
 import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./themes.js";
 import { patchUpdateTools } from "./toolbar.js";
+import { patchTopPanel, addTopButton } from "./topgui.js";
 
 import { getALEIMapDataFromALEIMapDataObject, loadALEIMapDataIntoUse, initializeALEIMapData } from "./aleimapdata/aleimapdata.js";
 import * as aleimapdatapatches from "./aleimapdata/aleimapdatapatches.js";
@@ -666,88 +667,6 @@ function updateObjects() {
     updateTriggers();
 }
 
-function updateButtons() {
-    let topPanel = $id("top_panel");
-    let childs = topPanel.children;
-
-    // We redirect the manual page to EaglePB2's.
-    childs[16].value = "Eagle's Manual";
-    childs[16].setAttribute("onclick", "window.open('https://eaglepb2.gitbook.io/pb2-editor-manual/', '_blank');")
-
-    // We dont want our new buttons to appear after "rights", so we will store "rights" beforehand and remove them, we'll add them back once we are done
-    let appendBack = (topPanel.removeChild(childs[childs.length - 1])).outerHTML;
-    appendBack = (topPanel.removeChild(childs[childs.length - 1])).outerHTML + appendBack;
-
-    // Remove pad (we will add our own later).
-    topPanel.removeChild(childs[childs.length - 1])
-
-    window.aleiButtonClicks = {};
-
-    // Convenience function for doing easy top panel buttons
-    function createButton(text, internalName, onClick) {
-        let button = document.createElement("input");
-        button.setAttribute("class", "field_btn");
-        button.setAttribute("type", "button");
-        button.setAttribute("value", text);
-        button.setAttribute("onclick", `aleiButtonClicks['${internalName}']()`);
-        window.aleiButtonClicks[internalName] = onClick;
-
-        let pad = document.createElement("div");
-        pad.setAttribute("class", "q");
-
-        topPanel.appendChild(button);
-        topPanel.appendChild(pad);
-    }
-    let bigPad = document.createElement("div");
-    bigPad.setAttribute("class", "q3");
-    topPanel.appendChild(bigPad);
-
-    // "Download XML" button.
-    createButton("Download XML", "downloadXMLButton", exportXML);
-    // "Insert XML" button.
-    createButton("Insert XML", "insertXMLButton", () => {
-        let file = confirm("File (OK) or text (Cancel) ?");
-
-        if (file) {
-            let fileInput = document.createElement("input");
-
-            fileInput.type = "file";
-
-            fileInput.onchange = function() {
-                if (fileInput.files[0]) {
-                    if (fileInput.files[0].name.split(".")[1] == "xml") {
-                        let reader = new FileReader();
-
-                        reader.onload = function() {
-                            insertXML(reader.result);
-
-                            fileInput.remove();
-                        }
-
-                        reader.readAsText(fileInput.files[0]);
-                    } else {
-                        alert("Invalid file extension.");
-                    }
-                }
-            }
-
-            fileInput.click();
-        } else {
-            let xml = prompt("Enter XML:", "");
-
-            if (xml !== null) {
-                insertXML(xml);
-            }
-        }
-    });
-    createButton("ALEI Settings", "openALEISettings", showSettings);
-    // Readd 'rights' back.
-    topPanel.innerHTML += appendBack;
-    // Update original reference
-    window.mapid_field = $id("mapid_field");
-    mapid_field.value = mapid; // And update map id field value manually.
-}
-
 function addClipboardSync() {
     let clipboard_channel = new BroadcastChannel("ale_clipboard");
 
@@ -922,6 +841,42 @@ function tryToNumber(x) {
         return Number(x);
     } else {
         return x;
+    }
+}
+
+function insertXMLUserInput() {
+    let file = confirm("File (OK) or text (Cancel) ?");
+
+    if (file) {
+        let fileInput = document.createElement("input");
+
+        fileInput.type = "file";
+
+        fileInput.onchange = function() {
+            if (fileInput.files[0]) {
+                if (fileInput.files[0].name.split(".")[1] == "xml") {
+                    let reader = new FileReader();
+
+                    reader.onload = function() {
+                        insertXML(reader.result);
+
+                        fileInput.remove();
+                    }
+
+                    reader.readAsText(fileInput.files[0]);
+                } else {
+                    alert("Invalid file extension.");
+                }
+            }
+        }
+
+        fileInput.click();
+    } else {
+        let xml = prompt("Enter XML:", "");
+
+        if (xml !== null) {
+            insertXML(xml);
+        }
     }
 }
 
@@ -4175,7 +4130,12 @@ let ALE_start = (async function() {
     updateParameters();
     updateOffsets();
     updateObjects();
-    updateButtons();
+
+    patchTopPanel();
+    addTopButton("Download XML", exportXML);
+    addTopButton("Insert XML", insertXMLUserInput);
+    addTopButton("ALEI Settings", showSettings);
+
     patch_m_down();
     addSessionSync();
     addTriggerIDs();
