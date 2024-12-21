@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name ALE Improvements
 // @description Changes to make ALE better.
-// @version 22.7
+// @version 22.8
 // @author molis, mici1234, wanted2001, gcp5o
 // @match *://www.plazmaburst2.com/level_editor/map_edit.php*
 // @connect github.com
