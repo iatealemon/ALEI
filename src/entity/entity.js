@@ -11,7 +11,7 @@ export function onEntitiesCreated(newEntities) {
 }
 
 export let SelectedObjects = [];
-unsafeWindow.getSelection = () => { return SelectedObjects; };
+unsafeWindow.getSelectedObjects = () => { return SelectedObjects; };
 
 export function clearSelectedObjects() {
     SelectedObjects = [];
