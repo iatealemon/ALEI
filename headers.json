@@ -6,7 +6,7 @@
     "match": ["*://www.plazmaburst2.com/level_editor/map_edit.php*"],
     "run-at": "document-start",
     "icon": "https://github.com/Molisson/ALEI/blob/main/icon.png?raw=true",
-    "updateURL": "https://github.com/Molisson/ALEI/raw/main/alei.user.js",
+    "updateURL": "https://github.com/Molisson/ALEI/raw/main/alei.meta.js",
     "downloadURL": "https://github.com/Molisson/ALEI/raw/main/alei.user.js",
     "connect": [
         "github.com",

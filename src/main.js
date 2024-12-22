@@ -5,6 +5,7 @@ import { Renderer_initialize } from "./renderer/renderer.js";
 import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./themes.js";
 import { patchUpdateTools } from "./toolbar.js";
 import { patchTopPanel, addTopButton } from "./topgui.js";
+import { newUpdate, doALEIUpdate, checkForUpdates } from "./updates.js";
 
 import { getALEIMapDataFromALEIMapDataObject, loadALEIMapDataIntoUse, initializeALEIMapData } from "./aleimapdata/aleimapdata.js";
 import * as aleimapdatapatches from "./aleimapdata/aleimapdatapatches.js";
@@ -1787,8 +1788,6 @@ function addFunctionToWindow() {
     window.addTriggerActionCount = addTriggerActionCount;
 }
 
-let newUpdate = false;
-
 let targetElement;
 
 document.addEventListener("mousedown", e => {
@@ -1983,10 +1982,10 @@ document.addEventListener("keydown", e => {
         copyToPermanentClipboard();
     }
 
-    if (e.ctrlKey && e.shiftKey) {
+    if (e.ctrlKey && e.shiftKey && e.code == "KeyU") {
         if (newUpdate) {
-            window.open(updateURL);
-            newUpdate = false;
+            e.preventDefault();
+            doALEIUpdate();
         }
     }
 });
@@ -2839,41 +2838,6 @@ function patchSpecialValue() {
         }else return _OG(base, value);
     }
     aleiLog(logLevel.DEBUG, "Patched SpecialValue");
-}
-
-function notifyUpdate(version) {
-    newUpdate = true;
-
-    aleiLog(logLevel.INFO, `New update: ${version}`);
-    NewNote(`ALEI: There is new update: ${version}, you are currently in ${GM_info.script.version}<br>Press Ctrl + Shift to update`, "#FFFFFF");
-}
-
-function notifyIfTheresUpdate(script) {
-    let lines = script.split("\n");
-    let version;
-    for(let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        if(line.indexOf("@version") == -1) continue;
-
-        let parts = line.split(" ");
-        version = parts[parts.length - 1];
-        break;
-    }
-
-    let latestVersion = parseInt(version.replaceAll(".", ""));
-    let currentVersion = parseInt(GM_info.script.version.replaceAll(".", ""));
-
-    if(latestVersion > currentVersion) return notifyUpdate(version);
-
-    aleiLog(logLevel.INFO, `REMOTE: ${version}, LOCAL: ${GM_info.script.version} => No update detected.`);
-}
-
-let updateURL;
-// let repository;
-
-async function checkForUpdates() {
-    let resp = await GM.xmlHttpRequest({  url: updateURL  }).catch(e => console.error(e));
-    notifyIfTheresUpdate(resp.responseText);
 }
 
 function ALEI_DoWorldScale() {
@@ -4188,8 +4152,6 @@ let ALE_start = (async function() {
     registerOpenInColorEditorButton();
 
     if(isNative && !GM_info.script.name.includes("Local")) {
-        updateURL = GM_info.script.updateURL;
-        // repository = updateURL.split( "raw/" )[0];
         checkForUpdates();
     }
     changeTopRightText();
