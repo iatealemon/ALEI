@@ -23,12 +23,12 @@ const levelToNameMap = {
     2: `${ANSI_GREEN}VERBOSE${ANSI_RESET}`
 };
 
-export function aleiLog(level, text) {
+export function aleiLog(level, ...args) {
     if (level <= logLevel.WARN) {
-        console.warn(`[ALEI:WARNING]: ${text}`);
+        console.warn(`[ALEI:WARNING]:`, ...args);
         if (level === logLevel.WARN) NewNote(`ALEI: Please check console.`, "#FFFF00");
     }
     else if (level <= aleiSettings.logLevel) {
-        console.log(`[${ANSI_GREEN}ALEI:${levelToNameMap[level]}]: ${text}`);
+        console.log(`[${ANSI_GREEN}ALEI:${levelToNameMap[level]}]:`, ...args);
     }
 }
