@@ -71,9 +71,12 @@ export function clearUIDMap() {
 function checkValidityForDebugging(source) {
     const validityData = validateUIDMap();
     if (!validityData.valid) {
-        console.log(`uid map error (source: ${source})`);
-        console.log("original map:", validityData.originalMap);
-        console.log("correct map:", validityData.correctMap);
+        aleiLog(logLevel.WARN, 
+            `uid map error (source: ${source})`,
+            "\noriginal map:", validityData.originalMap,
+            "\ncorrect map:", validityData.correctMap,
+            "\nThe effects of this error were fixed automatically."
+        );
         uidMap = validityData.correctMap;
     }
     return validityData.valid;
@@ -124,4 +127,4 @@ function areMapsIdentical(map1, map2) {
 unsafeWindow.updateUIDMap = updateUIDMap;
 
 unsafeWindow.getUIDMap = () => { return uidMap };
-unsafeWindow.validateUIDMap = () => { if (checkValidityForDebugging("console")) console.log("UID map is correct") };
+unsafeWindow.validateUIDMap = () => { if (checkValidityForDebugging("console")) aleiLog(logLevel.INFO, "UID map is correct") };

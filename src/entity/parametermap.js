@@ -130,9 +130,12 @@ export function clearParameterMap() {
 function checkValidityForDebugging(source) {
     const validityData = validateParameterMap();
     if (!validityData.valid) {
-        console.log(`parameter map error (source: ${source})`);
-        console.log("original map:", validityData.originalMap);
-        console.log("correct map:", validityData.correctMap);
+        aleiLog(logLevel.WARN, 
+            `parameter map error (source: ${source})`,
+            "\noriginal map:", validityData.originalMap,
+            "\ncorrect map:", validityData.correctMap,
+            "\nThe effects of this error were fixed automatically."
+        );
         parameterMap = validityData.correctMap;
     }
     return validityData.valid;
@@ -195,5 +198,5 @@ unsafeWindow.updateParameterMap = updateParameterMap;
 
 (function setConsoleStuff() {
     unsafeWindow.getParameterMap = () => { return parameterMap };
-    unsafeWindow.validateParameterMap = () => { if (checkValidityForDebugging("console")) console.log("Parameter map is correct") };
+    unsafeWindow.validateParameterMap = () => { if (checkValidityForDebugging("console")) aleiLog(logLevel.INFO, "Parameter map is correct") };
 })();

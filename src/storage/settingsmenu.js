@@ -159,7 +159,7 @@ export function createALEISettingsMenu() {
     }
 
     function settingValueSelected(settingKey, storageKey, value, callback) {
-        //console.log(settingKey, storageKey, value, callback);
+        //aleiLog(logLevel.VERBOSE, settingKey, storageKey, value, callback);
         writeStorage(storageKey, value);
 
         aleiSettings[settingKey] = value;

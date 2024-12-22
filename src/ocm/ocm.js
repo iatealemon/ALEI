@@ -102,22 +102,21 @@ export function clearOCM() {
 
 function checkValidityForDebugging(source) {
     const validityData = validate();
+    const errorMessage = [];
     if (validityData.incoming.valid == false) {
-        console.log(`ocm incoming map error (source: ${source})`);
-        console.log("original incoming map:", validityData.incoming.originalMap);
-        console.log("correct incoming map:", validityData.incoming.correctMap);
+        errorMessage.push(`ocm incoming map error (source: ${source})`);
+        errorMessage.push("\noriginal incoming map:", validityData.incoming.originalMap);
+        errorMessage.push("\ncorrect incoming map:", validityData.incoming.correctMap);
         incomingConnectionsMap = validityData.incoming.correctMap;
     }
     if (validityData.outgoing.valid == false) {
-        console.log(`ocm outgoing map error (source: ${source})`);
-        console.log("original outgoing map:", validityData.outgoing.originalMap);
-        console.log("correct outgoing map:", validityData.outgoing.correctMap);
+        errorMessage.push(`\nocm outgoing map error (source: ${source})`);
+        errorMessage.push("\noriginal outgoing map:", validityData.outgoing.originalMap);
+        errorMessage.push("\ncorrect outgoing map:", validityData.outgoing.correctMap);
         outgoingConnectionsMap = validityData.outgoing.correctMap;
     }
     if (!validityData.incoming.valid || !validityData.outgoing.valid) {
-        NewNote("ALEI: Please check console.", "#FFFF00");
-        console.log("please report this problem to the ALEI developers.");
-        console.log("it's safe to continue using ALEI as the effects of this problem were fixed automatically.");
+        aleiLog(logLevel.WARN, ...errorMessage, "\nThe effects of this problem were fixed automatically.");
     }
     return validityData.incoming.valid && validityData.outgoing.valid;
 }
@@ -181,4 +180,4 @@ unsafeWindow.ocmHandleEntityParametersChange = ocmHandleEntityParametersChange;
 // console functions for debugging
 unsafeWindow.getIncomingConnections = () => { return incomingConnectionsMap; };
 unsafeWindow.getOutgoingConnections = () => { return outgoingConnectionsMap; };
-unsafeWindow.validateOCM = () => { if (checkValidityForDebugging("console") === true) console.log("Both object connection maps are correct") };
+unsafeWindow.validateOCM = () => { if (checkValidityForDebugging("console") === true) aleiLog(logLevel.INFO, "Both object connection maps are correct") };
