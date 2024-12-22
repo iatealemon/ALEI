@@ -124,7 +124,7 @@ export function createALEISettingsMenu() {
             localStorage.removeItem(key);
         }
         NewNote(`ALEI: Cleared backup, removed total ${removed.length} backups.`, "#00FFFF");
-        aleiLog(logLevel.DEBUG2, `Removed backup of: ${removed}`);
+        aleiLog(logLevel.VERBOSE, `Removed backup of: ${removed}`);
     });
 
     function formatValue(settingKey, value) {

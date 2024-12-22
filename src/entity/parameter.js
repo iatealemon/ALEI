@@ -285,7 +285,7 @@ function updateUIDReferences(oldUID, newUID) {
     if (getParameterValueParts(oldUID).length != 1 || getParameterValueParts(newUID).length != 1) return { undo: "", redo: "" };
     if (!parameterMap.has(oldUID)) return { undo: "", redo: "" };
 
-    aleiLog(logLevel.DEBUG2, `Updating UID references from ${ANSI_CYAN}${oldUID}${ANSI_RESET} to ${ANSI_CYAN}${newUID}${ANSI_RESET}`);
+    aleiLog(logLevel.VERBOSE, `Updating UID references from ${ANSI_CYAN}${oldUID}${ANSI_RESET} to ${ANSI_CYAN}${newUID}${ANSI_RESET}`);
 
     let undoEvalString = "";
     let redoEvalString = "";

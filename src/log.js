@@ -3,8 +3,7 @@ import { aleiSettings } from "./storage/settings.js";
 export const logLevel = {
     INFO: 0,
     DEBUG: 1,
-    DEBUG2: 2,
-    VERBOSE: 2, //alias
+    VERBOSE: 2,
     WARN: -1,
     SWARN: -2
 };

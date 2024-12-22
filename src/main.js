@@ -1226,9 +1226,9 @@ function getSelectionImage() {
     let w = maxX - minX + 20;
     let h = maxY - minY + 20;
 
-    aleiLog(logLevel.DEBUG2, "Before GID");
+    aleiLog(logLevel.VERBOSE, "Before GID");
     let data = ctx.getImageData(0, 0, w, h);
-    aleiLog(logLevel.DEBUG2, "After GID");
+    aleiLog(logLevel.VERBOSE, "After GID");
 
     let canvas = document.createElement("canvas");
     let ctx2 = canvas.getContext("2d");
@@ -2523,7 +2523,7 @@ function handleServerRequestResponse(request, operation, response) {
         }
         aleiLog(logLevel.DEBUG, `Updated knownmaps with ${knownmaps.length} maps`);
     }else {
-        aleiLog(logLevel.DEBUG2, `Evaling for request ${ANSI_YELLOW}"${request}"${ANSI_RESET} with operation of ${ANSI_YELLOW}"${operation}"${ANSI_RESET}: ${response}`)
+        aleiLog(logLevel.VERBOSE, `Evaling for request ${ANSI_YELLOW}"${request}"${ANSI_RESET} with operation of ${ANSI_YELLOW}"${operation}"${ANSI_RESET}: ${response}`)
         try {JS_eval(response);}
         catch(e) {
             NewNote("Eval error!", note_bad);
@@ -4156,7 +4156,7 @@ let ALE_start = (async function() {
     }
     changeTopRightText();
 
-    aleiLog(logLevel.DEBUG2, "Settings: " + JSON.stringify(aleiSettings));
+    aleiLog(logLevel.VERBOSE, "Settings: " + JSON.stringify(aleiSettings));
 
     // update stuff for render object names setting
     window.ENABLE_TEXT = aleiSettings.renderObjectNames;
