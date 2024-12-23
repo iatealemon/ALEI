@@ -1,11 +1,5 @@
 import { aleiLog, logLevel } from "./log.js";
-
-export let newUpdate = false;
-
-export function doALEIUpdate() {
-    unsafeWindow.open(GM_info.script.downloadURL);
-    newUpdate = false;
-}
+import { addTopButton } from "./topgui.js";
 
 export async function checkForUpdates() {
     let resp = await GM.xmlHttpRequest({  url: GM_info.script.updateURL  }).catch(e => console.error(e));
@@ -21,11 +15,14 @@ export async function checkForUpdates() {
     }
 
     if (isVersionNew(latestVersion)) {
-        newUpdate = true;
+        const updateButton = addTopButton("Update ALEI", () => unsafeWindow.open(GM_info.script.downloadURL));
+        updateButton.classList.add("update-button");
+        updateButton.addEventListener("mouseover", () => { updateButton.classList.add("update-button--seen") }, { once: true });
+
         aleiLog(logLevel.INFO, `New update: ${latestVersion}`);
         NewNote(
             `ALEI: There is new update: ${latestVersion}, you are currently in ${GM_info.script.version}<br>` + 
-            `Press Ctrl + Shift + U to update`, 
+            `Click "Update ALEI" to update`, 
         "#FFFFFF");
     }
     else {

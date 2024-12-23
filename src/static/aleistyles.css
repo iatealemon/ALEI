@@ -125,3 +125,14 @@ hue-slider {
 color-spectrum {
     --border-radius: 4px;
 }
+
+.update-button {
+    border: 1px solid var(--update-button-highlight-color);
+    box-shadow: 0 0 8px var(--update-button-highlight-color);
+}
+
+.update-button--seen {
+    transition: border-color 5s, box-shadow 5s;
+    border-color: transparent;
+    box-shadow: none;
+}

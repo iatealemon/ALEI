@@ -6,7 +6,7 @@ import { Renderer_initialize } from "./renderer/renderer.js";
 import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./themes.js";
 import { patchUpdateTools } from "./toolbar.js";
 import { patchTopPanel, addTopButton } from "./topgui.js";
-import { newUpdate, doALEIUpdate, checkForUpdates } from "./updates.js";
+import { checkForUpdates } from "./updates.js";
 
 import { getALEIMapDataFromALEIMapDataObject, loadALEIMapDataIntoUse, initializeALEIMapData } from "./aleimapdata/aleimapdata.js";
 import * as aleimapdatapatches from "./aleimapdata/aleimapdatapatches.js";
@@ -2000,13 +2000,6 @@ document.addEventListener("keydown", e => {
         e.preventDefault();
 
         copyToPermanentClipboard();
-    }
-
-    if (e.ctrlKey && e.shiftKey && e.code == "KeyU") {
-        if (newUpdate) {
-            e.preventDefault();
-            doALEIUpdate();
-        }
     }
 });
 
