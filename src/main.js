@@ -1,3 +1,4 @@
+import { patchTriggerActionList, patchMaskTriggerActions } from "./actionlist.js";
 import { parse as alescriptParse } from "./alescript.js";
 import { fixWebpackStyleSheets } from "./loadcss.js";
 import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
@@ -658,6 +659,25 @@ function updateTriggers() {
     addTrigger(175, "Gun &#8250; Change gun 'A' projectile model to 'B'", "gun", "ALEI_projectileModels");
     addTrigger(378, "Gun &#8250; Add hex color 'B' to gun 'A'", "gun", "string");
     addTrigger(332, "Var &#8250; Set variable 'A' to value 1 if Gun 'B' is in owner's active slot, set to value 0 in else case", "string", "gun");
+    addTrigger(305, "Gun &#8250; Set Gun 'A' holstered attachment to 'B' (0 = on leg, 1 = on back, 2 = on head)", 'gun', 'string');
+
+    // fix the bug where "Water" category has undefined color
+    tr_type_tags["Water"] = "#7dd1d1";
+    addTrigger(392, "Water &#8250; Move Water 'A' to Region 'B'", 'water', 'region');
+    addTrigger(395, "Water &#8250; Set water 'A' damage to string-value/variable 'B'", 'water', 'string');
+    addTrigger(409, "Water &#8250; Change water 'A' color to string-value/variable 'B'", 'water', 'string');
+
+    // register "Experimental" trigger action category color
+    tr_type_tags["Experimental"] = "#b579e1";
+
+    // add hidden trigger actions
+    // some others may work. i haven't checked 415-419 yet
+    addTrigger(422, "Experimental &#8250; Show message 'A' in chat said by Character 'B' (added by ALEI)", "string", "character");
+    addTrigger(423, "Experimental &#8250; Draw custom image of decoration 'A' to current graphic at top-left of region 'B' (added by ALEI)", "decor", "region");
+    addTrigger(424, "Experimental &#8250; Move region 'A' to lower body of Character slot-value variable 'B' (added by ALEI)", "region", "string");
+
+    patchTriggerActionList();
+    patchMaskTriggerActions();
 }
 
 function updateObjects() {
