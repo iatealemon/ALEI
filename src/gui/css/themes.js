@@ -1,5 +1,5 @@
-import { aleiLog, logLevel } from "./log.js";
-import { readStorage, writeStorage } from "./storage/storageutils.js";
+import { aleiLog, logLevel } from "../../log.js";
+import { readStorage, writeStorage } from "../../storage/storageutils.js";
 
 const themes = {
     0: "blue-theme",

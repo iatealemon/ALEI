@@ -1,4 +1,4 @@
-import { logLevel, aleiLog } from "./log.js";
+import { logLevel, aleiLog } from "../log.js";
 
 let addedButtonsCount = 0;
 let topPanelPatched = false;

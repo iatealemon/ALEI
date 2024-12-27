@@ -1,7 +1,7 @@
-import { aleiSettings } from "./storage/settings.js";
-import { aleiLog, logLevel } from "./log.js";
-import { themeNames, aleiThemesCount } from "./themes.js";
-import { writeStorage } from "./storage/storageutils.js";
+import { aleiSettings } from "../storage/settings.js";
+import { aleiLog, logLevel } from "../log.js";
+import { themeNames, aleiThemesCount } from "./css/themes.js";
+import { writeStorage } from "../storage/storageutils.js";
 import { makeNewColorWindow } from "./colorpicker/colorwindow.js";
 
 unsafeWindow.ALEI_CustomSnapping = () => {

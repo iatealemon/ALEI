@@ -1,15 +1,15 @@
 // the order of these imports is significant. sorry.
 // a style that overrides some default value should be imported after the thing with the default value
-import "./static/themesvanilla.css";
-import "./static/themesalei.css";
-import "./static/themeoverrides.css";
-import "./static/paramsidebuttons.css";
-import "./static/overridestyles.css";
-import "./static/aleistyles.css";
-import "./static/aleifonts.css";
-import "./static/comments.css";
-import "./static/coloreditor.css";
-import "./static/dropdown.css";
+import "../../static/themesvanilla.css";
+import "../../static/themesalei.css";
+import "../../static/themeoverrides.css";
+import "../../static/paramsidebuttons.css";
+import "../../static/overridestyles.css";
+import "../../static/aleistyles.css";
+import "../../static/aleifonts.css";
+import "../../static/comments.css";
+import "../../static/coloreditor.css";
+import "../../static/dropdown.css";
 
 /*
 for some reason the vanilla ThemeSet function does this:

@@ -1,7 +1,7 @@
-import { outgoingConnectionsMap, incomingConnectionsMap } from "../ocm/ocm.js";
-import { aleiSettings } from "../storage/settings.js";
-import { aleiLog, logLevel } from "../log.js";
-import { asRadians, mod } from "../math.js"
+import { outgoingConnectionsMap, incomingConnectionsMap } from "../../ocm/ocm.js";
+import { aleiSettings } from "../../storage/settings.js";
+import { aleiLog, logLevel } from "../../log.js";
+import { asRadians, mod } from "../../math.js"
 import { fixedVisualBBoxes } from "./fixedbboxes.js";
 import { canvasThemes, setHighLightedObjEdgeColors } from "./canvasthemes.js";
 

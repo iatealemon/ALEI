@@ -1,5 +1,5 @@
 import { aleiLog, logLevel } from "./log.js";
-import { addTopButton } from "./topgui.js";
+import { addTopButton } from "./gui/topgui.js";
 
 export async function checkForUpdates() {
     let resp = await GM.xmlHttpRequest({  url: GM_info.script.updateURL  }).catch(e => console.error(e));

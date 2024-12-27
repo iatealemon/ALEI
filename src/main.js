@@ -1,24 +1,5 @@
-import { patchTriggerActionList, patchMaskTriggerActions } from "./actionlist.js";
-import { parse as alescriptParse } from "./alescript.js";
-import { fixWebpackStyleSheets } from "./loadcss.js";
-import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
-import { Renderer_initialize } from "./renderer/renderer.js";
-import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./themes.js";
-import { patchUpdateTools } from "./toolbar.js";
-import { patchTopPanel, addTopButton } from "./topgui.js";
-import { checkForUpdates } from "./updates.js";
-
 import { getALEIMapDataFromALEIMapDataObject, loadALEIMapDataIntoUse, initializeALEIMapData } from "./aleimapdata/aleimapdata.js";
 import * as aleimapdatapatches from "./aleimapdata/aleimapdatapatches.js";
-
-import "./colorpicker/colorwindow.js";
-import { registerOpenInColorEditorButton } from "./colorpicker/opencoloreditorbutton.js";
-
-import { registerCommentAdderButton, registerCommentRemoverButton } from "./comments/commentbuttons.js";
-import { getCommentPositions } from "./comments/commentdata.js";
-import { makeCommentBox, setCurrentCommentedTrigger, setCommentsResizeObserverTarget, setupCommentBoxAfterAddedToDOM } from "./comments/commenttextarea.js";
-
-import "./draggablewindow/draggablewindow.js";
 
 import { onEntitiesCreated, patchEntityClass, SelectedObjects, clearSelectedObjects } from "./entity/entity.js";
 import { patchUpdatePhysicalParam, updateParameters, REGION_EXECUTE_PARAM_ID, 
@@ -28,13 +9,29 @@ import { loadParameterMap, parameterMapHandleParametersRemoval, clearParameterMa
 import { replaceParamValueUID } from "./entity/parameterutils.js";
 import { loadUIDMap, clearUIDMap } from "./entity/uidmap.js";
 
+import "./gui/colorpicker/colorwindow.js";
+import { registerOpenInColorEditorButton } from "./gui/colorpicker/opencoloreditorbutton.js";
+import { fixWebpackStyleSheets } from "./gui/css/loadcss.js";
+import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./gui/css/themes.js";
+import { registerCommentAdderButton, registerCommentRemoverButton } from "./gui/paramsgui/comments/commentbuttons.js";
+import { getCommentPositions } from "./gui/paramsgui/comments/commentdata.js";
+import { makeCommentBox, setCurrentCommentedTrigger, setCommentsResizeObserverTarget, setupCommentBoxAfterAddedToDOM } from "./gui/paramsgui/comments/commenttextarea.js";
+import { addParamSideButtonsToRparams } from "./gui/paramsgui/paramsidebuttons/paramsidebuttons.js";
+import { Renderer_initialize } from "./gui/renderer/renderer.js";
+import { patchTriggerActionList, patchMaskTriggerActions } from "./gui/actionlist.js";
+import "./gui/draggablewindow.js";
+import { createALEISettingsMenu, showSettings } from "./gui/settingsmenu.js";
+import { patchUpdateTools } from "./gui/toolbar.js";
+import { patchTopPanel, addTopButton } from "./gui/topgui.js";
+
 import { loadOCM, clearOCM, ocmHandleEntityParametersChange } from "./ocm/ocm.js";
 
-import { addParamSideButtonsToRparams } from "./paramsidebuttons/paramsidebuttons.js";
-
-import { readStorage, writeStorage } from "./storage/storageutils.js";
 import { aleiSettings } from "./storage/settings.js";
-import { createALEISettingsMenu, showSettings } from "./storage/settingsmenu.js";
+import { readStorage, writeStorage } from "./storage/storageutils.js";
+
+import { parse as alescriptParse } from "./alescript.js";
+import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
+import { checkForUpdates } from "./updates.js";
 
 "use strict";
 

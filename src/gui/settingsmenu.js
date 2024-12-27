@@ -1,5 +1,5 @@
-import { aleiSettings, storageKeysMap } from "./settings.js";
-import { writeStorage } from "./storageutils.js";
+import { aleiSettings, storageKeysMap } from "../storage/settings.js";
+import { writeStorage } from "../storage/storageutils.js";
 import { aleiLog, logLevel } from "../log.js";
 import { loadOCM, clearOCM } from "../ocm/ocm.js";
 

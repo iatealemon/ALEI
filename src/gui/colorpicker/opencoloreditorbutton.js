@@ -1,4 +1,4 @@
-import { registerParamSideButton } from "../paramsidebuttons/paramsidebuttons.js";
+import { registerParamSideButton } from "../paramsgui/paramsidebuttons/paramsidebuttons.js";
 import { ColorTargetGroup, hexColorTriggerActions, colorMatrixTriggerActions } from "./colortarget.js";
 import { makeNewColorWindow } from "./colorwindow.js";
 
