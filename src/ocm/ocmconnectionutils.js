@@ -83,7 +83,7 @@ export function getOutgoingConnections(entity) {
     }
 
     const allParamValues = aleiSettings.extendedTriggers && entity.pm.extended
-        ? [...normalParamValues, ...entity.pm.additionalParamA, ...entity.pm.additionalParamB]
+        ? [...normalParamValues, ...(entity.pm.additionalParamA ?? []), ...(entity.pm.additionalParamB ?? [])]
         : normalParamValues;
     
     const connectionPartners = new Set();

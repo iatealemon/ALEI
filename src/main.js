@@ -30,7 +30,7 @@ import { aleiSettings } from "./storage/settings.js";
 import { readStorage, writeStorage } from "./storage/storageutils.js";
 
 import { parse as alescriptParse } from "./alescript.js";
-import { downgradeTriggerActionsToHTML5 } from "./html5mode.js";
+import { activateHTML5Mode, html5ModeActive } from "./html5mode.js";
 import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
 import { checkForUpdates } from "./updates.js";
 
@@ -430,10 +430,12 @@ function updateSkins() {
         img_chars_full[charID].src = 'chars_full/char' + paddedCharID + '.png';
     }
 
-    let ids = Object.keys(VAL_TABLE["char"]);
-    ids = ids.map(str => parseInt(str));
-    let fromID = Math.max(...ids) + 1;
-    fetchSkinsFrom(fromID);
+    if (!aleiSettings.html5Mode) {
+        let ids = Object.keys(VAL_TABLE["char"]);
+        ids = ids.map(str => parseInt(str));
+        let fromID = Math.max(...ids) + 1;
+        fetchSkinsFrom(fromID);
+    }
 }
 
 function _turnLinkIntoSkinSpan(src, charName) {
@@ -673,14 +675,6 @@ function updateTriggers() {
     addTrigger(422, "Experimental &#8250; Show message 'A' in chat said by Character 'B' (added by ALEI)", "string", "character");
     addTrigger(423, "Experimental &#8250; Draw custom image of decoration 'A' to current graphic at top-left of region 'B' (added by ALEI)", "decor", "region");
     addTrigger(424, "Experimental &#8250; Move region 'A' to lower body of Character slot-value variable 'B' (added by ALEI)", "region", "string");
-
-    // apply html5 mode to trigger actions
-    if (aleiSettings.html5Mode) {
-        downgradeTriggerActionsToHTML5();
-    }
-
-    patchTriggerActionList();
-    patchMaskTriggerActions();
 }
 
 function updateObjects() {
@@ -2520,7 +2514,7 @@ function ServerRequest_handleMapData(mapCode) {
         currentElement.pm[key] = decodeUnicode(value);
     }
 
-    if(aleiSettings.extendedTriggers) parseExtendedTriggers();
+    if (aleiSettings.extendedTriggers && !html5ModeActive) parseExtendedTriggers(); // !html5ModeActive because extended triggers use switch execution
 }
 
 function handleServerRequestResponse(request, operation, response) {
@@ -2915,7 +2909,7 @@ let triggerActionsClipboard = [];
 function getTriggerActionElements() {
     let arr = [];
     let elems = document.getElementsByClassName("p_i");
-    let i = 7;
+    let i = html5ModeActive ? 6 : 7;
 
     for (; i < elems.length; i++) {
         arr.push(elems[i].childNodes[0]);
@@ -3244,8 +3238,8 @@ function patchNewNote() {
  * This is used for fixIndex and PatchGUIParams;
 */
 function Trigger_getSeparatorStart(selectionCount) {
-    let startSeparatorFrom = 6; // Name + X + Y + Max Calls + Enabled + Executes Directly + ID
-    return startSeparatorFrom;
+    if (html5ModeActive) return 5;
+    else return 6; // Name + X + Y + Max Calls + Enabled + Executes Directly + ID
 }
 
 /**
@@ -4111,6 +4105,17 @@ let ALE_start = (async function() {
     updateOffsets();
     updateObjects();
 
+    if (aleiSettings.html5Mode) {
+        activateHTML5Mode();
+        setTimeout(() => {
+            NewNote("Note: HTML5 mode is enabled. Features and options that aren't available on the HTML5 port have been disabled.", "#FFFF00");
+        }, 2000);
+    }
+
+    // needs to be after updateObjects and activateHTML5Mode
+    patchTriggerActionList();
+    patchMaskTriggerActions();
+
     patchTopPanel();
     addTopButton("Download XML", exportXML);
     addTopButton("Insert XML", insertXMLUserInput);
@@ -4134,7 +4139,7 @@ let ALE_start = (async function() {
     if(aleiSettings.enableTooltips) {
         doTooltip();
     }
-    if (aleiSettings.extendedTriggers) {
+    if (aleiSettings.extendedTriggers && !html5ModeActive) { // !html5ModeActive because extended triggers use switch execution
         extendTriggerList();
         ExtendedTriggersLoaded = true;
     }
@@ -4149,7 +4154,7 @@ let ALE_start = (async function() {
     createClipboardDiv();
     addPasteFromPermanentClipboard();
 
-    if (!aleiSettings.extendedTriggers) {
+    if (!ExtendedTriggersLoaded) {
         patchClipboardFunctions();
     }
     registerClipboardItemAction();
@@ -4226,12 +4231,6 @@ let ALE_start = (async function() {
         NewNote(`ALEI: Check https://github.com/Molisson/ALEI for more details.`, "#FFFF00");
         aleiLog(logLevel.INFO, message);
         NewNote(`ALEI: Reminder that ALEI under tampermonkey is bound to break less than without.`, "#FFFFFF");
-    }
-
-    if (aleiSettings.html5Mode) {
-        setTimeout(() => {
-            NewNote("Note: HTML5 mode is enabled. Features and options that aren't available on the HTML5 port have been disabled. This currently only applies to trigger actions.", "#FFFF00");
-        }, 2000);
     }
 });
 
