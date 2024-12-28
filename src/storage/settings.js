@@ -28,6 +28,7 @@ export const storageKeysMap = {
     originalSelectOverlay: "ALEI_Renderer_OriginalSelectOverlay",
     boxRendering: "ALEI_Renderer_PreviewWalls", 
     showTextPlaceholderDecors: "ALEI_Renderer_ShowTextPlaceholderDecors",
+    html5Mode: "ALEI_HTML5Mode",
 };
 
 // initialize settings
@@ -54,6 +55,7 @@ export const aleiSettings = {
     originalSelectOverlay:      readStorage("ALEI_Renderer_OriginalSelectOverlay",      false,          stringToBool),
     boxRendering:               readStorage("ALEI_Renderer_PreviewWalls",               false,          stringToBool),
     showTextPlaceholderDecors:  readStorage("ALEI_Renderer_ShowTextPlaceholderDecors",  true,           stringToBool),
+    html5Mode:                  readStorage("ALEI_HTML5Mode",                           false,          stringToBool),
 };
 
 // necessary cuz aleiSettings is used in some patches. also it's useful to be able to access it in console

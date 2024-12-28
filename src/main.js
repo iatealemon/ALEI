@@ -30,6 +30,7 @@ import { aleiSettings } from "./storage/settings.js";
 import { readStorage, writeStorage } from "./storage/storageutils.js";
 
 import { parse as alescriptParse } from "./alescript.js";
+import { downgradeTriggerActionsToHTML5 } from "./html5mode.js";
 import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
 import { checkForUpdates } from "./updates.js";
 
@@ -672,6 +673,11 @@ function updateTriggers() {
     addTrigger(422, "Experimental &#8250; Show message 'A' in chat said by Character 'B' (added by ALEI)", "string", "character");
     addTrigger(423, "Experimental &#8250; Draw custom image of decoration 'A' to current graphic at top-left of region 'B' (added by ALEI)", "decor", "region");
     addTrigger(424, "Experimental &#8250; Move region 'A' to lower body of Character slot-value variable 'B' (added by ALEI)", "region", "string");
+
+    // apply html5 mode to trigger actions
+    if (aleiSettings.html5Mode) {
+        downgradeTriggerActionsToHTML5();
+    }
 
     patchTriggerActionList();
     patchMaskTriggerActions();
@@ -4220,6 +4226,12 @@ let ALE_start = (async function() {
         NewNote(`ALEI: Check https://github.com/Molisson/ALEI for more details.`, "#FFFF00");
         aleiLog(logLevel.INFO, message);
         NewNote(`ALEI: Reminder that ALEI under tampermonkey is bound to break less than without.`, "#FFFFFF");
+    }
+
+    if (aleiSettings.html5Mode) {
+        setTimeout(() => {
+            NewNote("Note: HTML5 mode is enabled. Features and options that aren't available on the HTML5 port have been disabled. This currently only applies to trigger actions.", "#FFFF00");
+        }, 2000);
     }
 });
 

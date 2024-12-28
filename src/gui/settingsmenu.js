@@ -100,6 +100,11 @@ export function createALEISettingsMenu() {
                 <button class="settings-button" data-value="true">Yes</button>
                 <button class="settings-button" data-value="false">No</button>
             </div>
+            <div class="settings-item settings-item--requires-refresh" data-key="html5Mode">
+                <div class="settings-label" title="Hide options and features not available on the HTML5 port of PB2. Requires a page refresh.">HTML5 mode:</div>
+                <button class="settings-button" data-value="true">Yes</button>
+                <button class="settings-button" data-value="false">No</button>
+            </div>
         </div>
     `;
 
