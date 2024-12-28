@@ -32,7 +32,7 @@ const rparamsMutationObserver = new MutationObserver((mutationList) => {
         rparamsLastScrollHeight = rparams.scrollHeight;
         updateSideButtons();
     }
-})
+});
 
 let currentSelectionData;
 let currentHoveredElements;
@@ -89,15 +89,17 @@ export function registerParamSideButton(id, className, text, tooltip, func, loca
     }
 }
 
-export function addParamSideButtonsToRparams() {
+export function disconnectParamSideButtons() {
     // stop observing the previous rparams
     rparamsChildrenResizeObserver.disconnect();
     rparamsMutationObserver.disconnect();
+    rparams = null;
+}
 
-    rparams = document.getElementById("rparams");
-    if (rparams === null) {
-        return;
-    }
+export function addParamSideButtons(_rparams) {
+    disconnectParamSideButtons();
+
+    rparams = _rparams;
 
     // start observing new rparams
     for (const child of rparams.children) {

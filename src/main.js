@@ -2,9 +2,7 @@ import { getALEIMapDataFromALEIMapDataObject, loadALEIMapDataIntoUse, initialize
 import * as aleimapdatapatches from "./aleimapdata/aleimapdatapatches.js";
 
 import { onEntitiesCreated, patchEntityClass, SelectedObjects, clearSelectedObjects } from "./entity/entity.js";
-import { patchUpdatePhysicalParam, updateParameters, REGION_EXECUTE_PARAM_ID, 
-    assignObjectIDs, assignObjectPriority, propertyAppliedObjects, AssignObjectProperties, sortRequired, SortObjectsByPriority, RemoveObjectProperties
- } from "./entity/parameter.js";
+import { patchUpdatePhysicalParam, updateParameters, assignObjectIDs, assignObjectPriority } from "./entity/parameter.js";
 import { loadParameterMap, parameterMapHandleParametersRemoval, clearParameterMap } from "./entity/parametermap.js";
 import { replaceParamValueUID } from "./entity/parameterutils.js";
 import { loadUIDMap, clearUIDMap } from "./entity/uidmap.js";
@@ -14,9 +12,7 @@ import { registerOpenInColorEditorButton } from "./gui/colorpicker/opencoloredit
 import { fixWebpackStyleSheets } from "./gui/css/loadcss.js";
 import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./gui/css/themes.js";
 import { registerCommentAdderButton, registerCommentRemoverButton } from "./gui/paramsgui/comments/commentbuttons.js";
-import { getCommentPositions } from "./gui/paramsgui/comments/commentdata.js";
-import { makeCommentBox, setCurrentCommentedTrigger, setCommentsResizeObserverTarget, setupCommentBoxAfterAddedToDOM } from "./gui/paramsgui/comments/commenttextarea.js";
-import { addParamSideButtonsToRparams } from "./gui/paramsgui/paramsidebuttons/paramsidebuttons.js";
+import { patchParamsGUI } from "./gui/paramsgui/paramsgui.js";
 import { Renderer_initialize } from "./gui/renderer/renderer.js";
 import { patchTriggerActionList, patchMaskTriggerActions } from "./gui/actionlist.js";
 import "./gui/draggablewindow.js";
@@ -65,7 +61,7 @@ let ROOT_ELEMENT = document.documentElement;
 let stylesheets = document.styleSheets;
 let VAL_TABLE = {}; // Will be filled later.
 let displayOperationCompleteNotes = true;
-let ExtendedTriggersLoaded = false;
+window.ExtendedTriggersLoaded = false;
 
 const TEXT_OVERHEAD         = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAAYCAYAAAAxkDmIAAAAAXNSR0IArs4c6QAABHNJREFUaEPtmVvoZWMYxn+PMznEBSGlxAVuJKUcQyTHUCahEZNG43wYx8HIMIjJjPk3MimD0EyMQ0oRrpxKkblwKBdDcoFBktNrPbt3a82atfde/zV/snfru137W+v93ud5n/d5vy26NdEZ0ESfrjscHcATToIO4A7gCc/AhB+vtoIj4gLgEeA9SScMy0FEHAc8AWyQdNB08xURnwC7ABcCezf97qjvRMROwFvAvsA8SU9X90TEAcCLwP7Ao5Lm1r23+J33ngNMSbpy1LfbPC/nQdIbo95RydvSfg6reycWYCcoIh4ArgBWSzqvBuCbgNuAbYHPgNOL331a/l1EHA48A2wHXCTp1VHJb/O8A7hF1iLiZOBx4CfglBrw3i7AP7h49j5wFHCXpHsqAJsEC4rnr0s6tUUYjbaMDcARcQZwJ2C53qpyuj+BLzKRT2aVDZToiDgQuA84Btix8q5I4F4C5koyiJusiHgZOB5YWAYvIk4DHgM+LyT6KWAx8G61JRUtyCQ4BJgPvNk0HuDMbDd/pUJYAfpraB4ssxFxTXG+a4E9i3xWlXZDcZ4tgB+ztbWW6I+KD6wYQcFdAbP8O+BiwP1qB+AWSSsr1eDndwO/AbPzIMMAdn88EVhl0kha339fSuf9gCV0haR5AwC+LMH7sPje0aX9U5ZcYEnG5H69V1mGI8KyvqyI9cskmYnQKB6TJQHeOlVkvkmY3sDgXQ18ayJIWlfpqbvn3l+A6yW5RfRWkt45NEG/2VyAbVSarnXAswV4NwMvSJo1IOEO1uxeJGnhIJOVpHkO+KNOXvOw/SpcL+nQAd/bxGyVzJWrapakdyLiXuAqg9E3W2muzi4MzEPAGqBxPEkcG9WPJR1RjS2V5VjgRknLKnk4C5gDLJV0Xc1em8NXCuJuv7kAT8tFZxIsZduMYIUreLGkBUMAXjTKnTd18AmeK2aNzVZE3FDEd0cSsWe+SmbqV5stYLc0V35sslqVhk4L5XgKU2bCDJxEImI2YEVZK2ltJQ+OyZNML0cDiFtWvtYS3RbgVYWcXtKk9P8jgPtO+HerAfBgSq5lc3lJ/tyve1UFuPLtsK1GJsXIcXA6ANdUZRmw/y3ATST69uwfKyVN/dsSXQLP3sCtwYCeD3xtkMvmLCL6/dr9eOd02L0ZOiIOaynRI4skFaQM8LnpDx5uKNG+q7DCLK9OCjM6BwPuFx5LvOpM1knuKyl/cyQ9P+yiIyJssjzqrE6zUTZZdtg2QB5vBpqsEsB9w2RXa0e+RJIr9Z9VuhzxxceWwAcVY9Y4npLJagPwfunWf25ostyL7Sdeq04TMwqwb7LS3l8O7JNJ2iiHwPd5I3RrDXM3uslKx2iDc2QytPquHwCPSa6y2jGpAqBHHhPiK5uTuhujvBzxbZXNXXW0MqkaxVMak6YNcE4X9giXFrnaY8bHpCa9s/vNeGSg+zdpPHBqHWUHcOvUjcfGDuDxwKl1lB3ArVM3Hhs7gMcDp9ZRdgC3Tt14bOwAHg+cWkf5N7oPsDdbjPHbAAAAAElFTkSuQmCC";
 const TEXT_SCORE            = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHwAAAAYCAYAAAA4e5nyAAAAAXNSR0IArs4c6QAAA0hJREFUaEPtmbuvTUEUxn/TiAbREUElEXqJQiIoNKIRhYQGlUY0HoVCpxGNaFC4EYmKRhQehUShFaKg9AeIimac2Zk5WXfOmsfeZ3Ozc+d29+6ZWbO+bz2+NdfQftYVAmZdeducpRG+zoKgEd4IB2vtWeAe8MwYc0FiYq19DRwALhljVkp4ibM2ibUPlXMfAOfFml+1Nkp30L5ba28BV4H3xphj8RrxfSW+6xB7YY/H76g44wdwzhjztnSutfYI8Bj4aYzZH/ESOPuo+RPWqhk+JuHRpQLIWRD7BlUJqAThWYCstS4A3ZrbxpibQ2yU9lhrPwNbGuE9q0gJ2AThyWxx6xvhHjUt+5Sy/UfLjNoyWZPhPjv2CTK/xGWuFAgyw4AzvqW8cSUx4afLyKxN6SNwUKzvzo0qXjbDFVw/ALvXtKRrvdCDdSgmfSzCPVE7Q48Xvc3hWdUPfRY7PbLX7QFuzPq5661d4MTlttam8NFpkOeh/1trn860z0upe3IlXevXIsgXglsEx1I9XAotGZydoAKc4FgQESlxMQbhqTNqz44yzPXp096Xa8BGYDNwBXC/48lXtYdmU/ztW6niFAhf0BC5s8ciPKvSPXg5Nd9lT1CgtaTkSrrvrR1JUbZUqVRFRF4GHgEngHfASeAJcAr46sv7PDBKNmt99BUmWdI9BjF+OZUevnV3TrWzpVT6DJg9frTZkDCwauSoBaNAuDoWiqqSdVgZZe4AL4DjwHWf2d+Bw2EsTd1Hs1nrYwXhC8FQGMsC4a9yY+SyhLt7qxmeUMZLj2UjZ3ioCp+AbbMWddH38q2zrN8F3HcjWR+bIxI+1xeiQmYni5JI7VpUYUYtlfTQw6uyKjffp3pr/Lgzcg8PAO4QYi2Ub3elu57wIT28+GCjle2AgzYW9tEH/6SkOzJSL1beme1SuORKktJb3SuYClqtYq6JeKF8u9c/4c9vqRNqbfbM8OTjzlqp9Kqn1cTzqToXC0BC31+YT8XIFJ4gF+b6MeZwYWc+QuZGvBqbfQgXfTzM9quek//bHF6TGW3NNBFo/y2bJm+Db90IHwzdNDc2wqfJ2+BbN8IHQzfNjY3wafI2+NaN8MHQTXNjI3yavA2+9V/XCzNGz/W2wgAAAABJRU5ErkJggg==";
@@ -1472,56 +1468,6 @@ function changeTopRightText() {
     elem.innerHTML = elem.innerHTML.replaceAll("<br>", " ") + "<br>ALE Improvements" + version;
 }
 
-// Adds additional button
-function addAdditionalButtons() {
-    const rparams = document.getElementById("rparams");
-    const selection = SelectedObjects;
-
-    // Param list not loaded or selection is not 1.
-    if (!rparams || selection.length != 1) {
-        return;
-    }
-
-    const getImageSize_button = '<a onclick="getImageSize();" class="tool_btn tool_wid" style="display: block; width: 100%; margin-top: 4px;">Get image size</a>';
-    const centerDecorationX_button = '<a onclick="centerImageX();" class="tool_btn tool_wid" style="display: block; width: 100%; margin-top: 4px;">Center decoration X</a>';
-    const centerDecorationY_button = '<a onclick="centerImageY();" class="tool_btn tool_wid" style="display: block; width: 100%; margin-top: 4px;">Center decoration Y</a>';
-
-    if (selection[0]._class == "bg") {
-        rparams.innerHTML += getImageSize_button;
-    }
-
-    if (selection[0]._class == "decor") {
-        rparams.innerHTML += getImageSize_button;
-        rparams.innerHTML += centerDecorationX_button;
-        rparams.innerHTML += centerDecorationY_button;
-    }
-
-    if(!edit_triggers_as_text && selection[0]._class == "trigger" && ExtendedTriggersLoaded){
-        const extendTriggerAction_button = `
-            <div class="two-element-grid">
-                <a onclick="addTriggerActionCount(1)" class="tool_btn tool_wid" style="display: block; width: 95%; margin-top: 4px;">(+) Extend trigger action list.</a>
-                <a onclick="addTriggerActionCount(-1)" class="tool_btn tool_wid" style="display: block; width: 95%; margin-top: 4px;">(-) Shrink trigger action list.</a>
-            </div>
-
-            <div class="two-element-grid">
-                <div class="two-element-grid">
-                    <a onclick="addTriggerActionCount(5)" class="tool_btn tool_wid" style="display: block; width: 90%; margin-top: 4px;">(+5)</a>
-                    <a onclick="addTriggerActionCount(10)" class="tool_btn tool_wid" style="display: block; width: 90%; margin-top: 4px;">(+10)</a>
-                </div>
-
-                <div class="two-element-grid">
-                    <a onclick="addTriggerActionCount(-5)" class="tool_btn tool_wid" style="display: block; width: 90%; margin-top: 4px;">(-5)</a>
-                    <a onclick="addTriggerActionCount(-10)" class="tool_btn tool_wid" style="display: block; width: 90%; margin-top: 4px;">(-10)</a>
-                </div>
-            </div>
-        `;
-        rparams.innerHTML += extendTriggerAction_button;
-
-        // Update GUI to change parameter type based on trigger action.
-        StreetMagic();
-    }
-}
-
 /**
  * This function is invoked whenever users pressed the "Extend trigger action list." or the "Shrink trigger action list" buttons.
  * This function is responsible for creating and maintaining extended triggers.
@@ -2066,154 +2012,6 @@ function patchDecorUpload() {
     }, false)
 }
 
-function setParameter(index, value) {
-    let rightParams = document.getElementById("rparams");
-    if(rightParams == undefined) return;
-    if(rightParams == null) return;
-
-    if(index > 13) {
-        let isAllTrigger = SelectedObjects.map(o => (o._class == "trigger"));
-        if(isAllTrigger.indexOf(false) !== -1) return;
-        function getActionCount(elem) {
-            if(elem.isExtended) return elem.pm.totalNumOfActions;
-            else return 10;
-        }
-        let minimumActionCount = Math.min(...SelectedObjects.map(o => getActionCount(o)));
-        if(index >= (minimumActionCount * 3 + Trigger_getSeparatorStart(SelectedObjects.length) - 1)) return;
-    }
-
-    let actualIndex = 0; // We will bruteforce.
-    let i = 0;
-    while(i < index) {
-        i++;
-        actualIndex++;
-
-        if(rightParams.childNodes[actualIndex] == undefined) continue;
-        if(rightParams.childNodes[actualIndex].childNodes[1] === undefined) actualIndex++;
-    }
-
-    if (actualIndex < rightParams.childNodes.length) {
-        rightParams.childNodes[actualIndex].childNodes[1].innerHTML = value;
-    }
-}
-
-function areObjectsOfSameType(objects) {
-    if (objects.length === 0) return true;
-    return !objects.some(obj => obj._class !== objects[0]._class);
-}
-
-function removeSameItems(array) {
-    return Array.from(new Set(array));
-}
-
-function removeItems(array, items) {
-    let copy = JSON.parse(JSON.stringify(array));
-
-    for (let i = 0; i < items.length; i++) {
-        copy.splice(copy.indexOf(items[i]), 1);
-    }
-
-    return copy;
-}
-
-function parameterNamesToIndexes(parameters, objectParameters) {
-    return parameters.map(param => objectParameters.indexOf(param));
-}
-
-function getSameParameters(objects) {
-    let differentParameters = [];
-    let parameters = Object.keys(objects[0].pm);
-
-    for (let i = 0; i < objects.length; i++) {
-        for (let j = 0; j < parameters.length; j++) {
-            if (objects[i].pm[parameters[j]] != objects[0].pm[parameters[j]]) {
-                differentParameters.push(parameters[j]);
-            }
-        }
-    }
-
-    differentParameters = removeSameItems(differentParameters);
-    differentParameters = removeItems(parameters, differentParameters);
-
-    return parameterNamesToIndexes(differentParameters, parameters);
-}
-
-const classParametersMap = {
-    "box": {"m": "box_model"},
-    "door": {
-        "moving": "bool",
-        "vis": "bool"
-    },
-    "region": {"use_on": "region_activation"},
-    "decor": {
-        "f": "draw_in_front",
-        "model": "decor_model"
-    },
-    "bg": {
-        "s": "bool",
-        "f": "draw_in_front",
-        "m": "bg_model"
-    },
-    "water": {"friction": "bool"},
-    "trigger": {"enabled": "bool"},
-    "timer": {"enabled": "bool"},
-    "gun": {
-        "command": "team+any",
-        "upg": "gun_upgrade",
-        "model": "gun_model"
-    },
-    "barrel": {"model": "barrel_model"},
-    "lamp": {"flare": "bool"},
-    "vehicle": {"model": "vehicle_model"}
-}
-
-function fixParameterValue(name, value, objectType) {
-    let fixedValue;
-
-    if (VAL_TABLE[name]) {
-        fixedValue = VAL_TABLE[name][value];
-    } else {
-        if (classParametersMap[objectType] && classParametersMap[objectType][name]) {
-            fixedValue = VAL_TABLE[ classParametersMap[objectType][name] ][value];
-        }else if (name.slice(0, 8) == "actions_" && name.slice(-5) == "_type") {
-            fixedValue = VAL_TABLE["trigger_type"][value];
-        }else {
-            fixedValue = value;
-        }
-    }
-
-    return fixedValue;
-}
-
-function setSameParameters() {
-    let objects = SelectedObjects;
-
-    if (areObjectsOfSameType(objects) && objects.length >= 2) {
-        let indexes = getSameParameters(objects);
-        let parameters = Object.keys(objects[0].pm);
-
-        for (let i = 0; i < indexes.length; i++) {
-            let name = parameters[indexes[i]];
-            let value = objects[0].pm[parameters[indexes[i]]];
-            let objectType = objects[0]._class;
-
-            setParameter(indexes[i], fixParameterValue(name, value, objectType));
-        }
-    }
-}
-
-function patchANI() {
-    let oldAni = ani;
-    window.ani = function() {
-        let ngpu = need_GUIParams_update;
-        oldAni();
-        if (ngpu) {
-            if (aleiSettings.showSameParameters) setSameParameters();
-        }
-    }
-    aleiLog(logLevel.DEBUG, "Patched ANI");
-}
-
 ///////////////////////////////
 
 function updateBoxSplitterSize() {
@@ -2400,7 +2198,7 @@ function PasteFromClipBoard(ClipName) {
                 }
 
                 // replace uid references in additional trigger actions
-                if (es[i3].pm.extended && ExtendedTriggersLoaded) {
+                if (es[i3].pm.extended && window.ExtendedTriggersLoaded) {
                     for (let i4 = 0; i4 < es[i3].pm.additionalActions.length; i4++) {
                         es[i3].pm.additionalParamA[i4] = replaceParamValueUID(es[i3].pm.additionalParamA[i4], old_uid, newUID);
                         es[i3].pm.additionalParamB[i4] = replaceParamValueUID(es[i3].pm.additionalParamB[i4], old_uid, newUID);
@@ -2657,97 +2455,6 @@ window.eval = function(code) { // Temporarily overriding eval so we can patch Se
         debugger;
     }
 };
-
-function patchUpdateGUIParams() {
-    let oldCodeSnippet = "if ( i >= 4 && (i-4) % 3 == 0 ) {";
-    let newCodeSnippet = "if (shouldAddSeparatorInGUIParams(i)) {";
-    let code = window.UpdateGUIParams.toString().replace(oldCodeSnippet, newCodeSnippet);
-    // if extended triggers are enabled, the code replacement from that will cause this code replacement to fail.
-    // it won't cause an error assuming that code does more or less the same thing. this thing is a bit of a nightmare
-    if (!code.includes(newCodeSnippet)) { 
-        //aleiLog(logLevel.WARN, "UpdateGUIParams direct code replacement failed (separators)");
-    }
-    code = "(" + code + ")"; //putting it in parentheses to make it a function expression. the function can then be assigned directly from eval
-    let origUGP = eval(code);
-
-    let origGPV = window.GenParamVal;
-
-    window.shouldAddSeparatorInGUIParams = (count) => {
-        let sep = Trigger_getSeparatorStart(SelectedObjects.length);
-        if((count >= sep) && (count - sep) % 3 == 0) return true;
-        return false;
-    };
-
-    window.GenParamValEscapeDoubleQuotes = false;
-
-    // replaces GenParamVal behaviour of when base == "nochange". only difference is that it escapes double quotes.
-    // also it only escapes double quotes when it's used within UpdateGUIParams.
-    // the original function would return value if FORCE_TEXT_OPTIONS == true even if base == "nochange". so this works slightly differently, not sure if that's intentional
-    window.GenParamVal = function(base, value) {
-        if (GenParamValEscapeDoubleQuotes && base == "nochange") {
-            let valueWithQuotesEscaped = `${value}`.replaceAll('"', "&quot;");
-            return `<pvalue real="${valueWithQuotesEscaped}">- not used -</pvalue>`;
-        }
-        return origGPV(base, value);
-    }
-
-    window.UpdateGUIParams = function() {
-        GenParamValEscapeDoubleQuotes = true;
-
-        // Represents all the selected entity class.
-        let selected = SelectedObjects;
-
-        //selected.map(o => ApplyObjectProperties(o));
-
-        for(let element of propertyAppliedObjects) {
-            if(selected.indexOf(element) !== -1) continue;
-            RemoveObjectProperties(element);
-            propertyAppliedObjects.splice(propertyAppliedObjects.indexOf(element), 1);
-        }
-        selected.map(o => AssignObjectProperties(o));
-
-        // This code handles transition between timer and trigger values depending on region's "executes" parameter
-        if((selected.length == 1) && (selected[0]._class == "region")) {
-            if([true, "true"].indexOf(selected[0].pm.uses_timer) != -1) {
-                param_type[REGION_EXECUTE_PARAM_ID][1] = "timer+none";
-            } else {
-                param_type[REGION_EXECUTE_PARAM_ID][1] = "trigger+none";
-            }
-        }
-
-        origUGP();
-        addAdditionalButtons();
-
-        // comments integration
-        if (!edit_triggers_as_text && selected.length == 1 && selected[0]._class == "trigger") {
-            setCurrentCommentedTrigger(selected[0]);
-            const rparams = document.getElementById("rparams");
-            setCommentsResizeObserverTarget(rparams);
-            const commentPositions = getCommentPositions(selected[0]);
-            for (const position of commentPositions) {
-                const actionNum = position + 1;
-                const actionTypeInputElement = rparams.querySelector(`#pm_actions_${actionNum}_type`)
-                if (actionTypeInputElement === null) {
-                    continue;
-                }
-                const elementThatIsBelow = actionTypeInputElement.parentElement;
-                const commentBox = makeCommentBox(position);
-                const separator = document.createElement("div");
-                separator.style.height = "2px";
-                rparams.insertBefore(commentBox, elementThatIsBelow);
-                rparams.insertBefore(separator, elementThatIsBelow);
-                setupCommentBoxAfterAddedToDOM(commentBox);
-            }
-        }
-        ////////////////////////
-
-        addParamSideButtonsToRparams(); // paramsidebuttons integration. needs to be after addAdditionalButtons
-
-        GenParamValEscapeDoubleQuotes = false;
-        if(sortRequired) SortObjectsByPriority();
-    }
-    aleiLog(logLevel.DEBUG, "Patched UpdateGUIParams");
-}
 
 function patchEvalSet() {
     window.EvalSet = function(key, value) {
@@ -3240,15 +2947,6 @@ function patchNewNote() {
 }
 
 /**
- * Trigger_getSeparatorStart(selectionCount) gives number which determines where does trigger's separator line starts from.
- * This is used for fixIndex and PatchGUIParams;
-*/
-function Trigger_getSeparatorStart(selectionCount) {
-    let startSeparatorFrom = 6; // Name + X + Y + Max Calls + Enabled + Executes Directly + ID
-    return startSeparatorFrom;
-}
-
-/**
  *  extendTriggerList() is responsible for patching many of the original functions to support the
  *  implementation of extended triggers.
  *
@@ -3260,261 +2958,6 @@ function Trigger_getSeparatorStart(selectionCount) {
  *  View SaveThisMap to see the structe of the linked list.
  */
 function extendTriggerList() {
-
-    /** Modifies the original UpdateGUIParams to provide support for trigger extension.
-    */
-    function newUpdateGUIParams() {
-        // Get current GUI scroll percentage. This is so we can reset the GUI scroll percentage after reupdating the GUI.
-        let guiHTMLElement = document.getElementById("rparams");
-        let amountToScroll = 0;
-        if(guiHTMLElement){
-            amountToScroll = guiHTMLElement.scrollTop;
-        }
-
-        current_gui_params = new Array();
-        unfocusedit();
-        ff.style.display = 'none';
-        var str = '';
-        var selects = 0;
-        var sel_by_class = new Array();
-        for (i = 0; i < known_class.length; i++) {
-            sel_by_class[i] = 0;
-        }
-        var uids_list = '';
-        for (i = 0; i < es.length; i++)
-            if (es[i].exists)
-                if (es[i].selected) {
-                    selects++;
-                    sel_by_class[known_class.indexOf(es[i]._class)]++;
-                    if (es[i].pm.uid != undefined) {
-                        if (uids_list.length > 0)
-                            uids_list += ', ';
-                        uids_list += '"' + es[i].pm.uid + '"';
-                    }
-                }
-        var full_list = '';
-        var classes_selected = 0;
-        for (i = 0; i < known_class.length; i++)
-            if (sel_by_class[i] > 0) {
-                if (full_list.length > 0)
-                    full_list += ', ';
-                classes_selected++;
-                full_list += sel_by_class[i] + ' ' + tonumerous(known_class_title[i], sel_by_class[i]);
-            }
-        if (classes_selected > 0) {
-            if (classes_selected == 1)
-                if (uids_list.length > 0) {
-                    full_list += ': ' + uids_list;
-                }
-            full_list = ' (' + full_list + ')';
-            full_list += ' <a href="#" onclick="ForceDeselect()"><img src="noap.png" width="11" height="11" border="0"></a>';
-        }
-        if (selects == 0)
-            str += '<div id="gui_sel_info" class="gui_sel_info">Nothing selected</div><br><div class="q"></div><br>';
-        else if (selects == 1)
-            str += '<div id="gui_sel_info" class="gui_sel_info">' + selects + ' object selected' + full_list + '</div><br><div class="q"></div><br>';
-        else
-            str += '<div id="gui_sel_info" class="gui_sel_info">' + selects + ' objects selected' + full_list + '</div><br><div class="q"></div><br>';
-        var first_selected_object = null;
-        var params_to_display = new Array();
-        var paramscount_to_display = new Array();
-        var paramsvalue_to_display = new Array();
-        var param_associated = new Array();
-
-        // Code to change the starting point of the gap between trigger actions.
-        let startSeparatorFrom = Trigger_getSeparatorStart(selects);
-
-        for (var i = 0; i < es.length; i++) {
-            if (!es[i].exists) continue;
-            if (!es[i].selected) continue;
-
-            // Selects the first object if not already selected.
-            if (first_selected_object == null)
-                first_selected_object = es[i];
-
-
-            // Iterate through all entity's properties names. (__z_Index, actions_10_targetA, etc..)
-            for (let parameter in es[i].pm) {
-                // Find the ID associated with that property. Eg: __z_Index: 98.
-                // This ID is the same as the index to retrieve this property in param_type.
-                var ind2 = FindMachingParameterID(parameter, es[i]._class);
-
-                // Find any potential duplicate.
-                var ind = params_to_display.indexOf(ind2);
-                if (ind == -1 && ind2 != -1) {
-                    params_to_display.push(ind2);   // params_to_display contains all the ID of properties
-                    paramscount_to_display.push(1);
-                    paramsvalue_to_display.push(es[i].pm[parameter]);
-                    param_associated.push(parameter);
-
-                } else {
-                    paramscount_to_display[ind]++;
-                }
-            }
-        }
-
-        if (edit_triggers_as_text && selects == 1 && first_selected_object._class == 'trigger') {
-            // TRIGGER GUI PARAMS IN TEXT EDIT MODE
-            str += '<div id="rparams">';
-            str += '<div style="width:220px;white-space:normal;">This feature should not give you much more freedom, yet you might find it useful to copy/paste/cut trigger actions here.</div><br>';
-            str += '<textarea id="opcode_field" class="opcode_field" style="display:block;width:100%;height:400px" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">';
-            var code_lines = '';
-            code_lines += 'uid: ' + first_selected_object.pm.uid + '\n';
-            code_lines += 'enabled: ' + first_selected_object.pm.enabled + '\n';
-            code_lines += 'maxcalls: ' + first_selected_object.pm.maxcalls + '\n';
-            code_lines += 'execute: ' + first_selected_object.pm.execute + '\n';
-            code_lines += '\n';
-
-            for (let i = 1; i <= 10; i++) {
-                if (first_selected_object.pm['actions_' + i + '_type'] == -1) {
-                    continue;
-                }
-
-                if (trigger_opcode_aliases[first_selected_object.pm['actions_' + i + '_type']] == undefined)
-                    code_lines += 'op' + first_selected_object.pm['actions_' + i + '_type'];
-                else
-                    code_lines += trigger_opcode_aliases[first_selected_object.pm['actions_' + i + '_type']];
-
-                code_lines += '( ';
-                code_lines += '"' + first_selected_object.pm['actions_' + i + '_targetA'] + '"';
-                code_lines += ', ';
-                code_lines += '"' + first_selected_object.pm['actions_' + i + '_targetB'] + '"';
-                code_lines += ' );\n';
-            }
-
-            for(let i = 0; aleiSettings.extendedTriggers && first_selected_object.pm.extended && i + 11 <= first_selected_object.pm["totalNumOfActions"]; ++i){
-                if (first_selected_object.pm["additionalActions"][i] == -1) {
-                    continue;
-                }
-
-                if (trigger_opcode_aliases[first_selected_object.pm["additionalActions"][i]] == undefined)
-                    code_lines += 'op' + first_selected_object.pm["additionalActions"][i];
-                else
-                    code_lines += trigger_opcode_aliases[first_selected_object.pm["additionalActions"][i]];
-
-                code_lines += '( ';
-                code_lines += '"' + first_selected_object.pm["additionalParamA"][i] + '"';
-                code_lines += ', ';
-                code_lines += '"' + first_selected_object.pm["additionalParamB"][i] + '"';
-                code_lines += ' );\n';
-            }
-
-            str += code_lines.split('<').join('&lt;').split('>').join('&gt;');
-            str += '</textarea>';
-            str += '<a class="tool_btn tool_wid" style="width:100%;height:50px;display:block;line-height:50px;" onmousedown="if ( CompileTrigger() ) UpdateGUIParams();">Apply</a><br>';
-        } else {
-            // Normal GUI
-            var pre_temp = '<div id="rparams"><div class="p_i"><span class="pa1 p_u1 r_lt">';   // Start off with rounded corners
-            var post_temp = ':</span><span class="pa2 p_u2 r_rt" onclick="letedit(this, \'';
-            var last_i = params_to_display.length - 2;                                          // Index to keep track of last row.
-            var value;
-
-            // Iterate through all the params to display.
-            for (i = 0; i < params_to_display.length; i++) {
-                if (paramscount_to_display[i] == 1) {
-                    value = GenParamVal(param_type[params_to_display[i]][1], paramsvalue_to_display[i]);
-                } else
-                    value = '<nochange>...</nochange>';
-
-                current_gui_params.push(param_associated[i]);
-
-                // Creating the actual row
-                str +=
-                    pre_temp +
-                    param_type[params_to_display[i]][2] +       // Label of the row. Eg: Name
-                    post_temp +
-                    param_type[params_to_display[i]][1]         // Type of input. Eg: string
-                    + '\')" onMouseOver="letover(this, \'' +
-                    param_type[params_to_display[i]][1]
-                    + '\')" id="' + 'pm_' +
-                    param_type[params_to_display[i]][0]         // Name of property. Eg: __z_Index
-                    + '">' +
-                    value +                                     // Value of proerty. Eg: 1
-                    '</span></div>';
-
-                // Add a tiny gap to split every trigger action.
-                if (first_selected_object._class == 'trigger') {
-
-                    if (i >= startSeparatorFrom && (i - startSeparatorFrom) % 3 == 0) {
-                        str += '<div style="height:2px"></div>';
-                    }
-                }
-
-                // Last row will have bottom rounded corners 'r_lb', except for triggers.
-                if (first_selected_object._class != 'trigger' && i == last_i) {
-                    pre_temp = '<div class="p_i"><span class="pa1 p_u0 r_lb">';
-                    post_temp = ':</span><span class="pa2 p_u0 r_rb" onclick="letedit(this, \'';
-
-                    // First row has top rounded corners, now change it to no rounded corners.
-                } else if (i == 0) {
-                    pre_temp = '<div class="p_i"><span class="pa1 p_u1">';
-                    post_temp = ':</span><span class="pa2 p_u2" onclick="letedit(this, \'';
-                }
-            }
-
-            // Display additional trigger actions for extended triggers.
-            if (selects == 1 && first_selected_object._class == 'trigger' && first_selected_object.pm["extended"]) {
-                //selectingAExtendedTrigger = true;
-                for(let i = 10; i < first_selected_object.pm["totalNumOfActions"]; ++i){
-                    let triggerAction = first_selected_object.pm["additionalActions"][i - 10] === undefined ? -1 : first_selected_object.pm["additionalActions"][i - 10];
-                    let paramA        = first_selected_object.pm["additionalParamA"][i - 10]  === undefined ? 0  : first_selected_object.pm["additionalParamA"][i - 10];
-                    let paramB        = first_selected_object.pm["additionalParamB"][i - 10]  === undefined ? 0  : first_selected_object.pm["additionalParamB"][i - 10];
-
-                    // rowHTML represents all the HTML to display a set of triggers and parameters (3 rows).
-                    let rowHtml = `
-                        <div class="p_i"><span class="pa1 p_u1">
-                        Action '${i + 1}' type:
-                        </span><span class="pa2 p_u2" onclick="letedit(this, 'trigger_type')" onmouseover="letover(this, 'trigger_type')" id='pm_actions_${i + 1}_type'>
-                            <pvalue real='${triggerAction}'>
-                            ${special_values_table['trigger_type'][triggerAction]}
-                            </pvalue>
-                        </span></div>
-
-                        <div class="p_i"><span class="pa1 p_u1">
-                        - parameter A:
-                        </span><span class="pa2 p_u2" onclick="letedit(this, 'no_change')" onmouseover="letover(this, 'no_change')" id='pm_actions_${i + 1}_targetA'>
-                            <pvalue real='${paramA}'>
-                            '${paramA}'
-                            </pvalue>
-                        </span></div>
-
-                        <div class="p_i"><span class="pa1 p_u1">
-                        - parameter B:
-                        </span><span class="pa2 p_u2" onclick="letedit(this, 'no_change')" onmouseover="letover(this, 'no_change')" id='pm_actions_${i + 1}_targetB'>
-                            <pvalue real='${paramB}'>
-                            '${paramB}'
-                            </pvalue>
-                        </span></div>
-
-                        <div style="height:2px"></div>
-                    `
-
-                    // Creating the actual row
-                    str += rowHtml;
-                }
-            }
-        }
-
-        // Add edit text button.
-        if (selects == 1 && first_selected_object._class == 'trigger') {
-            if (edit_triggers_as_text)
-                str += '<a class="tool_btn tool_wid" style="width:100%;display:block;" onmousedown="edit_triggers_as_text=!edit_triggers_as_text;UpdateGUIParams()">Edit triggers as param list</a>';
-            else
-                str += '<a class="tool_btn tool_wid" style="width:100%;display:block;" onmousedown="edit_triggers_as_text=!edit_triggers_as_text;UpdateGUIParams()">Edit triggers as text</a>';
-        }
-        str += '</div>';
-        gui_params.innerHTML = str;
-
-        // Update the GUI to it's original scroll.
-        guiHTMLElement = document.getElementById("rparams");
-
-        if(guiHTMLElement){
-            guiHTMLElement.scrollTop = amountToScroll;
-        }
-
-        StreetMagic();
-    }
-
     /**
      *  This function is invoked whenever someone clicks on an option in the dropdown menu of parameter values.
      *  For example, clicking on "Force Movable 'A' move to Region 'B'"
@@ -3585,75 +3028,6 @@ function extendTriggerList() {
 
         if (parameter_updated == 'mark' || (parameter_updated.indexOf('actions_') != -1 && parameter_updated.indexOf('_type') != -1))
             StreetMagic();
-    }
-
-    /**
-     * Patches the current implementation of StreetMagic to support the implementation of extended trigger list.
-     * StreetMagic allows the parameter to change it's type "trigger+none to value for an example".
-     */
-    function StreetMagic() {
-        var mark_obj = document.getElementById('pm_mark');
-
-        // Finds engine mark.
-        if (mark_obj != null) {
-            var our_case = mark_pairs['mark_' + innerHTML_to_value(mark_obj.innerHTML)];
-            var valobj = document.getElementById("pm_forteam");
-            if (our_case == undefined)
-                our_case = 'nochange';
-            eval('valobj.onclick = function(e){letedit(this, \'' + our_case + '\');}');
-            eval('valobj.onmouseover = function(e){letover(this, \'' + our_case + '\');}');
-            valobj.innerHTML = GenParamVal(our_case, innerHTML_to_value(valobj.innerHTML));
-
-            // Early exit, we are done here with engine mark.
-            return;
-        }
-
-        // Get current selection and check if it's an trigger.
-        let selected = SelectedObjects;
-        let totalNumOfActions = 10;
-        let isTrigger = false;
-        if(selected.length == 1 && selected[0]._class == "trigger"){
-            isTrigger = true;
-
-            // Check if it's an extended trigger.
-            if(selected[0].pm["extended"]){
-                totalNumOfActions = selected[0].pm["totalNumOfActions"];
-            }
-        }
-
-        // Early exit if it's not a trigger.
-        if(!isTrigger){
-            return;
-        }
-
-        // Iterate through all the trigger actions and modify their parameter type to reflect on the respective trigger actions.
-        for (var i = 1; i <= totalNumOfActions; i++) {
-            var mark_obj = document.getElementById('pm_actions_' + i + '_type');
-            if (mark_obj == null) {
-                aleiLog(logLevel.SWARN, "Failed to retrieve HTML element of property to dynamically apply property type.");
-                break;
-            }
-
-            var cases = 'A';
-            // Alternate through parameter A and B.
-            for (var i2 = 0; i2 < 2; i2++) {
-                // Retrieve the corresponding parameter type based on trigger action.
-                var our_case = mark_pairs['trigger_type_' + cases + innerHTML_to_value(mark_obj.innerHTML)];
-
-                // Retrieve the corresponding HTML element.
-                var valobj = document.getElementById('pm_actions_' + i + '_target' + cases);
-
-                if (our_case == undefined) {
-                    our_case = 'nochange';
-                }
-
-                eval('valobj.onclick = function(e){letedit(this, \'' + our_case + '\');}');
-                eval('valobj.onmouseover = function(e){letover(this, \'' + our_case + '\');}');
-
-                valobj.innerHTML = GenParamVal(our_case, innerHTML_to_value(valobj.innerHTML));
-                cases = 'B';
-            }
-        }
     }
 
     let oldSaveThisMap = window.SaveThisMap;
@@ -3907,7 +3281,6 @@ function extendTriggerList() {
     }
 
     window.setletedit = setletedit;
-    window.StreetMagic = StreetMagic;
     window.SaveThisMap = SaveThisMap;
     window.CompileTrigger = CompileTrigger;
 
@@ -3917,7 +3290,6 @@ function extendTriggerList() {
     // therefore, Nyove has decided to overwrite these library
     window.serialize = JSON.stringify;
     window.unserialize = JSON.parse;
-    window.UpdateGUIParams = newUpdateGUIParams;
 
     // Patch the render function's connection line to work with >10 trigger actions.
     /*let RenderInString = window.Render.toString().replaceAll(
@@ -4129,16 +3501,15 @@ let ALE_start = (async function() {
     // Allowing for spaces in parameters.
     patchUpdatePhysicalParam();
     window.PasteFromClipBoard = PasteFromClipBoard;
-    patchANI();
     // Tooltip.
     if(aleiSettings.enableTooltips) {
         doTooltip();
     }
     if (aleiSettings.extendedTriggers) {
         extendTriggerList();
-        ExtendedTriggersLoaded = true;
+        window.ExtendedTriggersLoaded = true;
     }
-    patchUpdateGUIParams();
+    patchParamsGUI();
     patchTeamList();
     patchRandomizeName();
     patchAllowedCharacters();

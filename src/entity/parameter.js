@@ -104,8 +104,7 @@ function UpdatePhysicalParams(paramname_arr, chvalue_arr, forcefully_create_para
                 continue;
             }
 
-            const valueToUse = typeof chvalue == "string" ? _encodeXMLChars(chvalue) : chvalue;
-            const ret = setPhysicalParam(entityIndex, paramname, valueToUse);
+            const ret = setPhysicalParam(entityIndex, paramname, _encodeXMLChars(chvalue));
             lnd(ret.undo);
             ldn(ret.redo);
 

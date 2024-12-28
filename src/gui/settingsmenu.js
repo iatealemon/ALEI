@@ -160,7 +160,8 @@ export function createALEISettingsMenu() {
             else {
                 clearOCM();
             }
-        }
+        },
+        showSameParameters: () => { need_GUIParams_update = true; },
     }
 
     function settingValueSelected(settingKey, storageKey, value, callback) {
@@ -196,11 +197,7 @@ export function createALEISettingsMenu() {
 
         for (const settingsButton of settingsItem.getElementsByClassName("settings-button")) {
             const value = formatValue(settingKey, settingsButton.dataset.value);
-            settingsButton.addEventListener("click", (event) => {
-                if (event.button === 0) { // clicked with lmb
-                    settingValueSelected(settingKey, storageKey, value, callback)
-                }
-            });
+            settingsButton.addEventListener("click", () => settingValueSelected(settingKey, storageKey, value, callback));
 
             // good to keep in mind that the button value gets cast into string when using it as a property key
             settingButtonsPerKey[settingKey][value] = settingsButton

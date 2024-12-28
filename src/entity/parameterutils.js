@@ -48,5 +48,6 @@ export function replaceParamValueUID(paramValue, oldUID, newUID) {
 }
 
 export function _encodeXMLChars(value) {
+    if (typeof value !== "string") return value;
     return value.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;")
 }
