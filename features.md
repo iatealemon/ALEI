@@ -8,6 +8,7 @@ This part includes changes that was done because game has it but ALE doesnt.
 - Added NARL weapon and Hakase decor.
 - Projectile models.
 - Added properties of water(attach), region(uses_timer), trigger(execute), decor(text)
+- Added missing but working trigger actions (experimental trigger actions)
 
 # Features
 This part includes changes to adds new things to ALE.
