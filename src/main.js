@@ -2614,15 +2614,8 @@ let hoveredTriggerAction = -1;
 let triggerActionsClipboard = [];
 
 function getTriggerActionElements() {
-    let arr = [];
-    let elems = document.getElementsByClassName("p_i");
-    let i = html5ModeActive ? 6 : 7;
-
-    for (; i < elems.length; i++) {
-        arr.push(elems[i].childNodes[0]);
-    }
-
-    return arr;
+    let start = html5ModeActive ? 6 : 7;
+    return [...document.getElementsByClassName("pa1")].slice(start);
 }
 
 function addEventListeners() {
@@ -3525,7 +3518,7 @@ let ALE_start = (async function() {
     createClipboardDiv();
     addPasteFromPermanentClipboard();
 
-    if (!ExtendedTriggersLoaded) {
+    if (!window.ExtendedTriggersLoaded) {
         patchClipboardFunctions();
     }
     registerClipboardItemAction();
