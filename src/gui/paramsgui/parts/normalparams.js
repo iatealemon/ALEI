@@ -18,16 +18,6 @@ export function addNormalParamDisplay(rparams, selection) {
     html += getButtonsHTML(selection);
     rparams.insertAdjacentHTML("beforeend", html);
 
-    // there can be two separators after action 10 cuz params from extended triggers also get separators. need to remove the extra one
-    const action10TargetB = document.getElementById("pm_actions_10_targetB")?.parentElement;
-    if (action10TargetB !== undefined) {
-        const sep = action10TargetB.nextElementSibling;
-        const sep2 = sep.nextElementSibling;
-        if (sep !== null && sep2 !== null & sep.getAttribute("style") === "height:2px" && sep2.getAttribute("style") === "height:2px") {
-            sep2.remove();
-        }
-    }
-
     if (selection.length === 1 && selection[0]._class == "trigger") {
         addComments(rparams, selection[0]);
     }
@@ -65,9 +55,9 @@ function getNormalParamsHTML(paramsToDisplay) {
         const title = param_type[paramIndex][2];
         const paramVal = (!paramData.multiple || (paramData.same && aleiSettings.showSameParameters)) ? GenParamVal(paramType, paramData.value) : "<nochange>...</nochange>";
 
-        // add separator before trigger action type parameter
+        // add opening tag for trigger action parameters container
         if (paramType === "trigger_type") {
-            html += '<div style="height:2px"></div>';
+            html += '<div class="trigger-action">';
         }
 
         html += `
@@ -77,9 +67,9 @@ function getNormalParamsHTML(paramsToDisplay) {
             </div>
         `;
 
-        // add separator after last trigger action parameter
-        if (paramName === "actions_10_targetB") {
-            html += '<div style="height:2px"></div>';
+        // add closing tag for trigger action parameters container
+        if (paramName.endsWith("_targetB")) {
+            html += '</div>';
         }
 
         index++;
@@ -103,22 +93,22 @@ function getAdditionalParamsHTML(paramsToDisplay) {
             const targetBParamVal = (!actionData.multiple || (actionData.targetB.same && aleiSettings.showSameParameters)) ? GenParamVal("nochange", actionData.targetB.value)  : "<nochange>...</nochange>";
 
             html += `
-                <div style="height:2px"></div>
-                <div class="p_i">
-                    <span class="pa1 p_u1">Action '${actionNum}' type:</span
-                    ><span class="pa2 p_u2" onclick="letedit(this, 'trigger_type')" onmouseover="letover(this, 'trigger_type')" id="pm_actions_${actionNum}_type">${typeParamVal}</span>
-                </div>
-                <div class="p_i">
-                    <span class="pa1 p_u1">- parameter A:</span
-                    ><span class="pa2 p_u2" onclick="letedit(this, 'nochange')" onmouseover="letover(this, 'nochange')" id="pm_actions_${actionNum}_targetA">${targetAParamVal}</span>
-                </div>
-                <div class="p_i">
-                    <span class="${i !== lastIndex ? "pa1 p_u1" : "pa1 p_u1 p_u0 r_lb"}">- parameter B:</span
-                    ><span class="${i !== lastIndex ? "pa2 p_u2" : "pa2 p_u2 p_u0 r_rb"}" onclick="letedit(this, 'nochange')" onmouseover="letover(this, 'nochange')" id="pm_actions_${actionNum}_targetB">${targetBParamVal}</span>
+                <div class="trigger-action">
+                    <div class="p_i">
+                        <span class="pa1 p_u1">Action '${actionNum}' type:</span
+                        ><span class="pa2 p_u2" onclick="letedit(this, 'trigger_type')" onmouseover="letover(this, 'trigger_type')" id="pm_actions_${actionNum}_type">${typeParamVal}</span>
+                    </div>
+                    <div class="p_i">
+                        <span class="pa1 p_u1">- parameter A:</span
+                        ><span class="pa2 p_u2" onclick="letedit(this, 'nochange')" onmouseover="letover(this, 'nochange')" id="pm_actions_${actionNum}_targetA">${targetAParamVal}</span>
+                    </div>
+                    <div class="p_i">
+                        <span class="${i !== lastIndex ? "pa1 p_u1" : "pa1 p_u1 p_u0 r_lb"}">- parameter B:</span
+                        ><span class="${i !== lastIndex ? "pa2 p_u2" : "pa2 p_u2 p_u0 r_rb"}" onclick="letedit(this, 'nochange')" onmouseover="letover(this, 'nochange')" id="pm_actions_${actionNum}_targetB">${targetBParamVal}</span>
+                    </div>
                 </div>
             `;
         });
-        html += '<div style="height:2px"></div>'; // add separator after last trigger action parameter
     }
     return html;
 }
@@ -172,16 +162,12 @@ function addComments(rparams, trigger) {
     const commentPositions = getCommentPositions(trigger);
     for (const position of commentPositions) {
         const actionNum = position + 1;
-        const actionTypeInputElement = rparams.querySelector(`#pm_actions_${actionNum}_type`)
-        if (actionTypeInputElement === null) {
+        const triggerActionContainer = document.getElementById(`pm_actions_${actionNum}_type`)?.parentElement?.parentElement ?? null;
+        if (triggerActionContainer === null || !triggerActionContainer.classList.contains("trigger-action")) {
             continue;
         }
-        const elementThatIsBelow = actionTypeInputElement.parentElement;
         const commentBox = makeCommentBox(position);
-        const separator = document.createElement("div");
-        separator.style.height = "2px";
-        rparams.insertBefore(commentBox, elementThatIsBelow);
-        rparams.insertBefore(separator, elementThatIsBelow);
+        triggerActionContainer.insertAdjacentElement("beforebegin", commentBox);
         setupCommentBoxAfterAddedToDOM(commentBox);
     }
 }

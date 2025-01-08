@@ -221,20 +221,9 @@ function* matchedElementsGeneratorForElements(item) {
 }
 
 function* matchedElementsGeneratorForTriggerActions(item) {
-    // loops through each param element and yields the groups of elements corresponding with trigger actions
-    let searchForActionNum = 1;
-    let i = 0;
-    while (i < rparams.children.length) {
-        const element = rparams.children[i];
-        if (element.className == "p_i") {
-            if (element.querySelector(`#pm_actions_${searchForActionNum}_type`) !== null) {
-                yield [element, rparams.children[i+1], rparams.children[i+2]];
-                i += 3; //if this element was a trigger action, go forward by 3 elements instead of 1
-                searchForActionNum += 1;
-                continue;
-            }
-        }
-        i++;
+    const triggerActionContainers = document.getElementsByClassName("trigger-action");
+    for (const elem of triggerActionContainers) {
+        yield [elem];
     }
 }
 
@@ -282,7 +271,7 @@ function sideButtonClicked(id) {
         item: currentHoveredItem
     };
     if (locationRegistry[currentSelectionData._class][currentHoveredItem].type == "trigger actions") {
-        data.actionNum = getTriggerActionNumFromElements(currentHoveredElements);
+        data.actionNum = getTriggerActionNumFromElement(currentHoveredElements[0]);
     }
     sideButtonsDataRegistry[id].clickFunction(data);
     updateSideButtons(); // the side button may change rparams or the visibility conditions so mouse stuff should be checked again
@@ -300,21 +289,23 @@ function checkVisibilityCondition(id) {
         item: currentHoveredItem
     };
     if (locationRegistry[currentSelectionData._class][currentHoveredItem].type == "trigger actions") {
-        data.actionNum = getTriggerActionNumFromElements(currentHoveredElements);
+        data.actionNum = getTriggerActionNumFromElement(currentHoveredElements[0]);
     }
     
     return condition(data);
 }
 
-function getTriggerActionNumFromElements(triggerActionElements) {
-    const first = triggerActionElements[0];
-    if (first.className != "p_i") {
-        return null;
-    }
-    const regex = /pm_actions_(\d+)_type/;
-    const match = first.children[1].id.match(regex)
-    return match === null ? null : match[1];
-}
+const getTriggerActionNumFromElement = (function() {
+    const regex = /^pm_actions_(\d+)_type$/;
+    return function(triggerActionElement) {
+        if (!triggerActionElement.classList.contains("trigger-action")) {
+            return null;
+        }
+        
+        const match = triggerActionElement.firstElementChild?.children[1]?.id.match(regex) ?? null;
+        return match === null ? null : match[1];
+    };
+})();
 
 function getSelectionData() {
     let selection = [];

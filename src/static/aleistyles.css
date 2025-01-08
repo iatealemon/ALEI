@@ -136,3 +136,8 @@ color-spectrum {
     border-color: transparent;
     box-shadow: none;
 }
+
+/* container for trigger action parameter elements */
+.trigger-action {
+    margin: 2px 0;
+}

@@ -45,14 +45,8 @@ function commentAdderButtonClicked(data) {
     // add comment element above first param element
     const rparams = document.getElementById("rparams");
     const commentElement = makeCommentBox(position);
-    const firstParamElement = data.elements[0];
-    rparams.insertBefore(commentElement, firstParamElement);
+    rparams.insertBefore(commentElement, data.elements[0]);
     setupCommentBoxAfterAddedToDOM(commentElement);
-
-    // add border
-    const sep = document.createElement("div");
-    sep.style.height = "2px";
-    rparams.insertBefore(sep, firstParamElement);
 }
 
 function commentRemoverButtonClicked(data) {
@@ -60,8 +54,6 @@ function commentRemoverButtonClicked(data) {
     const position = data.elements[0].getAttribute("position");
     removeCommentData(trigger, position);
 
-    // remove the comment box and the border it adds
     const commentBoxElement = data.elements[0];
-    commentBoxElement.previousElementSibling.remove();
     commentBoxElement.remove();
 }
