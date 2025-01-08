@@ -221,7 +221,7 @@ function* matchedElementsGeneratorForElements(item) {
 }
 
 function* matchedElementsGeneratorForTriggerActions(item) {
-    const triggerActionContainers = document.getElementsByClassName("trigger-action");
+    const triggerActionContainers = rparams.getElementsByClassName("trigger-action");
     for (const elem of triggerActionContainers) {
         yield [elem];
     }
