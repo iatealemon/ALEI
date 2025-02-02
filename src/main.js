@@ -62,7 +62,6 @@ function $query(selector) {
 let ROOT_ELEMENT = document.documentElement;
 let stylesheets = document.styleSheets;
 let VAL_TABLE = {}; // Will be filled later.
-let displayOperationCompleteNotes = true;
 window.ExtendedTriggersLoaded = false;
 
 const TEXT_OVERHEAD         = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAAYCAYAAAAxkDmIAAAAAXNSR0IArs4c6QAABHNJREFUaEPtmVvoZWMYxn+PMznEBSGlxAVuJKUcQyTHUCahEZNG43wYx8HIMIjJjPk3MimD0EyMQ0oRrpxKkblwKBdDcoFBktNrPbt3a82atfde/zV/snfru137W+v93ud5n/d5vy26NdEZ0ESfrjscHcATToIO4A7gCc/AhB+vtoIj4gLgEeA9SScMy0FEHAc8AWyQdNB08xURnwC7ABcCezf97qjvRMROwFvAvsA8SU9X90TEAcCLwP7Ao5Lm1r23+J33ngNMSbpy1LfbPC/nQdIbo95RydvSfg6reycWYCcoIh4ArgBWSzqvBuCbgNuAbYHPgNOL331a/l1EHA48A2wHXCTp1VHJb/O8A7hF1iLiZOBx4CfglBrw3i7AP7h49j5wFHCXpHsqAJsEC4rnr0s6tUUYjbaMDcARcQZwJ2C53qpyuj+BLzKRT2aVDZToiDgQuA84Btix8q5I4F4C5koyiJusiHgZOB5YWAYvIk4DHgM+LyT6KWAx8G61JRUtyCQ4BJgPvNk0HuDMbDd/pUJYAfpraB4ssxFxTXG+a4E9i3xWlXZDcZ4tgB+ztbWW6I+KD6wYQcFdAbP8O+BiwP1qB+AWSSsr1eDndwO/AbPzIMMAdn88EVhl0kha339fSuf9gCV0haR5AwC+LMH7sPje0aX9U5ZcYEnG5H69V1mGI8KyvqyI9cskmYnQKB6TJQHeOlVkvkmY3sDgXQ18ayJIWlfpqbvn3l+A6yW5RfRWkt45NEG/2VyAbVSarnXAswV4NwMvSJo1IOEO1uxeJGnhIJOVpHkO+KNOXvOw/SpcL+nQAd/bxGyVzJWrapakdyLiXuAqg9E3W2muzi4MzEPAGqBxPEkcG9WPJR1RjS2V5VjgRknLKnk4C5gDLJV0Xc1em8NXCuJuv7kAT8tFZxIsZduMYIUreLGkBUMAXjTKnTd18AmeK2aNzVZE3FDEd0cSsWe+SmbqV5stYLc0V35sslqVhk4L5XgKU2bCDJxEImI2YEVZK2ltJQ+OyZNML0cDiFtWvtYS3RbgVYWcXtKk9P8jgPtO+HerAfBgSq5lc3lJ/tyve1UFuPLtsK1GJsXIcXA6ANdUZRmw/y3ATST69uwfKyVN/dsSXQLP3sCtwYCeD3xtkMvmLCL6/dr9eOd02L0ZOiIOaynRI4skFaQM8LnpDx5uKNG+q7DCLK9OCjM6BwPuFx5LvOpM1knuKyl/cyQ9P+yiIyJssjzqrE6zUTZZdtg2QB5vBpqsEsB9w2RXa0e+RJIr9Z9VuhzxxceWwAcVY9Y4npLJagPwfunWf25ostyL7Sdeq04TMwqwb7LS3l8O7JNJ2iiHwPd5I3RrDXM3uslKx2iDc2QytPquHwCPSa6y2jGpAqBHHhPiK5uTuhujvBzxbZXNXXW0MqkaxVMak6YNcE4X9giXFrnaY8bHpCa9s/vNeGSg+zdpPHBqHWUHcOvUjcfGDuDxwKl1lB3ArVM3Hhs7gMcDp9ZRdgC3Tt14bOwAHg+cWkf5N7oPsDdbjPHbAAAAAElFTkSuQmCC";
@@ -1792,18 +1791,7 @@ document.addEventListener("keydown", e => {
     }
 
     if (e.code == "KeyR" && targetElement != "[object HTMLInputElement]" && targetElement.id != "opcode_field") {
-        if (!isOnlyTriggerSelected()) {
-            rotateObjects();
-        }
-    }
-
-    if (e.ctrlKey && e.code == "KeyR" && canvas_focus) {
-        if (isOnlyTriggerSelected() && !isNothingSelected()) {
-            e.preventDefault();
-
-            reverseTriggerActions();
-            unselectTriggerActions();
-        }
+        rotateObjects();
     }
 
     if ((e.code == "Minus" || e.code == "NumpadSubtract") && e.ctrlKey && canvas_focus) {
@@ -2614,309 +2602,6 @@ function patchPercentageTool() {
     aleiLog(logLevel.DEBUG, "Patched percentage tool");
 }
 
-let selectedTriggerActions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-let hoveredTriggerAction = -1;
-let triggerActionsClipboard = [];
-
-function getTriggerActionElements() {
-    let start = html5ModeActive ? 6 : 7;
-    return [...document.getElementsByClassName("pa1")].slice(start);
-}
-
-function addEventListeners() {
-    let elems = getTriggerActionElements();
-
-    for (let i = 0; i < elems.length; i++) {
-        let elem = elems[i];
-
-        elem.onmousedown = function() {
-            selectedTriggerActions[Math.floor(i / 3)] ^= 1;
-            updateTriggerActionElements();
-        }
-
-        elem.onmouseenter = function() {
-            hoveredTriggerAction = Math.floor(i / 3);
-            updateTriggerActionElements();
-        }
-
-        elem.onmouseleave = function() {
-            hoveredTriggerAction = -1;
-            updateTriggerActionElements();
-        }
-    }
-}
-
-function updateTriggerActionElements() {
-    let elems = getTriggerActionElements();
-
-    // TODO: Make those colors not hardcoded, prolly never will do.
-    for (let i = 0; i < 10; i++) {
-        // Not selected
-        let color = "";
-
-        // Selected.
-        if (selectedTriggerActions[i]) {
-            color = "rgb(45, 65, 95)";
-            if (THEME != 0) color = "rgb(27, 27, 27)"; // rgb(37, 37, 37)
-        }
-
-        elems[i * 3 + 0].style.backgroundColor = color;
-        elems[i * 3 + 1].style.backgroundColor = color;
-        elems[i * 3 + 2].style.backgroundColor = color;
-    }
-
-    // Hover.
-    if (hoveredTriggerAction != -1) {
-        if (!selectedTriggerActions[hoveredTriggerAction]) {
-            let color = "rgb(65, 85, 130)";
-
-            if (THEME != 0) color = "rgb(47, 47, 47)"
-
-            elems[hoveredTriggerAction * 3 + 0].style.backgroundColor = color;
-            elems[hoveredTriggerAction * 3 + 1].style.backgroundColor = color;
-            elems[hoveredTriggerAction * 3 + 2].style.backgroundColor = color;
-        }
-    }
-}
-
-function isOnlyTriggerSelected() {
-    return SelectedObjects.length === 1 && SelectedObjects[0]._class === "trigger";
-}
-
-function getTriggerActions() {
-    edit_triggers_as_text = true;
-
-    UpdateGUIParams();
-
-    let textarea = document.getElementById("opcode_field");
-    let arr = textarea.value.split("\n").slice(4);
-
-    while (arr.length < 10) {
-        arr.push("");
-    }
-
-    edit_triggers_as_text = false;
-    UpdateGUIParams();
-
-    return arr;
-}
-
-function copyTriggerActions() {
-    let actions = getTriggerActions();
-
-    triggerActionsClipboard = [];
-
-    for (let i = 0; i < 10; i++) {
-        if (selectedTriggerActions[i]) {
-            triggerActionsClipboard.push(actions[i]);
-        }
-    }
-}
-
-function isNothingSelected() {
-    return !selectedTriggerActions.includes(1);
-}
-
-function isOnlyOneTriggerActionSelected() {
-    return selectedTriggerActions.indexOf(1) == selectedTriggerActions.lastIndexOf(1) && !isNothingSelected();
-}
-
-function getSelectedTriggerAction() {
-    return selectedTriggerActions.indexOf(1);
-}
-
-function getTriggerInfo() {
-    edit_triggers_as_text = true;
-    UpdateGUIParams();
-
-    let textarea = document.getElementById("opcode_field");
-    let arr = textarea.value.split("\n").slice(0, 3);
-
-    return arr;
-}
-
-function pasteTriggerActions() {
-    // TODO: Make this bit more specific
-    // As in, if i copy 2 actions, and i select another 2 actions, it should paste to those 2 actions i selected
-    // And not add to end of it.
-    let actions = getTriggerActions();
-    let index = getSelectedTriggerAction();
-    let clipboard = triggerActionsClipboard.join("\n");
-    let info = getTriggerInfo();
-
-    edit_triggers_as_text = true;
-    UpdateGUIParams();
-
-    if (isNothingSelected()) { // Adds action at end of no action was selected.
-        index = actions.length - 1;
-        actions[index] = actions[index] + "\n" + clipboard;
-    }
-
-    if (isOnlyOneTriggerActionSelected()) { // Adds action before the action that was selected.
-        actions[index] = clipboard + "\n" + actions[index];
-    }
-
-    let textarea = document.getElementById("opcode_field");
-
-    textarea.value = info.concat(actions).join("\n");
-
-    CompileTrigger();
-
-    edit_triggers_as_text = false;
-    UpdateGUIParams();
-}
-
-function deleteTriggerActions() {
-    let actions = getTriggerActions();
-    let info = getTriggerInfo();
-
-    edit_triggers_as_text = true;
-    UpdateGUIParams();
-
-    for (let i = 0; i < 10; i++) {
-        if (selectedTriggerActions[i]) {
-            actions[i] = "";
-        }
-    }
-
-    let textarea = document.getElementById("opcode_field");
-
-    textarea.value = info.concat(actions).join("\n");
-
-    CompileTrigger();
-
-    edit_triggers_as_text = false;
-    UpdateGUIParams();
-}
-
-function reverseTriggerActions() {
-    let actions1 = getTriggerActions();
-    let actions2 = [];
-    let indexes = [];
-    let info = getTriggerInfo();
-
-    edit_triggers_as_text = true;
-    UpdateGUIParams();
-
-    for (let i = 0; i < 10; i++) {
-        if (selectedTriggerActions[i]) {
-            actions2.push(actions1[i]);
-            indexes.push(i);
-        }
-    }
-
-    indexes.reverse();
-
-    for (let i = 0; i < actions2.length; i++) {
-        let index = indexes[i];
-        let action = actions2[i];
-
-        actions1[index] = action;
-    }
-
-    let textarea = document.getElementById("opcode_field");
-
-    textarea.value = info.concat(actions1).join("\n");
-
-    displayOperationCompleteNotes = false;
-    CompileTrigger();
-    displayOperationCompleteNotes = true;
-    NewNote("Reversed actions.", "#FFFFFF");
-
-    edit_triggers_as_text = false;
-    UpdateGUIParams();
-}
-
-function unselectTriggerActions() {
-    selectedTriggerActions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    hoveredTriggerAction = -1;
-    updateTriggerActionElements();
-}
-
-window.triggerActionsPreventError = () => {
-    selectedTriggerActions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    hoveredTriggerAction = -1;
-    UpdateGUIParams();
-}
-
-function patchClipboardFunctions() {
-    let old_CopyToClipBoard = CopyToClipBoard;
-    let old_PasteFromClipBoard = PasteFromClipBoard;
-    let old_DeleteSelection = DeleteSelection;
-    let old_UpdateGUIParams = UpdateGUIParams;
-    let old_DO_UNDO = DO_UNDO;
-    let old_DO_REDO = DO_REDO;
-
-    window.CopyToClipBoard = function(param) {
-        if (isNothingSelected()) {
-            let result = old_CopyToClipBoard(param);
-            triggerActionsClipboard = [];
-            return result;
-        } else {
-            copyTriggerActions();
-            unselectTriggerActions();
-            return true;
-        }
-    }
-
-    window.PasteFromClipBoard = function(param) {
-        if (triggerActionsClipboard.length == 0) {
-            let result = old_PasteFromClipBoard(param);
-            UpdateGUIParams();
-            return result;
-        } else {
-            displayOperationCompleteNotes = false;
-            pasteTriggerActions();
-            unselectTriggerActions();
-            displayOperationCompleteNotes = true;
-            return true;
-        }
-    }
-
-    window.DeleteSelection = function() {
-        if (isNothingSelected()) {
-            old_DeleteSelection();
-        } else {
-            displayOperationCompleteNotes = false;
-            deleteTriggerActions();
-            unselectTriggerActions();
-            NewNote("Deleted trigger actions.", "#FFFFFF");
-            displayOperationCompleteNotes = true;
-        }
-    }
-
-    window.UpdateGUIParams = function() {
-        old_UpdateGUIParams();
-
-        if (!isOnlyTriggerSelected()) {
-            selectedTriggerActions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            hoveredTriggerAction = -1;
-        } else if (!edit_triggers_as_text) {
-            addEventListeners();
-            updateTriggerActionElements();
-        }
-    }
-
-    window.DO_UNDO = function() {
-        try {
-            old_DO_UNDO();
-        } catch (err) {
-            NewNote("Can't undo action.", note_bad);
-        }
-    }
-
-    window.DO_REDO = function() {
-        try {
-            old_DO_REDO();
-        } catch (err) {
-            NewNote("Can't redo action.", note_bad);
-        }
-    }
-
-    window.triggerActionsPreventError = triggerActionsPreventError;
-    aleiLog(logLevel.DEBUG, "Patched clipboard related functions.");
-}
-
 function patchDrawGrid() {
     let old_lg = lg;
 
@@ -2928,14 +2613,6 @@ function patchDrawGrid() {
         }
     }
     aleiLog(logLevel.DEBUG, "Patched LG");
-}
-
-function patchNewNote() {
-    let old = NewNote;
-    window.NewNote = (text, color) => {
-        if (displayOperationCompleteNotes) return old(text, color);
-        if (text.slice(0, "Operation complete:<br><br>".length) != "Operation complete:<br><br>") return old(text, color);
-    }
 }
 
 /**
@@ -3499,7 +3176,6 @@ let ALE_start = (async function() {
     patchUpdateTools();
     patchDecorUpload();
     patchEntityClass();
-    patchNewNote();
     patchEvalSet();
     // Allowing for spaces in parameters.
     patchUpdatePhysicalParam();
@@ -3523,9 +3199,6 @@ let ALE_start = (async function() {
     createClipboardDiv();
     addPasteFromPermanentClipboard();
 
-    if (!window.ExtendedTriggersLoaded) {
-        //patchClipboardFunctions();
-    }
     patchForInteractableTriggerActions();
     registerClipboardItemAction();
 

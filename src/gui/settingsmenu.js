@@ -180,9 +180,6 @@ export function createALEISettingsMenu() {
             button.classList.remove("settings-button--toggled");
         }
         settingButtonsPerKey[settingKey][value].classList.add("settings-button--toggled");
-
-        // no idea what this is for. i assume it does something important
-        triggerActionsPreventError();
     }
 
     // buttons are stored in dict so they can be accessed when updating toggled visual
