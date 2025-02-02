@@ -41,12 +41,12 @@ This part includes changes to adds new things to ALE.
 - Small "script language" to act on parameter for multiple objects at once. [More detail here](/alescript.md)
 - Ability to manually clear backups
 - Object clipboard. (Ctrl+P selected objects to save into clipboard, get out of focus and Ctrl+P to open object clipboard list)
-- Action Uilities:
+- Action Utilities:
   - Select action(s)
   - Ctrl + C to copy them
-  - Ctrl + V to paste them (If no action is selected, it'll paste at end, if it is, it will paste before that action)
-  - Ctrl + R selected actions to reverse them
-  - Del/Backspace (Backspace asks you before deleting) to directly delete them.
+  - Ctrl + V to paste them (actions will be pasted before the first selected action, unless the number of copied actions is equal to the number of selected actions, in which case actions will be pasted to the corresponding positions)
+  - Del/Backspace (Backspace asks you before deleting) to delete them
+  - Drag to drag-and-drop
 - Z-Index for objects
 - Quick update to new ALEI version
 - Get image size
