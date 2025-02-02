@@ -45,6 +45,9 @@
 		--dot-border-color: #fff;
 	}
     --update-button-highlight-color: orange;
+    --trigger-action-hovered-color: rgb(65, 83, 124);/*rgb(65, 85, 130);*/
+    --trigger-action-selected-color: rgb(50, 70, 100);/*rgb(45, 65, 95);*/
+    --trigger-action-dragged-brightness: 0.8;
 }
 
 .dark-theme, .purple-theme, .green-theme {
@@ -92,6 +95,9 @@
 		--dot-border-color: #ccc;
 	}
     --update-button-highlight-color: rgba(255, 165, 0, 0.5);
+    --trigger-action-hovered-color: rgb(42, 42, 42);/*rgb(47, 47, 47);*/
+    --trigger-action-selected-color: rgb(30, 30, 30);/*rgb(27, 27, 27);*/
+    --trigger-action-dragged-brightness: 0.8;
 }
 
 .alei-dark-theme {
@@ -139,4 +145,7 @@
 		--dot-border-color: rgb(220, 220, 220);
 	}
     --update-button-highlight-color: #4566AB;
+    --trigger-action-hovered-color: rgb(33, 15, 15);
+    --trigger-action-selected-color: rgb(60, 15, 15);
+    --trigger-action-dragged-brightness: 0.6;
 }

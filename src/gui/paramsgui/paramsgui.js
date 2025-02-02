@@ -7,6 +7,8 @@ import { makeGUISelInfoInnerHTML } from "./parts/selinfo.js";
 import { addNormalParamDisplay, StreetMagic } from "./parts/normalparams.js";
 import { addTriggerTextEdit } from "./parts/triggertextedit.js";
 import { GenParamVal } from "./paramsguiutils.js";
+import { clearSelectedActions } from "../../triggeractions/interactions/selection.js";
+import { stopTriggerActionDrag } from "../../triggeractions/interactions/dragndrop/dragndrop.js";
 
 const paramsGUITypes = {
     none: 0,
@@ -65,6 +67,8 @@ function UpdateGUIParams() {
     ff.style.display = "none";
 
     disconnectParamSideButtons();
+    clearSelectedActions();
+    stopTriggerActionDrag();
 
     // save current scroll
     const lastRparamsScroll = document.getElementById("rparams")?.scrollTop ?? 0;

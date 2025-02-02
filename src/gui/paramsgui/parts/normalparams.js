@@ -4,6 +4,9 @@ import { getCommentPositions } from "../comments/commentdata.js";
 import { makeCommentBox, setCurrentCommentedTrigger, 
     setCommentsResizeObserverTarget, setupCommentBoxAfterAddedToDOM } from "../comments/commenttextarea.js";
 import { addParamSideButtons } from "../paramsidebuttons/paramsidebuttons.js";
+import { makeTriggerActionsInteractable } from "../../../triggeractions/interactability.js";
+
+const triggerActionParamRegex = /^actions_(\d+)_(type|targetA|targetB)$/;
 
 /**
  * @param {E[]} selection 
@@ -22,6 +25,8 @@ export function addNormalParamDisplay(rparams, selection) {
         addComments(rparams, selection[0]);
     }
     addParamSideButtons(rparams);
+
+    makeTriggerActionsInteractable(rparams);
 
     StreetMagic();
 }
@@ -57,7 +62,11 @@ function getNormalParamsHTML(paramsToDisplay) {
 
         // add opening tag for trigger action parameters container
         if (paramType === "trigger_type") {
-            html += '<div class="trigger-action">';
+            const match = paramName.match(triggerActionParamRegex);
+            if (match !== null && match[2] === "type") {
+                const actionNum = match[1];
+                html += `<div class="trigger-action" data-action-num="${actionNum}">`;
+            }
         }
 
         html += `
@@ -93,7 +102,7 @@ function getAdditionalParamsHTML(paramsToDisplay) {
             const targetBParamVal = (!actionData.multiple || (actionData.targetB.same && aleiSettings.showSameParameters)) ? GenParamVal("nochange", actionData.targetB.value)  : "<nochange>...</nochange>";
 
             html += `
-                <div class="trigger-action">
+                <div class="trigger-action" data-action-num="${actionNum}">
                     <div class="p_i">
                         <span class="pa1 p_u1">Action '${actionNum}' type:</span
                         ><span class="pa2 p_u2" onclick="letedit(this, 'trigger_type')" onmouseover="letover(this, 'trigger_type')" id="pm_actions_${actionNum}_type">${typeParamVal}</span>

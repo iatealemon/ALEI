@@ -25,6 +25,8 @@ import { loadOCM, clearOCM, ocmHandleEntityParametersChange } from "./ocm/ocm.js
 import { aleiSettings } from "./storage/settings.js";
 import { readStorage, writeStorage } from "./storage/storageutils.js";
 
+import { patchForInteractableTriggerActions } from "./triggeractions/interactability.js";
+
 import { parse as alescriptParse } from "./alescript.js";
 import { activateHTML5Mode, html5ModeActive } from "./html5mode.js";
 import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
@@ -1467,8 +1469,9 @@ function changeTopRightText() {
  * This function is responsible for creating and maintaining extended triggers.
  *
  * @param {Number} value    The amount of trigger actions to add or subtract from the currently selected trigger,
+ * @param {boolean} scrollToBottom - whether to scroll to the bottom after trigger actions are added
  */
-function addTriggerActionCount(value){
+function addTriggerActionCount(value, scrollToBottom=true){
 
     const selection = SelectedObjects;
 
@@ -1544,9 +1547,11 @@ function addTriggerActionCount(value){
 
     UpdateGUIParams();
 
-    // Scroll to the bottom of the trigger list.
-    let divElement = document.getElementById('rparams');
-    divElement.scrollTop = divElement.scrollHeight;
+    if (scrollToBottom) {
+        // Scroll to the bottom of the trigger list.
+        let divElement = document.getElementById('rparams');
+        divElement.scrollTop = divElement.scrollHeight;
+    }
 }
 
 function getImageSize() {
@@ -3519,8 +3524,9 @@ let ALE_start = (async function() {
     addPasteFromPermanentClipboard();
 
     if (!window.ExtendedTriggersLoaded) {
-        patchClipboardFunctions();
+        //patchClipboardFunctions();
     }
+    patchForInteractableTriggerActions();
     registerClipboardItemAction();
 
     patchDrawGrid();
