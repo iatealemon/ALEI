@@ -1639,30 +1639,6 @@ function getImageData() {
     });
 }
 
-function arrMin(arr) {
-    let min = Infinity;
-
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i] < min) {
-            min = arr[i];
-        }
-    }
-
-    return min;
-}
-
-function arrMax(arr) {
-    let max = -Infinity;
-
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i] > max) {
-            max = arr[i];
-        }
-    }
-
-    return max;
-}
-
 function getImagePosition(data, w) {
     let arrX = [];
     let arrY = [];
@@ -1686,10 +1662,10 @@ function getImagePosition(data, w) {
             }
         }
 
-        minX = arrMin(arrX);
-        minY = arrMin(arrY);
-        maxX = arrMax(arrX);
-        maxY = arrMax(arrY);
+        minX = Math.min(...arrX);
+        minY = Math.min(...arrY);
+        maxX = Math.max(...arrX);
+        maxY = Math.max(...arrY);
 
         centerX = (minX + maxX) / 2;
         centerY = (minY + maxY) / 2;
