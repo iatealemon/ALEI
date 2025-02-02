@@ -2602,6 +2602,30 @@ function patchPercentageTool() {
     aleiLog(logLevel.DEBUG, "Patched percentage tool");
 }
 
+/**
+ * patches DO_UNDO and DO_REDO to add simple error reporting to undo and redo
+ */
+function addUndoRedoErrorReporting() {
+    const old_DO_UNDO = DO_UNDO;
+    const old_DO_REDO = DO_REDO;
+
+    window.DO_UNDO = function() {
+        try {
+            old_DO_UNDO();
+        } catch (err) {
+            NewNote("Failed to undo action.", note_bad);
+        }
+    }
+
+    window.DO_REDO = function() {
+        try {
+            old_DO_REDO();
+        } catch (err) {
+            NewNote("Failed to redo action.", note_bad);
+        }
+    }
+}
+
 function patchDrawGrid() {
     let old_lg = lg;
 
@@ -3202,6 +3226,7 @@ let ALE_start = (async function() {
     patchForInteractableTriggerActions();
     registerClipboardItemAction();
 
+    addUndoRedoErrorReporting();
     patchDrawGrid();
     addFunctionToWindow();
     createALEISettingsMenu();
