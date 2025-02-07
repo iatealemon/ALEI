@@ -3265,7 +3265,7 @@ let ALE_start = (async function() {
     }
 
     NewNote("ALEI: Welcome!", "#7777FF");
-    NewNote(`Don't forget to join discord server! discord.gg/K5jcNEvZ85`, "#7777FF");
+    NewNote(`Don't forget to join discord server! discord.gg/vKgDbVTE2V`, "#7777FF");
     aleiLog(logLevel.INFO, `Welcome!`);
     if(isNative) {
         aleiLog(logLevel.INFO, `TamperMonkey Version: ${GM_info.version} ALEI Version: ${GM_info.script.version}`);
