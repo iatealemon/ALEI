@@ -3275,6 +3275,9 @@ let ALE_start = (async function() {
         aleiLog(logLevel.INFO, message);
         NewNote(`ALEI: Reminder that ALEI under tampermonkey is bound to break less than without.`, "#FFFFFF");
     }
+
+    // Recheck in the future
+    setTimeout( recheckDecors, 1000 );
 });
 
 function recheckDecors() {
@@ -3303,6 +3306,6 @@ if(isNative) document.addEventListener("DOMContentLoaded", () => ALE_start());
 else ALE_start();
 
 // Set this into the future.
-setTimeout( recheckDecors, 1000 );
+// setTimeout( recheckDecors, 1000 );
 
 console.log("ALEI!");
