@@ -570,21 +570,21 @@ function updateGuns() {
     }
 }
 
+const decors_to_change = [
+        // EuropeExt
+        ["text",  TEXT_OVERHEAD],
+        // DejaVu Sans Mono
+        ["text2", TEXT_SCORE],
+        // Tahoma Bold
+        ["text3", TEXT_CHAT]
+];
+
 function updateDecors() {
     // Adds decors that exist in game, but not in ALE. Currently only hakase easter egg is known.
     window.img_decors = CACHED_DECORS; // For some reason img_decors gets resetted
     
     let decors = [
         ["hakase", "Hakase", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAA8CAYAAAAUufjgAAANHklEQVRogbVaa1Bb17X+AIEOQoID6HF4SjyFEQ+Zh3jJIAdbJo7t2I6duGlm6mkTO1Pf22ZuMxP3TtMbT6ZN2rm5cW+SGbuZTBqTNnHnkga75pmCTYFYAhzAxpYAywjzEAakIxDiiEe4PwgKAvES7jejH2evtdf+ztp7r732OgI8BwEgdxv9NwWfTeiQAOQA4gFIlv24JXlpb/YOjEwB0P2L+IG1jkwSygsoOli08+XdmTuSBCSPXBLQNjsGHln6RCGBpDSaoj6taAoan5yqBmB63AS91mgnfrgvt/LHhwpViuTYdQ3QNjs+udbE1LXcrapru/dLeO7NJQfQyxu93ZF7fm/uu+dOHdmQHACQXA5K8lIJQTCP8pDYoh0y8EfBwUHPrWxftQYzpZIz77xy4tVIYch60++C+fl59A2PR5I8TmR3v6kaALNFfvJ/f/H5PwUH8ubudhvKlgtcPCgRheb8+qWn35CE8YmtWBeFBEEYEojUuMjDebL417ZIDgJBiFQSFUFyeQFJAFRrESSKFcln81PjSXiAg8p0sP1YyEwWn8T34YdMiJOcLszP+i8ASW66EQByY8WRuUX52ZBJ46nnnznwFhajBIBluzgsJLDo5MFdJYSfryf8IAoJwi55IvpN49TebNnPa1u6cOzg3reSpfEqaXwMGppbb+D7DUQASHr2+LNvHTt2rAQAqm9o8YOjT1Fmi5XGsiXiJJieKD6RJA7bcGr/2d6N7OQYMDOzILkcl/bGXgvg7YOMrKzD7/7Pb08kJcSiuq4RxsFhGoshiAQgV6vVp4ufKFZxOByKYBNQq9X48I+D0Pc+QI+hz4Rl4WqJoHynNFq1lvc6ex+C/Z2suXcMI5ZJsH198Mg6jQN5ydDefYCBb/k49YufgaIolF76E2EcGEZSQiykCTH4c9k1XWhoaI6qUHVy/1P75coCJSkWi8EwDN57/z1IpVIcPHQEH13831Vj+wAgCtIT3vzJoUJVhCDYKaBtdnT3L77IFU0PHI5ZWG122Hy4GJ2cgWloCA4iFG0dXZgNScCpf/sFSHJx+YrFElTUfAV+EAf3+wYwbJmxnT798gtnzpyJV2QriCU9FosFFouF+4b7yMzMBD1hQ+lfPjtvoa2aJR7eAHLZLBY5PEa7hIbbvQMYMU/g71/fRUScFMzcPHpME3A4ZiBPT4UXOwAL8zPw4cfAi83FyMiIsy9Jkjj49HGU1zTCzLDw+9//d9KRw0ecxJZDmiiFXq//rl8wDH39Hcvl3gDap5lZnTxR7LL+Ou8PouXuA4zPsUEJ+Og3jcPbnweRIBQ5menw4YYgWroTL/70P3D82HGUfloKk+n7k04qlSIhJRsR0XFul83ylyFJEu9/8D79+uuvnwfQt3KKGUkYX9n9cITi+rP5VpsdtG0aHQNWePn4ouRJNby8vNBn7MfBA/sRHxONy3+vQ97u/Th0+Ci4XC64XC4AoPnrZsiSZWCxFpc2wzBo+6YDWZkZbsnRNI3Kqkqm4lpF4+eXPz+r79ZfBDC2kiD6R8ZH+oZGTTwuoaxoun2TCg2SmOcJ5OZkQ1WQA4LNhi/bH1PTDK636HDwyHPIzMx0GUwsFuPWrVtwMA6IxWJ0dHTgi/IrKChQIioy3EWXYRg0NzfjwoUL7e+8+86rrW2tv5mamuoAMLfyJZZ2sc5iszNf1reRk1OMSZ4YpQoURiE3S44bzS3oezgIeHnDvuCPF0+fgbu1BADqvWqUfloKhmFQ39CIYvWTUGTtdNExGo24VHqp77PPPztvMBjKV07pSrjLZiSnDqv+xqci5BGxUphGxwAvb6Rm5EGt3geCWD9UXv7rZdzreYCCXbuRk5GKwGWxsqqqivn444+ryq+W/w7AzXUNfQd3CYHpPr3Q98NXTsm1Wi0W/AJx/NhxSKXSDY3V1ddjxDyJpw49g5hIkZMcwzCovlaOrqZKWttUf2Gz5AD36ZZcnpGlamhogNVqhThavClyZV98gRHLFPIKihAuDAE/ONApu3L1Crp7eyGPpajXfnTgPIBNp2ar0q1CZeFPjh49WlL8RDGkiVIkJyc7d6k7MAyDT0pL4U0EIj5BClEoiagwvouOTCaDLCUNlXUNKE6N5FOhgUrdg6GxKWZGv2WC4mix6qWXXlKJxWLw+fx1yZlMJnz40Ufw45BIS5NDEiFEmDDErS5BEOAGC1FZU4sX9mRG8gL8VZ09/QN2x0zXegRXrUEWi7VhsknTNG5qNPiq/joysvORlpaG2EgKHH/2uv3S09Oh16nQ2Pk1Xny6iAJw/t2/VGHUaru8Vp9VHnzQ98BXvVd9Mi5u9QnAMAwqKivwRfkVmCemsEe9H1k70xAbRcHXd3MJeFx8Amr/qYGQmEeEMJhLT03Hd/Y+vIEVAXpNggCY8LDwPcXFxc6FbDQa0dnZiabaq7jdqkG2qgT7S/ZBGhftEkY2AxaLBT4VgasVlViYZeg/fF5zwTE7dwNrXBPcEbSNPBohwsPDVWFUGKumtga1tbXQtmh1ucI5fiSHhTadAcV79sLPz29L5JbA5/Nhts/hYW8XwfLBmN44/Oe1dN1e3C0WS8c333xD375zmxwZGZkbHBrUXbp06eILasWBqFA+ent6YbLPISUl1SOCACCWxOBWVzcGDD1jOuPwJ2vprbVwGIPB8AeDwXAZi+k5g2V3CmVyHGpvVKIhPBKFhYUeESQIAk8fex632jsJoI3EivvwEjYqfdi+62gDIHlhX+5JHsHBt/MLCA0gUNvQCEFUDCjKsysxSZII4Qsjm5qbTBaLReNOx91J4haZ0uh0UQjP+RwayMXueBH++uH7MBqNG/ZnGPfRS6FQYHfR7hNY43TZTPEIAIididG/OlKUET/j+BYzs/MAAA7bDz5zDOo0tyBNSYONmcW9+wMYemTGyBgNPx+gtbUFDQ0NqKyqhEKhcOaKS2CxWJiZneGXlZVVw01ms1mCkcVZO159RpVBmulpJ0Fg0ZPm4UEYrdPYpSzApNWM/7v8KXp0t9HVdQdcLhc5ihyo96rXzIS8vbxZGq1GZzKZmlbKNlvekPACCMJoGsf8/AKau3oZti8LbD8WkRBBYWDCzpzIUhAAkJSYgDfPnduk2UWIRCIIBAK5O9lmCdJldbfeTowQvjH8aAqXahrPRwlDVQAQwg0gO4fM1w87mFe2xGoZSJIEL8B98WmzBNsNw6PtvymtZCYmp2izbbq8d+hRdVy4QFzffu+GQCAocjAOT/kBAFLTUqmyv5VRWFFj3HQFCwD6hscuLnu8eX9o9CYAyGQylVgshl6vB8MwSE9P3zLBwMBAAosx1wWbDjPrgKQoSg4sJqZr3Vc2QmxMLAU3oeaxEExNSaU0Wg3Ue9UQi8UeGeFwOP8yD0pSU1Il3d3dHk3tRtg2wYSEBGkQGQSBQOgsYTxObJtgmCiMokQUZLIU/KOu7nFwcsG2CQoEApVIJIKyIB8GYz9o2m1S4jG2S5AA4DzCJJJYaLXa7XJywXYJUgXKAsnSQ3p6OjQtLR4ZstvtbtOdx7GLnUhJToZj9lt0dHRsrLwChgcGE9xkM9v2oEgockbm4CAuYuISUH/9ultlmqah1+vR0NCwSjY4MOhSPF/Clo46NyAEAoHL0fGEqhB/vHgBer3epWTy27ffhs0+DS6PBF8gQk7urLPuTdM02jvb++DmW992Ca5CuEgAaXIarl67BrFY7NxA/3n2LO70GDHNzCA+OsxJDgC0Wi3a29u/dGfvsezi5WD7+aJwlxITUw5UVVe7yGIjKfh4eyM4aLGccuXqFQBAU1OTbnx8fHt3EncoVBbmuDt7I0ShyN+lwtfaVtTU1DjbOf5syBKiAQAarQZ9xoegaRo6nU6HNb6SPvYpBha9mLojEQBQ/1Ul7NPTKNm3WPxcmlqNthUZGZmwWq2wWCzta9l6rGFmOSJEoYiMCEfRnifRfuce3vvgA+dZ3dHRgUdjZqSlpW1oZzsepLxZ3hSbvXZFKzaSwjQzg6cOPQOrZcyZilXV1CJaEodALgeW8fUH8diDOdk5r51749zL613aOf5sZzFTIKRAEARu3rwJy4QNu3erAABsNhvcQK5kLRsee5CiKAkZtBgCvywvh51xIC9fCT8/Nhwzs5iZdf2iMDM7h1/+6teYnZvHnpIDYPv6LtnBDukOeUVFhQTbuBevwsTkBB0QELBHqVRyKYqCwdCLiqoq9D8cxNQ0A9o6AT/C34WoMCwCSckpIMlgTE0zGHpkhp1xgMcNoNraWnVms7lt5Tgee5DL5Ury8/IpYPHa+Nyzz2Gfmoa+W487XXexsLAAVYHCqT8zO4dwYQgmp6adbT4+3ogQhiJKtAvZWdklPT09F1eO4zFBXgAvVyQSubSRJIkcRQ5yFDlbsqXRajA/N+82kVzrbykbIiwsbF9+bv5ZkiQJWYpsy+WtiYkJ5nbnbRMAjI6OXm9obLgIN2exxwSXgcAWvnssA4NN/BHo/wEN3ae6aBBdhgAAAABJRU5ErkJggg=="]
-    ];
-
-    let decors_to_change = [
-        // EuropeExt
-        ["text",  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAAYCAYAAAAxkDmIAAAAAXNSR0IArs4c6QAABHNJREFUaEPtmVvoZWMYxn+PMznEBSGlxAVuJKUcQyTHUCahEZNG43wYx8HIMIjJjPk3MimD0EyMQ0oRrpxKkblwKBdDcoFBktNrPbt3a82atfde/zV/snfru137W+v93ud5n/d5vy26NdEZ0ESfrjscHcATToIO4A7gCc/AhB+vtoIj4gLgEeA9SScMy0FEHAc8AWyQdNB08xURnwC7ABcCezf97qjvRMROwFvAvsA8SU9X90TEAcCLwP7Ao5Lm1r23+J33ngNMSbpy1LfbPC/nQdIbo95RydvSfg6reycWYCcoIh4ArgBWSzqvBuCbgNuAbYHPgNOL331a/l1EHA48A2wHXCTp1VHJb/O8A7hF1iLiZOBx4CfglBrw3i7AP7h49j5wFHCXpHsqAJsEC4rnr0s6tUUYjbaMDcARcQZwJ2C53qpyuj+BLzKRT2aVDZToiDgQuA84Btix8q5I4F4C5koyiJusiHgZOB5YWAYvIk4DHgM+LyT6KWAx8G61JRUtyCQ4BJgPvNk0HuDMbDd/pUJYAfpraB4ssxFxTXG+a4E9i3xWlXZDcZ4tgB+ztbWW6I+KD6wYQcFdAbP8O+BiwP1qB+AWSSsr1eDndwO/AbPzIMMAdn88EVhl0kha339fSuf9gCV0haR5AwC+LMH7sPje0aX9U5ZcYEnG5H69V1mGI8KyvqyI9cskmYnQKB6TJQHeOlVkvkmY3sDgXQ18ayJIWlfpqbvn3l+A6yW5RfRWkt45NEG/2VyAbVSarnXAswV4NwMvSJo1IOEO1uxeJGnhIJOVpHkO+KNOXvOw/SpcL+nQAd/bxGyVzJWrapakdyLiXuAqg9E3W2muzi4MzEPAGqBxPEkcG9WPJR1RjS2V5VjgRknLKnk4C5gDLJV0Xc1em8NXCuJuv7kAT8tFZxIsZduMYIUreLGkBUMAXjTKnTd18AmeK2aNzVZE3FDEd0cSsWe+SmbqV5stYLc0V35sslqVhk4L5XgKU2bCDJxEImI2YEVZK2ltJQ+OyZNML0cDiFtWvtYS3RbgVYWcXtKk9P8jgPtO+HerAfBgSq5lc3lJ/tyve1UFuPLtsK1GJsXIcXA6ANdUZRmw/y3ATST69uwfKyVN/dsSXQLP3sCtwYCeD3xtkMvmLCL6/dr9eOd02L0ZOiIOaynRI4skFaQM8LnpDx5uKNG+q7DCLK9OCjM6BwPuFx5LvOpM1knuKyl/cyQ9P+yiIyJssjzqrE6zUTZZdtg2QB5vBpqsEsB9w2RXa0e+RJIr9Z9VuhzxxceWwAcVY9Y4npLJagPwfunWf25ostyL7Sdeq04TMwqwb7LS3l8O7JNJ2iiHwPd5I3RrDXM3uslKx2iDc2QytPquHwCPSa6y2jGpAqBHHhPiK5uTuhujvBzxbZXNXXW0MqkaxVMak6YNcE4X9giXFrnaY8bHpCa9s/vNeGSg+zdpPHBqHWUHcOvUjcfGDuDxwKl1lB3ArVM3Hhs7gMcDp9ZRdgC3Tt14bOwAHg+cWkf5N7oPsDdbjPHbAAAAAElFTkSuQmCC"],
-        // DejaVu Sans Mono
-        ["text2", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHwAAAAYCAYAAAA4e5nyAAAAAXNSR0IArs4c6QAAA0hJREFUaEPtmbuvTUEUxn/TiAbREUElEXqJQiIoNKIRhYQGlUY0HoVCpxGNaFC4EYmKRhQehUShFaKg9AeIimac2Zk5WXfOmsfeZ3Ozc+d29+6ZWbO+bz2+NdfQftYVAmZdeducpRG+zoKgEd4IB2vtWeAe8MwYc0FiYq19DRwALhljVkp4ibM2ibUPlXMfAOfFml+1Nkp30L5ba28BV4H3xphj8RrxfSW+6xB7YY/H76g44wdwzhjztnSutfYI8Bj4aYzZH/ESOPuo+RPWqhk+JuHRpQLIWRD7BlUJqAThWYCstS4A3ZrbxpibQ2yU9lhrPwNbGuE9q0gJ2AThyWxx6xvhHjUt+5Sy/UfLjNoyWZPhPjv2CTK/xGWuFAgyw4AzvqW8cSUx4afLyKxN6SNwUKzvzo0qXjbDFVw/ALvXtKRrvdCDdSgmfSzCPVE7Q48Xvc3hWdUPfRY7PbLX7QFuzPq5661d4MTlttam8NFpkOeh/1trn860z0upe3IlXevXIsgXglsEx1I9XAotGZydoAKc4FgQESlxMQbhqTNqz44yzPXp096Xa8BGYDNwBXC/48lXtYdmU/ztW6niFAhf0BC5s8ciPKvSPXg5Nd9lT1CgtaTkSrrvrR1JUbZUqVRFRF4GHgEngHfASeAJcAr46sv7PDBKNmt99BUmWdI9BjF+OZUevnV3TrWzpVT6DJg9frTZkDCwauSoBaNAuDoWiqqSdVgZZe4AL4DjwHWf2d+Bw2EsTd1Hs1nrYwXhC8FQGMsC4a9yY+SyhLt7qxmeUMZLj2UjZ3ioCp+AbbMWddH38q2zrN8F3HcjWR+bIxI+1xeiQmYni5JI7VpUYUYtlfTQw6uyKjffp3pr/Lgzcg8PAO4QYi2Ub3elu57wIT28+GCjle2AgzYW9tEH/6SkOzJSL1beme1SuORKktJb3SuYClqtYq6JeKF8u9c/4c9vqRNqbfbM8OTjzlqp9Kqn1cTzqToXC0BC31+YT8XIFJ4gF+b6MeZwYWc+QuZGvBqbfQgXfTzM9quek//bHF6TGW3NNBFo/y2bJm+Db90IHwzdNDc2wqfJ2+BbN8IHQzfNjY3wafI2+NaN8MHQTXNjI3yavA2+9V/XCzNGz/W2wgAAAABJRU5ErkJggg=="],
-        // Tahoma Bold
-        ["text3", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAG4AAAAYCAYAAAAbIMgnAAAAAXNSR0IArs4c6QAAAwZJREFUaEPtma+OFEEQxn9tQKFwoDHwBKAIkPACCAwYcCgUYBAYcgpBCIYz8BKQcARCwhuAxIHDgALTXE26J7W11bM9dzObm0uvup0/W9Xf1/XVV32B9lkkAmGRWbekacQtdBNslbgY4xPgAXAC+BZCuBBjfA9cTfjthhDuLhTLPu0Y41fgPPAP2AkhPPbWpJ77A9wLIbypXbtLXIzxCvAaOGuDm3ujAs5NnAJC1t9vghjjK+BOAuUHcDuE8OEwaxkC+KDEAZKbi7uNd9yI0wTthRCuyYJNVfebLcZ4C3gBnEqgdYTW7vrSc424kQh6FZ2Iy9IlX3v5Ms/3RI8Mu/b4QYkTqax9d9KKMzs4L6jrZQnA6h5X+K1e5go9Q0t892yS+1xV+bWOJCOhWlp1JeZ3VmIbgF8CN1KsXeCi1+OMlOslaBWo6o+TEad2ryS0A3xUep1BvFxjTkwldIAquRvsq7bhA+dSzL/A7wRuNkZrINXGHiDBJc4zIhuuDRqbGuKGlKMD0TRVXWG658iCflYSlwEt9aM+hk3OVlG6L8ZENs9n4Gb6+xHwNBGpDUtV7CFJs/dSDtlN697rxVq75hFQQ9wK854TU7tabL5OTEvjHvBlE3HAJ88wmLhFybR9Ky1axg0dX6rvGXA/GZNcga5Z8WIDz0uW3yHukjfy1FbhtogrVeiUxBXl0oD8fb+qTqrekzeFXHsHXE8zZZbjGuKyyjycibg81w62hFkrzpGxjebksBVnXKQsXkjq+q4MwmqX/9qvmtPGZdYQl/v1XBW3VeL04FgrY8WTk4KEaFCLPc6Z2+SS7pX6pEbuldziYH8d2ePOqAMA7V6r+tlsUpnmj9Lwmy362xHmRFfmKFfpjB1yqWSYVu457xZjjyTOc9hyKpXHFM/kSTrFI8BJpDKfsZn+YjdKtatMAG6cpUrN1JkBtWGyv7sGTs0MOYa4JNE2rpCVx5NpiBvy/+3e0UBgq/8dOBpLPh5ZNOIWymMjrhG3UAQWmnaruEbcQhFYaNqt4hZK3H+hgmxGYcqn0gAAAABJRU5ErkJggg=="]
     ];
 
     for(let i = 0; i < decors.length; i++) {
@@ -601,15 +601,14 @@ function updateDecors() {
         CUSTOM_IMAGES_APPROVED[decor_model] = true; // Since it's obviously vanilla, and other vanilla decors are approved, it's only natural if we approve added decors too
     }
 
-    for (let i = 0; i < decors_to_change.length; i++) {
-        let decor                             = decors_to_change[i];
+    for (const decor of decors_to_change) {
         let decor_model                       = decor[0];
         let decor_change_image                = decor[1];
 
+        // console.log( img_decors[decor_model] );
+
         // if these decor models get duplicated for no reason i will literally...
-        if ( !( img_decors[decor_model] instanceof Image ) ) {
-            img_decors[decor_model]           = new Image(); // In case if anyone opens new ALE tab, do this just for convenience
-        }
+        img_decors[decor_model]           = new Image(); // In case if anyone opens new ALE tab, do this just for convenience
 
         img_decors[decor_model].src           = decor_change_image;
         img_decors[decor_model].native        = true;
@@ -3278,7 +3277,32 @@ let ALE_start = (async function() {
     }
 });
 
+function recheckDecors() {
+    // A buggy fix, but will do for now
+
+    // In the case of Tampermonkey screwing up...
+    for ( const decor of decors_to_change ) {
+        // Compare the URL.
+
+        let decor_model                       = decor[0];
+        let decor_change_image                = decor[1];
+
+        if ( img_decors[decor_model].src !== decor_change_image ) {
+            // Damn it, looks like that bug has appeared, no problem.
+            // Just fix this real quick
+            console.warn( `${decor_model} does not have the right image, attempting to fix...` );
+            img_decors[decor_model].src = decor_change_image;
+            img_decors[decor_model].native        = true;
+            CACHED_DECORS[decor_model]            = img_decors[decor_model];
+            CUSTOM_IMAGES_APPROVED[decor_model]   = true; // Since it's obviously vanilla, and other vanilla decors are approved, it's only natural if we approve added decors too
+        }
+    }
+};
+
 if(isNative) document.addEventListener("DOMContentLoaded", () => ALE_start());
 else ALE_start();
+
+// Set this into the future.
+setTimeout( recheckDecors, 1000 );
 
 console.log("ALEI!");
