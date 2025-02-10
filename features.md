@@ -55,6 +55,7 @@ This part includes changes to adds new things to ALE.
 - Extended triggers, as in triggers that can hold more than 10 actions than max 10.
 - Comments inside triggers
 - Color selector
+- Improved "find errors" button
 
 # Fixes
 This part includes changes that are meant to fix issues (It doesn't have to be code issue, it can be any issue, ambiguity issues, etc.)
