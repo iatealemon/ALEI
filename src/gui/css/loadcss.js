@@ -10,6 +10,8 @@ import "../../static/aleifonts.css";
 import "../../static/comments.css";
 import "../../static/coloreditor.css";
 import "../../static/dropdown.css";
+import "../../static/icons.css";
+import "../../static/tabview.css";
 
 /*
 for some reason the vanilla ThemeSet function does this:

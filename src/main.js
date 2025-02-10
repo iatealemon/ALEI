@@ -11,6 +11,7 @@ import "./gui/colorpicker/colorwindow.js";
 import { registerOpenInColorEditorButton } from "./gui/colorpicker/opencoloreditorbutton.js";
 import { fixWebpackStyleSheets } from "./gui/css/loadcss.js";
 import { replaceThemeSet, patchSaveBrowserSettings, initTheme } from "./gui/css/themes.js";
+import { patchFindErrorsButton } from "./gui/finderrors/finderrors.js";
 import { registerCommentAdderButton, registerCommentRemoverButton } from "./gui/paramsgui/comments/commentbuttons.js";
 import { patchParamsGUI } from "./gui/paramsgui/paramsgui.js";
 import { Renderer_initialize } from "./gui/renderer/renderer.js";
@@ -3243,6 +3244,7 @@ let ALE_start = (async function() {
     );
 
     patchRender();
+    patchFindErrorsButton();
 
     // load map again if map was already loaded but not successfully (in terms of alei)
     // map load is unsuccessful if it happens before alei is initialized

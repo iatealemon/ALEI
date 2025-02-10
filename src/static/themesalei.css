@@ -48,6 +48,17 @@
     --trigger-action-hovered-color: rgb(65, 83, 124);/*rgb(65, 85, 130);*/
     --trigger-action-selected-color: rgb(50, 70, 100);/*rgb(45, 65, 95);*/
     --trigger-action-dragged-brightness: 0.8;
+    --tab-view-separator-color: hsl(215, 53%, 63%);
+    --tab-label-background-color: #819bbf;
+    --tab-label-hover-background-color: #657d9f;
+    --tab-label-select-background-color: #3e526d;
+    --tab-label-text-color: #fff;
+    --tab-label-info-color: #eee;
+    --params-table-cell-border-color: hsl(215, 52%, 69%);
+    --params-table-header-background-color: hsl(215, 29%, 34%);
+    --params-table-odd-row-background-color: hsl(215, 25%, 53%);
+    --params-table-even-row-background-color: hsl(215, 25%, 45%);
+    --params-table-row-hover-background-color: hsl(215, 22%, 40%);
 }
 
 .dark-theme, .purple-theme, .green-theme {
@@ -98,6 +109,17 @@
     --trigger-action-hovered-color: rgb(42, 42, 42);/*rgb(47, 47, 47);*/
     --trigger-action-selected-color: rgb(30, 30, 30);/*rgb(27, 27, 27);*/
     --trigger-action-dragged-brightness: 0.8;
+    --tab-view-separator-color: rgb(97, 97, 97);
+    --tab-label-background-color: rgb(97, 97, 97);
+    --tab-label-hover-background-color: rgb(71, 71, 71);
+    --tab-label-select-background-color: rgb(38, 38, 38);
+    --tab-label-text-color: rgb(200, 200, 200);
+    --tab-label-info-color: rgb(180, 180, 180);
+    --params-table-cell-border-color: rgb(112, 112, 112);
+    --params-table-header-background-color: rgb(38, 38, 38);
+    --params-table-odd-row-background-color: rgb(75, 75, 75);
+    --params-table-even-row-background-color: rgb(58, 58, 58);
+    --params-table-row-hover-background-color: rgb(49, 49, 49);
 }
 
 .alei-dark-theme {
@@ -148,4 +170,15 @@
     --trigger-action-hovered-color: rgb(33, 15, 15);
     --trigger-action-selected-color: rgb(60, 15, 15);
     --trigger-action-dragged-brightness: 0.6;
+    --tab-view-separator-color: rgb(97, 97, 97);
+    --tab-label-background-color: rgb(77, 77, 77);
+    --tab-label-hover-background-color: rgb(61, 61, 61);
+    --tab-label-select-background-color: rgb(45, 45, 45);
+    --tab-label-text-color: #fff;
+    --tab-label-info-color: #eee;
+    --params-table-cell-border-color: rgb(112, 112, 112);
+    --params-table-header-background-color: rgb(41, 41, 41);
+    --params-table-odd-row-background-color: rgb(75, 75, 75);
+    --params-table-even-row-background-color: rgb(58, 58, 58);
+    --params-table-row-hover-background-color: rgb(49, 49, 49);
 }

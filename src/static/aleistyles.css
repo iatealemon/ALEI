@@ -187,3 +187,34 @@ color-spectrum {
 .trigger-action-gap-highlight--visible {
     display: block;
 }
+
+.more-info {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #7944a1;
+    font-size: 14px;
+}
+
+.more-info::before {
+    content: "?";
+    color: #fff;
+}
+
+.more-info:hover {
+    cursor: help;
+}
+
+.highlighted-param .pa1 {
+    animation-duration: 2s;
+    animation-name: paramblink;
+}
+
+@keyframes paramblink {
+    0%, 50% {
+        color: orange;
+    }
+}

@@ -1,0 +1,138 @@
+.tab-view-container {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.tablist {
+    border-bottom: 2px solid var(--tab-view-separator-color);
+    padding-bottom: 10px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.tab-label {
+    padding: 5px 10px 5px 5px;
+    font-size: 14px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+    background-color: var(--tab-label-background-color);
+    border-radius: 8px;
+    min-width: 0;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.tab-label:hover {
+    background-color: var(--tab-label-hover-background-color);
+}
+
+.tab-label:active {
+    background-color: var(--tab-label-select-background-color)
+}
+
+.tab-label--selected, .tab-label--selected:hover {
+    background-color: var(--tab-label-select-background-color);
+    cursor: default;
+}
+
+.tab-label-text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    min-width: 0;
+    display: flex;
+    gap: 5px;
+    color: var(--tab-label-text-color);
+}
+
+.tab-label-icon-container {
+    display: inline-flex;
+    width: 15px;
+    justify-content: center;
+}
+
+.tab-label-info {
+    color: var(--tab-label-info-color);
+}
+
+.tabpanel {
+    padding-top: 10px;
+    font-size: 14px;
+    min-height: 0;
+}
+
+.tab-text {
+    margin: auto;
+    text-align: center;
+}
+
+
+.errors-tab,
+.requirements-tab,
+.numrefs-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow: auto;
+    height: 100%;
+    padding: 0 10px;
+}
+
+.hidden-tab {
+    display: none;
+}
+
+.requirement-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.params-table {
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.params-table th,
+.params-table td {
+    border-bottom: 2px solid var(--params-table-border-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 50px;
+    max-width: 100px;
+    font-size: 12px;
+    padding: 5px 10px;
+    text-align: left;
+    user-select: none;
+}
+
+.params-table th {
+    font-weight: normal;
+}
+
+.params-table thead tr {
+    background-color: var(--params-table-header-background-color);
+}
+
+.params-table tbody tr:nth-child(odd) {
+    background-color: var(--params-table-odd-row-background-color);
+}
+
+.params-table tbody tr:nth-child(even) {
+    background-color: var(--params-table-even-row-background-color);
+}
+
+.params-table tbody tr:hover {
+    background-color: var(--params-table-row-hover-background-color);
+}
+
+.params-table tbody tr:hover td {
+    cursor: pointer;
+}
