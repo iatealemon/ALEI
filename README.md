@@ -4,7 +4,7 @@ ALEI Icon (cc: broforce1, remade by Prosu)
 ![ALEI Icon](/icon.png "ALEI Icon")
 <br><br><br>
 Script that patches ALE for the better. The goal is to make ALE more usable to map makers. <br><br>
-Discord server: https://discord.gg/K5jcNEvZ85
+Discord server: https://discord.gg/vKgDbVTE2V
 
 Features are listed in [features.md](/features.md)
 
