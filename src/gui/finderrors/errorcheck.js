@@ -49,7 +49,7 @@ export function checkErrors(entities) {
     return errors;
 }
 
-const entityParamTypes = new Set(["vehicle+none+any", "trigger", "trigger+none", "song+none", "vehicle", "timer", "pushf", "door", "door+none", "barrel", "decor", "lamp", "gun", "region", "water", "character"]);
+const entityParamTypes = new Set(["vehicle+none+any", "trigger", "trigger+none", "song+none", "vehicle", "timer", "pushf", "door", "door+none", "barrel", "decor", "lamp", "gun", "gun+none", "region", "water", "character"]);
 /**
  * @param {E[]} entities 
  * @returns {Map<E, Set<string>>}

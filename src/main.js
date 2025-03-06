@@ -2509,6 +2509,19 @@ function addProjectileModels() {
 }
 
 function patchSpecialValue() {
+    // add case for gun+none type
+    {
+        const oldCode = window.special_value.toString();
+        // this might break in the future cuz it relies on lIODICl ("door+none") remaining the same
+        const newCode = oldCode.replace("case lIODICl:", `case lIODICl: case "gun+none":`);
+        if (newCode === oldCode) {
+            aleiLog(logLevel.WARN, "special_value direct code replacement failed");
+        }
+        else {
+            window.special_value = eval(`(${newCode})`);
+        }
+    }
+
     let _OG = window.special_value;
     window.special_value = (base, value) => {
         if (["ALEI_projectileModels"].indexOf(base) !== -1) {
@@ -3136,6 +3149,16 @@ function fixCharEscapingInCompiObj() {
     window.compi_obj = eval(`(${newCode})`);
 }
 
+// adds no gun option for "Set Character 'A' active weapon to Gun 'B'"
+// patchSpecialValue adds the case for gun+none into special_value
+function addNoGunOption() {
+    special_values_table["gun+none"] = new Array();
+    special_values_table["gun+none"][-1] = "- No gun -";
+    special_values_table["gun+none"]["[listof]"] = "gun";
+
+    mark_pairs["trigger_type_B312"] = "gun+none";
+}
+
 let alreadyStarted = false;
 let ALE_start = (async function() {
     if(alreadyStarted) return;
@@ -3261,6 +3284,7 @@ let ALE_start = (async function() {
     patchRender();
     patchFindErrorsButton();
     fixCharEscapingInCompiObj();
+    addNoGunOption();
 
     // load map again if map was already loaded but not successfully (in terms of alei)
     // map load is unsuccessful if it happens before alei is initialized
