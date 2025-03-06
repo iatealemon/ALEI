@@ -25,7 +25,7 @@ Easiest way to install ALEI is to use it inside Tampermonkey. You can download T
 - Jeje/iatealemon (Repository Collaborator)
 - Longbow/BlueBolt5000 (Contributor)
 - TNT69/AloneGuitar (Contributor)
-- Xeden
+- Xeden/NightXDay (Contributor)
 - Nightmare
 - Yex
 - Shadowysn
