@@ -658,6 +658,9 @@ function updateTriggers() {
     addTrigger(332, "Var &#8250; Set variable 'A' to value 1 if Gun 'B' is in owner's active slot, set to value 0 in else case", "string", "gun");
     addTrigger(305, "Gun &#8250; Set Gun 'A' holstered attachment to 'B' (0 = on leg, 1 = on back, 2 = on head)", 'gun', 'string');
 
+    // fix bug where "Set value of variable 'A' to slot of current player" has a param B that does nothing
+    mark_pairs["trigger_type_B137"] = "nochange";
+
     // fix the bug where "Water" category has undefined color
     tr_type_tags["Water"] = "#7dd1d1";
     addTrigger(392, "Water &#8250; Move Water 'A' to Region 'B'", 'water', 'region');
