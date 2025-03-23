@@ -2515,8 +2515,8 @@ function patchSpecialValue() {
     // add case for gun+none type
     {
         const oldCode = window.special_value.toString();
-        // this might break in the future cuz it relies on lIODICl ("door+none") remaining the same
-        const newCode = oldCode.replace("case lIODICl:", `case lIODICl: case "gun+none":`);
+        // this might break in the future cuz it relies on licOiOl ("door+none") remaining the same
+        const newCode = oldCode.replace("case licOiOl:", `case licOiOl: case "gun+none":`);
         if (newCode === oldCode) {
             aleiLog(logLevel.WARN, "special_value direct code replacement failed");
         }
