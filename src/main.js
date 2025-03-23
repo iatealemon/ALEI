@@ -2511,17 +2511,35 @@ function addProjectileModels() {
     aleiLog(logLevel.DEBUG, "Loaded projectile models.");
 }
 
-function patchSpecialValue() {
+async function patchSpecialValue() {
     // add case for gun+none type
     {
-        const oldCode = window.special_value.toString();
-        // this might break in the future cuz it relies on lICGICl ("door+none") remaining the same
-        const newCode = oldCode.replace("case lICGICl:", `case lICGICl: case "gun+none":`);
-        if (newCode === oldCode) {
-            aleiLog(logLevel.WARN, "special_value direct code replacement failed");
+        let doorNoneAlias = localStorage.getItem("ALEI_cachedDoorNoneAlias");
+        if (doorNoneAlias === null || window[doorNoneAlias] !== "door+none") {
+            doorNoneAlias = null;
+            // read variable name of "door+none" from ALE code
+            const response = await makeRequest("GET", "cached_libs.js");
+            if (response.status == 200) {
+                const match = response.response.match(/(\w+)\s*=\s*('|"|`)door\+none\2/);
+                if (match !== null) {
+                    doorNoneAlias = match[1];
+                    localStorage.setItem("ALEI_cachedDoorNoneAlias", doorNoneAlias);
+                }
+            }
+        }
+
+        if (doorNoneAlias === null) {
+            aleiLog(logLevel.WARN, "special_value direct code replacement failed (failed to find door+none alias)");
         }
         else {
-            window.special_value = eval(`(${newCode})`);
+            const oldCode = window.special_value.toString();
+            const newCode = oldCode.replace(`case ${doorNoneAlias}:`, `case ${doorNoneAlias}: case "gun+none":`);
+            if (newCode === oldCode) {
+                aleiLog(logLevel.WARN, "special_value direct code replacement failed");
+            }
+            else {
+                window.special_value = eval(`(${newCode})`);
+            }
         }
     }
 
