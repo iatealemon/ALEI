@@ -64,3 +64,10 @@ this is applied to the last element of a section (of the top buttons) so that se
 .topui__section-end {
     margin-right: 28px;
 }
+
+
+
+/* stop version text in the top right from blocking the top buttons */
+#version_rights {
+    pointer-events: none;
+}
