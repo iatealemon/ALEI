@@ -78,7 +78,7 @@ function UpdatePhysicalParam(paramname, chvalue, showNote = true) {
  * @param {boolean} showNote - Default=true. Indicates whether to show confirmation note.
  */
 function UpdatePhysicalParams(paramname_arr, chvalue_arr, forcefully_create_params, showNote = true) {
-    lcz();
+    ACTION_cancel(); // lcz();
     let layer_mismatch = false;
     let list_changes = "";
     for (let entityIndex = 0; entityIndex < es.length; entityIndex++) {
@@ -105,8 +105,8 @@ function UpdatePhysicalParams(paramname_arr, chvalue_arr, forcefully_create_para
             }
 
             const ret = setPhysicalParam(entityIndex, paramname, _encodeXMLChars(chvalue));
-            lnd(ret.undo);
-            ldn(ret.redo);
+            ACTION_add_undo(ret.undo);
+            ACTION_add_redo(ret.redo);
 
             if (paramname == "__id") {
                 NewNote(`ALEI: Changing Object ID does not do anything, don't expect that to apply.`, "#FFFFFF");
@@ -135,7 +135,7 @@ function UpdatePhysicalParams(paramname_arr, chvalue_arr, forcefully_create_para
     if (layer_mismatch) {
         NewNote("Note: Some changes weren't made due to mismatch of active layer and class of selected objects", note_neutral);
     }
-    lfz(false);
+    ACTION_finalize(false);
 }
 
 /**

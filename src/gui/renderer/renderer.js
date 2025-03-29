@@ -84,7 +84,7 @@ function _DrawRectangle(color, opacity, x, y, w, h, edge) {
 // Checks if given object is in selection area.
 function ObjIsHighlighted(element, cns) {
     if(!window.m_drag_selection) return; // If we are not dragging.
-    if(window.lmd) return; // If the selection just started
+    if(window.m_mistake_drag) return; // If the selection just started
     if(!window.MatchLayer(element)) return; // If layers dont match.
 
     let rx = w2s_x(Math.min(mClickX, mCurrentX));
@@ -261,10 +261,10 @@ function RenderNRObjectBox(element, color, opacity) {
 
     let oClass = window.ThinkOfBBoxClass(element._class, element);
 
-    let classX = window.bo_x[oClass];
-    let classY = window.bo_y[oClass];
-    let classW = window.bo_w[oClass];
-    let classH = window.bo_h[oClass];
+    let classX = window.bbox_x[oClass];
+    let classY = window.bbox_y[oClass];
+    let classW = window.bbox_w[oClass];
+    let classH = window.bbox_h[oClass];
 
     let x;
     let y = w2s_y(objY + classY);
@@ -327,10 +327,10 @@ function RenderSingleNonResizableObject(element, cns) {
     let offsetClass = window.ThinkOfOffsetClass(elemClass, element);
     let factor = (pm.side != -1) ? 1: -1;
 
-    let objX = w2s_x(x + factor * window.lo_x[offsetClass]);
-    let objY = w2s_y(y + window.lo_y[offsetClass]);
-    let objW = w2s_w(factor * window.lo_w[offsetClass]);
-    let objH = w2s_h(window.lo_h[offsetClass]);
+    let objX = w2s_x(x + factor * window.offset_x[offsetClass]);
+    let objY = w2s_y(y + window.offset_y[offsetClass]);
+    let objW = w2s_w(factor * window.offset_w[offsetClass]);
+    let objH = w2s_h(window.offset_h[offsetClass]);
 
     if(factor == -1) {
         ctx.save();
@@ -401,14 +401,14 @@ function GetObjectCoordAndSize(element) {
         h = w2s_h(pm.h);
     } else {
         let boxClass = window.ThinkOfBBoxClass(element._class, element);
-        y = w2s_y(pm.y + window.bo_y[boxClass]);
-        h = w2s_h(window.bo_h[boxClass]);
+        y = w2s_y(pm.y + window.bbox_y[boxClass]);
+        h = w2s_h(window.bbox_h[boxClass]);
         if(pm.side != -1) {
-            x = w2s_x(pm.x + window.bo_x[boxClass]);
-            w = w2s_w(window.bo_w[boxClass]);
+            x = w2s_x(pm.x + window.bbox_x[boxClass]);
+            w = w2s_w(window.bbox_w[boxClass]);
         } else {
-            x = w2s_x(pm.x - window.bo_x[boxClass]);
-            w = w2s_w(-window.bo_w[boxClass]);
+            x = w2s_x(pm.x - window.bbox_x[boxClass]);
+            w = w2s_w(-window.bbox_w[boxClass]);
             x += w;
             w = -w;
         }
@@ -419,7 +419,7 @@ function GetObjectCoordAndSize(element) {
 
 function RenderObjectMarkAndName(element, cns) {
     // render the object even if layers dont match the object due to quick pick mode.
-    let shouldRenderRegardless = window.quick_pick && window.lqpc.indexOf(element._class) !== -1
+    let shouldRenderRegardless = window.quick_pick && window.quick_pick_classes.indexOf(element._class) !== -1
 
     if(!window.ENABLE_TEXT)                                     return;
     if(element.pm.uid == undefined)                             return;
@@ -530,7 +530,7 @@ function ChangeCursorIfHitsBorder(element, cns) {
 }
 
 function RenderQuickPick(element, cns) {
-    if(!(window.quick_pick && window.lqpc.indexOf(element._class) != -1)) return;
+    if(!(window.quick_pick && window.quick_pick_classes.indexOf(element._class) != -1)) return;
 
     let x = cns.x;
     let y = cns.y;
@@ -684,12 +684,12 @@ function CullObject(element, leftEdge, rightEdge, topEdge, bottomEdge) {
 
     // get object bounding box (the thing that can be selected)
     const bboxClass = ThinkOfBBoxClass(element._class, element);
-    const bboxWidth = bo_w[bboxClass];
-    const bboxHeight = bo_h[bboxClass];
+    const bboxWidth = bbox_w[bboxClass];
+    const bboxHeight = bbox_h[bboxClass];
     const bboxX = pm.side != -1
-        ? pm.x + bo_x[bboxClass]
-        : pm.x - bo_x[bboxClass] - bboxWidth;
-    const bboxY = pm.y + bo_y[bboxClass];
+        ? pm.x + bbox_x[bboxClass]
+        : pm.x - bbox_x[bboxClass] - bboxWidth;
+    const bboxY = pm.y + bbox_y[bboxClass];
 
     // don't cull object if the bounding box is visible
     if (!(bboxX + bboxWidth < leftEdge || bboxX > rightEdge ||
@@ -721,10 +721,10 @@ function CullDecorImage(element, leftEdge, rightEdge, topEdge, bottomEdge) {
     if (image.native) {
         if (!(pm.model in fixedVisualBBoxes)) {
             const offsetClass = ThinkOfOffsetClass("decor", element);
-            offsetX = lo_x[offsetClass] * scaleX;
-            offsetY = lo_y[offsetClass] * scaleY;
-            imgWidth = lo_w[offsetClass] * scaleX;
-            imgHeight = lo_h[offsetClass] * scaleY;
+            offsetX = offset_x[offsetClass] * scaleX;
+            offsetY = offset_y[offsetClass] * scaleY;
+            imgWidth = offset_w[offsetClass] * scaleX;
+            imgHeight = offset_h[offsetClass] * scaleY;
         }
         else {
             // use better values for fanart update decors
@@ -836,7 +836,7 @@ function CullNonAxisAlignedDecorImage(pm, offsetX, offsetY, imgWidth, imgHeight,
 
 function RenderSelectionBox() {
     if(!window.m_drag_selection) return; // If we are not dragging.
-    if(window.lmd) return; // If the selection just started
+    if(window.m_mistake_drag) return; // If the selection just started
 
 
     let x = w2s_x(mClickX); // Start X for rectangle
@@ -879,15 +879,15 @@ function RenderCrossCursor() {
 
 function RenderFrame() {
     if(!window.need_redraw) return;
-    canvasWidth = window.lsu;
-    canvasHeight = window.lsv;
+    canvasWidth = window.screenX;
+    canvasHeight = window.screenY;
     currentTheme = canvasThemes[window.THEME] ?? canvasThemes[window.THEME_BLUE];
     gridOpacity = window.GRID_ALPHA;
 
-    mClickX = window.lmdrwa;
-    mClickY = window.lmdrwb;
-    mCurrentX = window.lmwa;
-    mCurrentY = window.lmwb;
+    mClickX = window.m_drag_wx;
+    mClickY = window.m_drag_wy;
+    mCurrentX = window.mouse_wx;
+    mCurrentY = window.mouse_wy;
 
     window.canv.style.cursor = "default";
     ctx.globalAlpha = 1;
@@ -940,9 +940,9 @@ function RequestRedrawIfGridMoved() {
     function triggerMove() {
         window.zoom_validate();
         window.need_redraw = true;
-        window.lmd = false;
-        window.lmwa = s2w_x(window.mouse_x);
-        window.lmwb = s2w_x(window.mouse_y);
+        window.m_mistake_drag = false;
+        window.mouse_wx = s2w_x(window.mouse_x);
+        window.mouse_wy = s2w_x(window.mouse_y);
         //window.m_move();
     }
 
@@ -1011,7 +1011,7 @@ export function Renderer_initialize() {
 
     // Draw functions.
     draw_rect_edges = (x, y, w, h) => ctx.strokeRect(x, y, w, h);
-    draw_rect = window.lmfr;
+    draw_rect = window.MyFillRect; // lmfr
     draw_gridlines = window.lg;
     draw_image = (img, x, y, w, h) => window.MyDrawImage(img, x, y, w, h);
 

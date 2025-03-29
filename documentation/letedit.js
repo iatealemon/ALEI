@@ -36,7 +36,7 @@ function letedit(obj, enablemode) {
 
     // -------------------------------------------------------------
     // CASE 1.
-    if (!lapa(enablemode)) {
+    if (!AdvancedParam(enablemode)) {
         // Style the drop in accords to the size of the input field.
         ff.style.left = rect.left + 'px';
         ff.style.top = rect.top + 'px';
@@ -91,12 +91,12 @@ function letedit(obj, enablemode) {
         
         // Get the value in the parameter. Eg: gun_rifle, 42, hero1_guns 
         // Value is encapsulated in a element called <pvalue real="???">???'s name</pvalue> as obj's innerhtml.
-        var active_param = lgprv(obj);
+        var active_param = getParamRealValue(obj);
 
         // Set global params
         quick_pick = false;
         quick_pick_ignore_one_click = false;
-        lqpc = new Array();
+        quick_pick_classes = new Array();
         quick_pick_active_param = '';
 
         var he = 8;
@@ -106,7 +106,7 @@ function letedit(obj, enablemode) {
             // Parameter type is not a list of defined values but rather ascends numerically.
             // Example: trigger (trigger*1, trigger*2)
             if (i == '[listof]' || i == '[listof2]') {
-                lqpc.push(special_values_table[enablemode][i]);
+                quick_pick_classes.push(special_values_table[enablemode][i]);
 
                 quick_pick = true;
                 quick_pick_ignore_one_click = true;
@@ -118,14 +118,14 @@ function letedit(obj, enablemode) {
                     if (es[i2].exists)
                         if (es[i2]._class == special_values_table[enablemode][i]) {
                             he += 22;
-                            paramsout += '<a href="#" onClick="setletedit(\'' + es[i2].pm.uid + '\', \'' + lcrpl(es[i2].pm.uid, "'", "\\'") + '\', \'' + active_param + '\')" onMouseOver="quick_pick_fake_over=' + i2 + ';" onMouseOut="quick_pick_fake_over=-1;" class="' + (active_param == es[i2].pm.uid ? 'paramactive' : 'paraminbox') + ' paramwide">' + lrp(i2) + '</a>';
+                            paramsout += '<a href="#" onClick="setletedit(\'' + es[i2].pm.uid + '\', \'' + CompleteReplace(es[i2].pm.uid, "'", "\\'") + '\', \'' + active_param + '\')" onMouseOver="quick_pick_fake_over=' + i2 + ';" onMouseOut="quick_pick_fake_over=-1;" class="' + (active_param == es[i2].pm.uid ? 'paramactive' : 'paraminbox') + ' paramwide">' + RepresentObj(i2) + '</a>';
                         }
             } 
             // Parameter type is of a defined value.
             else {
                 he += 22;
                 paramsout += `\
-                <a href="#" onClick="setletedit('${i}', '${lcrpl(special_values_table[enablemode][i], "'", "\\'")}', '${active_param}')"\
+                <a href="#" onClick="setletedit('${i}', '${CompleteReplace(special_values_table[enablemode][i], "'", "\\'")}', '${active_param}')"\
                 class="${active_param == i ? 'paramactive' : 'paraminbox'} paramwide"> ${special_values_table[enablemode][i]}</a>\
                 `;
             }

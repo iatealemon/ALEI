@@ -51,8 +51,9 @@ export function replaceThemeSet() {
 
 export function patchSaveBrowserSettings() {
     const originalCode = unsafeWindow.SaveBrowserSettings.toString();
+    // console.log( originalCode );
     const newCode = originalCode.replace(
-        /localStorage\.setItem\(\s*([\w]+)\s*,\s*THEME\s*\)\s*;/,
+        /localStorage\.setItem\( \'*([\w]+)\'*,\s*THEME\s* \)\s*;/,
         "localStorage.setItem($1, THEME); if (THEME > 3) { localStorage.setItem($1, 0 ); }"
     );
     if (originalCode === newCode) {

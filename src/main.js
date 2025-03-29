@@ -643,10 +643,10 @@ function updateOffsets() {
     }
     for (let key in offsets) {
         let off = offsets[key];
-        lo_x["alei_" + key] = off.x;
-        lo_y["alei_" + key] = off.y;
-        lo_w["alei_" + key] = off.w;
-        lo_h["alei_" + key] = off.h;
+        offset_x["alei_" + key] = off.x;
+        offset_y["alei_" + key] = off.y;
+        offset_w["alei_" + key] = off.w;
+        offset_h["alei_" + key] = off.h;
     }
 }
 
@@ -1149,10 +1149,10 @@ function getObjectBox(obj) {
     let h = obj.pm.h;
 
     if (!obj._isresizable) {
-        x = bo_x[obj._class];
-        y = bo_y[obj._class];
-        w = bo_w[obj._class];
-        h = bo_h[obj._class];
+        x = bbox_x[obj._class];
+        y = bbox_y[obj._class];
+        w = bbox_w[obj._class];
+        h = bbox_h[obj._class];
     }
 
     if (["player", "enemy"].includes(obj._class)) {
@@ -1163,16 +1163,16 @@ function getObjectBox(obj) {
     }
 
     if (obj._class == "vehicle") {
-        x = bo_x["vehicle_" + obj.pm.model];
-        y = bo_y["vehicle_" + obj.pm.model];
-        w = bo_w["vehicle_" + obj.pm.model];
-        h = bo_h["vehicle_" + obj.pm.model];
+        x = bbox_x["vehicle_" + obj.pm.model];
+        y = bbox_y["vehicle_" + obj.pm.model];
+        w = bbox_w["vehicle_" + obj.pm.model];
+        h = bbox_h["vehicle_" + obj.pm.model];
 
         if (obj.pm.model == "veh_hh") {
-            x = lo_x["alei_veh_hh"];
-            y = lo_y["alei_veh_hh"];
-            w = lo_w["alei_veh_hh"];
-            h = lo_h["alei_veh_hh"];
+            x = offset_x["alei_veh_hh"];
+            y = offset_y["alei_veh_hh"];
+            w = offset_w["alei_veh_hh"];
+            h = offset_h["alei_veh_hh"];
         }
     }
 
@@ -2020,10 +2020,12 @@ function addObjBoxResize() {
 function patch_m_down() {
     // entity.selected fix for when object creation is undone (1/2)
     let oldCode = m_down.toString();
-    let newCode = oldCode.replace("in newbie.pm) { ldn", `
+    let newCode = oldCode.replace(`in newbie.pm)
+				{
+					ACTION_add_redo`, `
         in newbie.pm) {
-        lnd('es[' + newid + '].selected=false;');
-        ldn
+        ACTION_add_undo('es[' + newid + '].selected=false;');
+        ACTION_add_redo
     `);
     if (oldCode === newCode) {
         aleiLog(logLevel.WARN, "m_down direct code replacement failed (selected fix)");
@@ -2066,12 +2068,12 @@ function PasteFromClipBoard(ClipName) {
         return false;
     }
     clipboard = unserialize(sessionStorage[ClipName]);
-    lcz();
+    ACTION_cancel();
     for (let i = 0; i < es.length; i++)
         if (es[i].exists) {
             if (es[i].selected) {
-                ldn('es[' + i + '].selected=false;');
-                lnd('es[' + i + '].selected=true;');
+                ACTION_add_redo('es[' + i + '].selected=false;');
+                ACTION_add_undo('es[' + i + '].selected=true;');
                 es[i].selected = false;
             }
         }
@@ -2085,11 +2087,11 @@ function PasteFromClipBoard(ClipName) {
         var newparam = es.length;
 
         // entity.selected fix for when object creation is undone (2/2)
-        ldn('es[' + newparam + '].selected=true;');
-        lnd('es[' + newparam + '].selected=false;');
+        ACTION_add_redo('es[' + newparam + '].selected=true;');
+        ACTION_add_undo('es[' + newparam + '].selected=false;');
 
-        ldn('es[' + newparam + '].exists=true;');
-        lnd('es[' + newparam + '].exists=false;');
+        ACTION_add_redo('es[' + newparam + '].exists=true;');
+        ACTION_add_undo('es[' + newparam + '].exists=false;');
         es[newparam] = new E(clipboard[i]._class);
         for (let param in clipboard[i]) {
             es[newparam][param] = clipboard[i][param];
@@ -2122,20 +2124,20 @@ function PasteFromClipBoard(ClipName) {
             }
         i++;
     }
-    ldn('m_drag_selected=true;');
-    ldn('paint_draw_mode=true;');
-    ldn('quick_pick_ignore_one_click=true;');
-    lnd('m_drag_selected=false;');
-    lnd('paint_draw_mode=false;');
-    lnd('quick_pick_ignore_one_click=false;');
-    ldis = true;
+    ACTION_add_redo('m_drag_selected=true;');
+    ACTION_add_redo('paint_draw_mode=true;');
+    ACTION_add_redo('quick_pick_ignore_one_click=true;');
+    ACTION_add_undo('m_drag_selected=false;');
+    ACTION_add_undo('paint_draw_mode=false;');
+    ACTION_add_undo('quick_pick_ignore_one_click=false;');
+    m_drag_selected = true;
     paint_draw_mode = true;
     quick_pick_ignore_one_click = true;
-    lmdrwa = lmwa;
-    lmdrwb = lmwb;
+    m_drag_wx = mouse_wx;
+    m_drag_wy = mouse_wy;
     // Original code by Prosu
-    let m_pos_x = lmwa;
-    let m_pos_y = lmwb;
+    let m_pos_x = mouse_wx;
+    let m_pos_y = mouse_wy;
 
     m_drag_x = mouse_x;
     m_drag_y = mouse_y;
@@ -2143,8 +2145,8 @@ function PasteFromClipBoard(ClipName) {
     let m_down_y = m_pos_y;
     var x1 = Math.round((m_pos_x) / GRID_SNAPPING) * GRID_SNAPPING;
     var y1 = Math.round((m_pos_y) / GRID_SNAPPING) * GRID_SNAPPING;
-    var lo_x = Math.round((x1 - (min_x + max_x) / 2) / GRID_SNAPPING) * GRID_SNAPPING;
-    var lo_y = Math.round((y1 - (min_y + max_y) / 2) / GRID_SNAPPING) * GRID_SNAPPING;
+    var offset_x = Math.round((x1 - (min_x + max_x) / 2) / GRID_SNAPPING) * GRID_SNAPPING;
+    var offset_y = Math.round((y1 - (min_y + max_y) / 2) / GRID_SNAPPING) * GRID_SNAPPING;
 
     for (let i2 = from_obj; i2 < es.length; i2++) {
         if (typeof(es[i2].pm.uid) !== 'undefined') {
@@ -2174,13 +2176,13 @@ function PasteFromClipBoard(ClipName) {
         }
         if (typeof(es[i2].pm.x) !== 'undefined')
             if (typeof(es[i2].pm.y) !== 'undefined') {
-                lnd('es[' + i2 + '].pm.x=' + es[i2].pm.x + ';');
-                lnd('es[' + i2 + '].pm.y=' + es[i2].pm.y + ';');
-                es[i2].pm.x += lo_x;
-                es[i2].pm.y += lo_y;
+                ACTION_add_undo('es[' + i2 + '].pm.x=' + es[i2].pm.x + ';');
+                ACTION_add_undo('es[' + i2 + '].pm.y=' + es[i2].pm.y + ';');
+                es[i2].pm.x += offset_x;
+                es[i2].pm.y += offset_y;
                 es[i2].fixPos();
-                ldn('es[' + i2 + '].pm.x=' + es[i2].pm.x + ';');
-                ldn('es[' + i2 + '].pm.y=' + es[i2].pm.y + ';');
+                ACTION_add_redo('es[' + i2 + '].pm.x=' + es[i2].pm.x + ';');
+                ACTION_add_redo('es[' + i2 + '].pm.y=' + es[i2].pm.y + ';');
             }
     }
 
@@ -2198,7 +2200,7 @@ function PasteFromClipBoard(ClipName) {
     }
     m_down_x += x1;
     m_down_y += y1;
-    lfz(false);
+    ACTION_finalize(false);
     assignObjectIDs();
     assignObjectPriority();
     window.need_redraw = true;
@@ -2511,10 +2513,18 @@ function addProjectileModels() {
     aleiLog(logLevel.DEBUG, "Loaded projectile models.");
 }
 
-async function patchSpecialValue() {
+function patchSpecialValue() {
     // add case for gun+none type
     {
-        let doorNoneAlias = localStorage.getItem("ALEI_cachedDoorNoneAlias");
+        const oldCode = window.special_value.toString();
+        // this might break in the future cuz it relies on lICGICl ("door+none") remaining the same
+        const newCode = oldCode.replace("case 'door+none':", `case 'door+none': case 'gun+none':`);
+        if (newCode === oldCode) {
+            aleiLog(logLevel.WARN, "special_value direct code replacement failed");
+        } else {
+            window.special_value = eval(`(${newCode})`);
+        }
+        /* let doorNoneAlias = localStorage.getItem("ALEI_cachedDoorNoneAlias");
         if (doorNoneAlias === null || window[doorNoneAlias] !== "door+none") {
             doorNoneAlias = null;
             // read variable name of "door+none" from ALE code
@@ -2526,9 +2536,9 @@ async function patchSpecialValue() {
                     localStorage.setItem("ALEI_cachedDoorNoneAlias", doorNoneAlias);
                 }
             }
-        }
+        } */
 
-        if (doorNoneAlias === null) {
+        /* if (doorNoneAlias === null) {
             aleiLog(logLevel.WARN, "special_value direct code replacement failed (failed to find door+none alias)");
         }
         else {
@@ -2540,7 +2550,7 @@ async function patchSpecialValue() {
             else {
                 window.special_value = eval(`(${newCode})`);
             }
-        }
+        } */
     }
 
     let _OG = window.special_value;
@@ -2567,37 +2577,37 @@ function ALEI_DoWorldScale() {
         {
             let snappingScript = `/GRID_SNAPPING)*GRID_SNAPPING;`
             var roundwell = true;
-            lcz();
+            ACTION_cancel();
             for (let i = 0; i < es.length; i++)
                 if (es[i].exists)
                     if (es[i].selected)
                         if (MatchLayer(es[i])) {
                             if (es[i].pm.w != undefined) {
-                                ldn('es[' + i + '].pm.w=Math.round(es[' + i + '].pm.w*' + factor + snappingScript);
-                                lnd('es[' + i + '].pm.w=' + es[i].pm.w + ';');
+                                ACTION_add_redo('es[' + i + '].pm.w=Math.round(es[' + i + '].pm.w*' + factor + snappingScript);
+                                ACTION_add_undo('es[' + i + '].pm.w=' + es[i].pm.w + ';');
                                 if (es[i].pm.w * factor != Math.round(es[i].pm.w * factor / GRID_SNAPPING) * GRID_SNAPPING)
                                     roundwell = false;
                             }
                             if (es[i].pm.h != undefined) {
-                                ldn('es[' + i + '].pm.h=Math.round(es[' + i + '].pm.h*' + factor + snappingScript);
-                                lnd('es[' + i + '].pm.h=' + es[i].pm.h + ';');
+                                ACTION_add_redo('es[' + i + '].pm.h=Math.round(es[' + i + '].pm.h*' + factor + snappingScript);
+                                ACTION_add_undo('es[' + i + '].pm.h=' + es[i].pm.h + ';');
                                 if (es[i].pm.h * factor != Math.round(es[i].pm.h * factor / GRID_SNAPPING) * GRID_SNAPPING)
                                     roundwell = false;
                             }
                             if (es[i].pm.x != undefined) {
-                                ldn('es[' + i + '].pm.x=Math.round(es[' + i + '].pm.x*' + factor + snappingScript);
-                                lnd('es[' + i + '].pm.x=' + es[i].pm.x + ';');
+                                ACTION_add_redo('es[' + i + '].pm.x=Math.round(es[' + i + '].pm.x*' + factor + snappingScript);
+                                ACTION_add_undo('es[' + i + '].pm.x=' + es[i].pm.x + ';');
                                 if (es[i].pm.x * factor != Math.round(es[i].pm.x * factor / GRID_SNAPPING) * GRID_SNAPPING)
                                     roundwell = false;
                             }
                             if (es[i].pm.y != undefined) {
-                                ldn('es[' + i + '].pm.y=Math.round(es[' + i + '].pm.y*' + factor + snappingScript);
-                                lnd('es[' + i + '].pm.y=' + es[i].pm.y + ';');
+                                ACTION_add_redo('es[' + i + '].pm.y=Math.round(es[' + i + '].pm.y*' + factor + snappingScript);
+                                ACTION_add_undo('es[' + i + '].pm.y=' + es[i].pm.y + ';');
                                 if (es[i].pm.y * factor != Math.round(es[i].pm.y * factor / GRID_SNAPPING) * GRID_SNAPPING)
                                     roundwell = false;
                             }
                         }
-            lfz(true);
+            ACTION_finalize(true);
             NewNote('Operation complete:<br><br>Selected objects scaled by ' + factor + ' (' + newscale + '% of original size)', note_passive);
             if (!roundwell)
                 NewNote('Note: Position and/or dimensions of some objects were not scaled properly due to Level Editor rounding rules', note_neutral);
@@ -2637,7 +2647,8 @@ function addUndoRedoErrorReporting() {
 }
 
 function patchDrawGrid() {
-    let old_lg = lg;
+    // Used to be lg but it broke after Eric deobfuscated the ALE source code.
+    let old_lg = Grid;
 
     window.lg = function(param1, param2) {
         if(aleiSettings.gridBasedOnSnapping) {

@@ -97,7 +97,7 @@ export function patchForInteractableTriggerActions() {
 
     oldCode = unsafeWindow.k_down.toString();
     newCode = oldCode.replace(
-        /DeleteSelection\s*\(\s*\)\s*;/,
+        /\t\t\t\tDeleteSelection\s*\(\s*\)\s*;/,
         "deleteObjectsOrActions();"
     );
     if (newCode === oldCode) {
@@ -106,7 +106,8 @@ export function patchForInteractableTriggerActions() {
 
     oldCode = newCode;
     newCode = oldCode.replace(
-        /if\s*\(\s*typeof\s*\(?\s*Storage\s*\)?\s*!==\s*'?\w+'?\s*\)\s*\{\s*CopyToClipBoard.*?else.*?\}/s,
+        // /if\s*\(\s*typeof\s*\(?\s*Storage\s*\)?\s*!==\s*'?\w+'?\s*\)\s*\{\s*CopyToClipBoard.*?else.*?\}/s,
+        /if\s*\(*typeof*\(?\s*Storage\s*\)!=="?\w+"?\s*\)\s*\{\s*CopyToClipBoard.*?else.*?\}/s,
         "tryToCopyObjectsOrActions();"
     );
     if (newCode === oldCode) {
@@ -115,7 +116,8 @@ export function patchForInteractableTriggerActions() {
 
     oldCode = newCode;
     newCode = oldCode.replace(
-        /if\s*\(\s*typeof\s*\(?\s*Storage\s*\)?\s*!==\s*'?\w+'?\s*\)\s*\{\s*if\s*\(\s*PasteFromClipBoard.*?else.*?else.*?\}/s,
+        // /if\s*\(\s*typeof\s*\(?\s*Storage\s*\)?\s*!==\s*'?\w+'?\s*\)\s*\{\s*if\s*\(\s*PasteFromClipBoard.*?else.*?else.*?\}/s,
+        /if\s*\(\s*typeof\(?\s*Storage\s*\)!=="?\w+"?\s*\)\s*\{\s*if\s*\(\s*PasteFromClipBoard.*?else.*?else.*?\}/s,
         "tryToPasteObjectsOrActions();"
     );
     if (newCode === oldCode) {
