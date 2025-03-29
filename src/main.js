@@ -995,7 +995,8 @@ window.aleiContextDeleteImage = function(id) {
     }
 }
 
-function ImageContext(id, e, old_name, element, moderator_menu, awaiting_approval=false, login='?', approver='?', is_fav_menu = false) {
+function ImageContext(id, eid, e, old_name, element, moderator_menu, awaiting_approval=false, login='?', approver='?', is_fav_menu = false) {
+    // console.log( id, eid, e, old_name, element, moderator_menu, awaiting_approval, login, approver, is_fav_menu );
     imageContextMap[id] = old_name;
     last_element = element;
     last_login = login;
@@ -3181,6 +3182,205 @@ function fixCharEscapingInCompiObj() {
     window.compi_obj = eval(`(${newCode})`);
 }
 
+function patchSkinList() {
+    // Grabbed from source code
+
+    function _SkinOver( el, event, perf_info )
+    {
+        if ( skin_preview_layout == null )
+        {
+            skin_preview_layout = document.createElement( 'DIV' );
+            skin_preview_layout.style.pointerEvents = 'none';
+            document.body.append( skin_preview_layout );
+            
+            skin_preview_layout.style.top = '0px';
+            skin_preview_layout.style.bottom = '0px';
+            skin_preview_layout.style.width = '40%';
+            
+            if ( event.pageX < window.innerWidth / 2 )
+            skin_preview_layout.style.right = '0px';
+            else
+            skin_preview_layout.style.left = '0px';
+        
+            skin_preview_layout.style.backgroundRepeat = 'no-repeat';
+            skin_preview_layout.style.boxSizing = 'border-box';
+            skin_preview_layout.style.padding = '20px';
+            skin_preview_layout.style.position = 'fixed';
+            skin_preview_layout.style.zIndex = '400'; // Reserved
+            //skin_preview_layout.style.backgroundColor = 'rgba(0,0,0,0.4)';
+            skin_preview_layout.style.backgroundImage = el.children[ 0 ].style.backgroundImage;
+            skin_preview_layout.style.backgroundSize = '';
+            skin_preview_layout.style.backgroundPositionX = '0%';
+            skin_preview_layout.style.backgroundPositionY = '0%';
+            
+            skin_info = document.createElement( 'DIV' );
+            skin_preview_layout.append( skin_info );
+            
+            skin_info.style.textShadow = '0 2px 2px black';
+            skin_info.style.fontSize = '14px';
+            skin_info.style.fontFamily = 'monospace';
+            skin_info.style.whiteSpace = 'pre';
+            skin_info.textContent = 'JSON decode result: Decoding...';
+            
+            text_opacity = 1;
+            SkinUpdateBackgroundColor();
+            
+            //if ( !superuser )
+            skin_bg_update_interval = setInterval( SkinUpdateBackgroundColor, 32 );
+            
+            var img = new Image();
+            var url = el.children[ 0 ].style.backgroundImage;
+            var br1 = url.indexOf( '(' );
+            var br2 = url.indexOf( ')' );
+            if ( br1 != -1 )
+            if ( br2 != -1 )
+            {
+                url = el.children[ 0 ].style.backgroundImage.substring( br1+1, br2 );
+                
+                if ( url.charAt( 0 ) === '"' )
+                url = url.substring( 1, url.length - 1 );
+                
+                img.src = url;
+                
+                img.onload = function()
+                {
+                    if ( !skin_preview_layout )
+                    return;
+                
+                    img = { bitmap: img };
+                
+                    try
+                    {
+                        var t1 = Date.now();
+    
+                        var canvas = document.createElement( 'canvas' );
+                        canvas.width = 16;
+                        canvas.height = 128;
+    
+                        var ctx = canvas.getContext( '2d' );
+                        ctx.globalCompositeOperation = "copy";
+    
+                        var t2 = Date.now();
+    
+                        ctx.drawImage( img.bitmap, 0, 0 );
+    
+                        var t3 = Date.now();
+    
+                        var imageData = ctx.getImageData( 0, 0, canvas.width, canvas.height );
+    
+                        var t4 = Date.now();
+    
+                        var str_arr = [];
+                        var ReadData = ( from )=>
+                        {
+                            str_arr.push( ( imageData.data[ from ] > 127 ) ? '1' : '0' );
+                        };
+                        for ( var i = 0; i < imageData.data.length; i += 4 )
+                        {
+                            ReadData( i );
+                            ReadData( i+1 );
+                            ReadData( i+2 );
+                        }
+    
+                        var t5 = Date.now();
+    
+                        function binaryToString( binaryStr )
+                        {
+                            var text = '';
+                            for (var i = 0; i < binaryStr.length; i += 8) 
+                            {
+                                const byte = binaryStr.substring(i, i + 8);
+                                const decimal = parseInt(byte, 2);
+    
+                                if ( decimal === 0 )
+                                break;
+    
+                                text += String.fromCharCode(decimal);
+                            }
+                            return text;
+                        }
+    
+                        var str = str_arr.join('');
+    
+                        var t6 = Date.now();
+    
+                        var json_str = binaryToString( str );
+                        //var json = JSON.parse( json_str );
+    
+                        var t7 = Date.now();
+    
+                        //Object.assign( json, JSON.parse( json_str ) );
+                        var json = JSON.parse( json_str );
+    
+                        var t8 = Date.now();
+    
+                        skin_info.textContent = 'JSON decode result: ' + JSON.stringify( json, null, "\n\t" ) + '\n\nWidth: '+img.bitmap.width+' px\n\nHeight: '+img.bitmap.height+' px' + ( perf_info ? '\n\nParse took: '+(t8-t1)+' ms' : '' );
+                        
+                        if ( json.blood_color.length == 7 )
+                        skin_info.innerHTML = skin_info.innerHTML.split( '"' + json.blood_color + '"' ).join( '<span style="color:'+json.blood_color+';display: inline-block;background: black;border-radius: 9px;box-shadow: 0 0 0 5px black;filter: brightness(2);">"' + json.blood_color.split('0').join('O') + '" &#9679; </span>' );
+                
+                        //debugger;
+                    }
+                    catch(e)
+                    {
+                        skin_info.textContent = 'JSON decode result: Error: ' + e + '\n\nMost likely this skin does not contain Skin Properties Code which can be generated at\nhttps://www.plazmaburst2.com/skin-properties-code-generator\n\nIt needs to be in the top left corner of uploaded skin image';
+                        skin_info.style.color = '#ff9393';
+                    }
+    
+                };
+            }
+        }
+    }
+    function _SkinUpdateBackgroundColor()
+    {
+        var t = Date.now();
+        var r = 100 + Math.sin( t / 4000 ) * 50;
+        var g = 100 + Math.sin( t / 4100 ) * 50;
+        var b = 100 + Math.sin( t / 4200 ) * 50;
+        
+        var av = ( r + g + b ) / 3;
+        
+        r = r * 0.5 + av * 0.5;
+        g = g * 0.5 + av * 0.5;
+        b = b * 0.5 + av * 0.5;
+        
+        skin_preview_layout.style.backgroundColor = 'rgba('+r+','+g+','+b+',0.8)';
+        
+        text_opacity = Math.min( 1, text_opacity + 0.05 );
+        skin_info.style.opacity = Math.max( 0, text_opacity );
+    }
+    function _SkinMouseMove( event )
+    {
+        if ( skin_preview_layout )
+        {
+            skin_preview_layout.style.backgroundPositionX = Math.max( 0, Math.min( 100, event.offsetX * 1.4 - 20 ) ) + '%';
+            skin_preview_layout.style.backgroundPositionY = Math.max( 0, Math.min( 100, event.offsetY * 1.4 - 20 ) ) + '%';
+            
+            text_opacity = ( 1 + text_opacity ) * 0.7 - 1;
+        }
+    }
+    function _SkinOut( el )
+    {
+        //if ( superuser )
+        //return;
+        
+        skin_info.remove();
+        skin_info = null;
+    
+        skin_preview_layout.remove();
+        skin_preview_layout = null;
+        
+        clearInterval( skin_bg_update_interval );
+    }
+
+    window.SkinOver = _SkinOver;
+    window.SkinUpdateBackgroundColor = _SkinUpdateBackgroundColor;
+    window.SkinMouseMove = _SkinMouseMove;
+    window.SkinOut = _SkinOut;
+
+    aleiLog(logLevel.DEBUG, "Patched SkinList");
+};
+
 // adds no gun option for "Set Character 'A' active weapon to Gun 'B'"
 // patchSpecialValue adds the case for gun+none into special_value
 function addNoGunOption() {
@@ -3315,6 +3515,7 @@ let ALE_start = (async function() {
 
     patchRender();
     patchFindErrorsButton();
+    patchSkinList();
     fixCharEscapingInCompiObj();
     addNoGunOption();
 
