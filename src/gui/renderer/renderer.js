@@ -1012,7 +1012,7 @@ export function Renderer_initialize() {
     // Draw functions.
     draw_rect_edges = (x, y, w, h) => ctx.strokeRect(x, y, w, h);
     draw_rect = window.MyFillRect; // lmfr
-    draw_gridlines = window.lg;
+    draw_gridlines = window.Grid;
     draw_image = (img, x, y, w, h) => window.MyDrawImage(img, x, y, w, h);
 
     // Objects.

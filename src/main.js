@@ -2621,7 +2621,7 @@ function patchDrawGrid() {
     // Used to be lg but it broke after Eric deobfuscated the ALE source code.
     let old_lg = Grid;
 
-    window.lg = function(param1, param2) {
+    window.Grid = function(param1, param2) {
         if(aleiSettings.gridBasedOnSnapping) {
             old_lg(param1 * (GRID_SNAPPING / 10), Math.min(param2 * Math.max(GRID_SNAPPING / 10, 1), 1));
         } else {
@@ -3102,20 +3102,37 @@ function patchRender() {
         Renderer_initialize();
         return;
     };
-    if(THEME != 4) return;
-    // We should only patch for black theme, because setting render makes things lag for no apparent reason.
-
-    let fn = ALE_Render.toString();
-    fn = fn.replaceAll("for ( property", "for ( let property");
+    if(THEME < 4) return;
+    // We should only patch for alei themes, because setting render makes things lag for no apparent reason.
 
     // Noname & Xeden's black theme
-    let GridColor = "#222222";
-    let GridLineColor = "#FFFFFF50";
+    //let GridColor = "#222222";
+    //let GridLineColor = "#FFFFFF50";
 
-    fn = fn.replace("if ( THEME === THEME_BLUE )", `if (THEME === 4) ctx.fillStyle = '${GridColor}';\n else if (THEME === THEME_BLUE)`);
-    fn = fn.replace("if ( THEME !== THEME_DARK )", `if (THEME === 4) ctx.fillStyle = '${GridLineColor}';\n else if (THEME !== THEME_DARK)`);
+    let oldCode, newCode;
 
-    window.Render = eval(`(${fn})`);
+    oldCode = ALE_Render.toString();
+    newCode = oldCode.replaceAll(
+        /for\s*\(\s*property/g,
+        "for (let property"
+    );
+    if (newCode === oldCode) aleiLog(logLevel.WARN, `Render direct code replacement failed (implicit global fix)`);
+
+    oldCode = newCode;
+    newCode = oldCode.replace(
+        /if\s*\(\s*THEME\s*===\s*THEME_BLUE\s*\)/,
+        "if (THEME > 3 && canvasThemes?.[THEME]) ctx.fillStyle = canvasThemes[THEME].backgroundColor; else if (THEME === THEME_BLUE)"
+    );
+    if (newCode === oldCode) aleiLog(logLevel.WARN, `Render direct code replacement failed (grid fill color)`);
+
+    oldCode = newCode;
+    newCode = oldCode.replace(
+        /if\s*\(\s*THEME\s*!==\s*THEME_DARK\s*\)/,
+        "if (THEME > 3 && canvasThemes?.[THEME]) ctx.fillStyle = canvasThemes[THEME].gridColor; else if (THEME !== THEME_DARK)"
+    );
+    if (newCode === oldCode) aleiLog(logLevel.WARN, `Render direct code replacement failed (grid line color)`);
+
+    window.Render = eval.call(window, `(${newCode})`); // eval.call to avoid wrong lexical scope for globals screenX and screenY
 }
 
 function patchStartNewMap() {
