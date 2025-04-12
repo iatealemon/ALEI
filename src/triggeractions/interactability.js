@@ -95,29 +95,54 @@ export function patchForInteractableTriggerActions() {
 
     let oldCode, newCode;
 
+    // the regex matches this (while allowing formatting differences): DeleteSelection();
     oldCode = unsafeWindow.k_down.toString();
     newCode = oldCode.replace(
-        /\t\t\t\tDeleteSelection\s*\(\s*\)\s*;/,
+        /DeleteSelection\s*\(\s*\)\s*;?/,
         "deleteObjectsOrActions();"
     );
     if (newCode === oldCode) {
         aleiLog(logLevel.WARN, `k_down direct code replacement failed (interactable trigger actions #1)`);
     }
 
+    /*
+    the regex matches this (while allowing formatting differences):
+    if (typeof(Storage)!=="undefined")
+    {
+        CopyToClipBoard('clipboard');
+        NewNote('Objects copied to the clipboard.', note_passive);
+    }
+    else
+    {
+        NewNote('Oops! Your browser seem not to have sessionStorage (localStorage) support.', note_bad);
+    }
+    */
     oldCode = newCode;
     newCode = oldCode.replace(
-        // /if\s*\(\s*typeof\s*\(?\s*Storage\s*\)?\s*!==\s*'?\w+'?\s*\)\s*\{\s*CopyToClipBoard.*?else.*?\}/s,
-        /if\s*\(*typeof*\(?\s*Storage\s*\)!=="?\w+"?\s*\)\s*\{\s*CopyToClipBoard.*?else.*?\}/s,
+        /if\s*\(\s*typeof(?:(?:\s*\(\s*Storage\s*\))|(?:\s+Storage))\s*!={1,2}\s*(?<quote>['"`])undefined\k<quote>\s*\)\s*\{\s*CopyToClipBoard.*?else.*?\}/s,
         "tryToCopyObjectsOrActions();"
     );
     if (newCode === oldCode) {
         aleiLog(logLevel.WARN, `k_down direct code replacement failed (interactable trigger actions #2)`);
     }
 
+    /*
+    the regex matches this (while allowing formatting differences):
+    if (typeof(Storage)!=="undefined")
+    {
+        if (PasteFromClipBoard('clipboard'))
+        NewNote('Objects pasted from the clipboard.', note_passive);
+        else
+        NewNote('Clipboard is empty. Nothing to paste.', note_passive);
+    }
+    else
+    {
+        NewNote('Oops! Your browser seem not to have sessionStorage (localStorage) support.', note_bad);
+    }
+    */
     oldCode = newCode;
     newCode = oldCode.replace(
-        // /if\s*\(\s*typeof\s*\(?\s*Storage\s*\)?\s*!==\s*'?\w+'?\s*\)\s*\{\s*if\s*\(\s*PasteFromClipBoard.*?else.*?else.*?\}/s,
-        /if\s*\(\s*typeof\(?\s*Storage\s*\)!=="?\w+"?\s*\)\s*\{\s*if\s*\(\s*PasteFromClipBoard.*?else.*?else.*?\}/s,
+        /if\s*\(\s*typeof(?:(?:\s*\(\s*Storage\s*\))|(?:\s+Storage))\s*!={1,2}\s*(?<quote>['"`])undefined\k<quote>\s*\)\s*\{\s*if\s*\(\s*PasteFromClipBoard.*?else.*?else.*?\}/s, 
         "tryToPasteObjectsOrActions();"
     );
     if (newCode === oldCode) {
@@ -126,7 +151,7 @@ export function patchForInteractableTriggerActions() {
 
     if (newCode !== unsafeWindow.k_down.toString()) {
         const old_k_down = unsafeWindow.k_down;
-        const new_k_down = eval(`(${newCode})`)
+        const new_k_down = eval(`(${newCode})`);
         unsafeWindow.removeEventListener("keydown", old_k_down, true);
         unsafeWindow.addEventListener("keydown", new_k_down, true);
         unsafeWindow.k_down = new_k_down;

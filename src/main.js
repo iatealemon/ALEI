@@ -2020,14 +2020,12 @@ function addObjBoxResize() {
 
 function patch_m_down() {
     // entity.selected fix for when object creation is undone (1/2)
+    // adds the line "ACTION_add_undo('es['+newid+'].selected=false;');" into the block that starts from "if ('x' in newbie.pm)"
     let oldCode = m_down.toString();
-    let newCode = oldCode.replace(`in newbie.pm)
-				{
-					ACTION_add_redo`, `
-        in newbie.pm) {
-        ACTION_add_undo('es[' + newid + '].selected=false;');
-        ACTION_add_redo
-    `);
+    let newCode = oldCode.replace(
+        /if\s*\(\s*(['"`])x\1\s*in\s+newbie.pm\s*\)\s*\{(?<indent>\s*)/,
+        `if ('x' in newbie.pm) {$<indent>ACTION_add_undo('es['+newid+'].selected=false;');$<indent>`
+    );
     if (oldCode === newCode) {
         aleiLog(logLevel.WARN, "m_down direct code replacement failed (selected fix)");
     }
@@ -2518,40 +2516,12 @@ function patchSpecialValue() {
     // add case for gun+none type
     {
         const oldCode = window.special_value.toString();
-        // this might break in the future cuz it relies on lICGICl ("door+none") remaining the same
         const newCode = oldCode.replace("case 'door+none':", `case 'door+none': case 'gun+none':`);
         if (newCode === oldCode) {
             aleiLog(logLevel.WARN, "special_value direct code replacement failed");
         } else {
             window.special_value = eval(`(${newCode})`);
         }
-        /* let doorNoneAlias = localStorage.getItem("ALEI_cachedDoorNoneAlias");
-        if (doorNoneAlias === null || window[doorNoneAlias] !== "door+none") {
-            doorNoneAlias = null;
-            // read variable name of "door+none" from ALE code
-            const response = await makeRequest("GET", "cached_libs.js");
-            if (response.status == 200) {
-                const match = response.response.match(/(\w+)\s*=\s*('|"|`)door\+none\2/);
-                if (match !== null) {
-                    doorNoneAlias = match[1];
-                    localStorage.setItem("ALEI_cachedDoorNoneAlias", doorNoneAlias);
-                }
-            }
-        } */
-
-        /* if (doorNoneAlias === null) {
-            aleiLog(logLevel.WARN, "special_value direct code replacement failed (failed to find door+none alias)");
-        }
-        else {
-            const oldCode = window.special_value.toString();
-            const newCode = oldCode.replace(`case ${doorNoneAlias}:`, `case ${doorNoneAlias}: case "gun+none":`);
-            if (newCode === oldCode) {
-                aleiLog(logLevel.WARN, "special_value direct code replacement failed");
-            }
-            else {
-                window.special_value = eval(`(${newCode})`);
-            }
-        } */
     }
 
     let _OG = window.special_value;

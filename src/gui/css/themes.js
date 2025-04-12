@@ -53,8 +53,8 @@ export function patchSaveBrowserSettings() {
     const originalCode = unsafeWindow.SaveBrowserSettings.toString();
     // console.log( originalCode );
     const newCode = originalCode.replace(
-        /localStorage\.setItem\( \'*([\w]+)\'*,\s*THEME\s* \)\s*;/,
-        "localStorage.setItem($1, THEME); if (THEME > 3) { localStorage.setItem($1, 0 ); }"
+        /localStorage.setItem\(\s*(?<quote>['"`])THEME\k<quote>\s*,\s*THEME\s*\);?/,
+        `localStorage.setItem("THEME", THEME); if (THEME > 3) { localStorage.setItem("THEME", 0); }`
     );
     if (originalCode === newCode) {
         aleiLog(logLevel.WARN, "SaveBrowserSettings direct code replacement failed (themes)");
