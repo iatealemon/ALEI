@@ -1742,14 +1742,14 @@ document.addEventListener("mousedown", e => {
 });
 
 document.addEventListener("keydown", e => {
-    if(e.ctrlKey && e.code == "KeyA" && canvas_focus) {
-        window.es.map(e => {
+    if(e.ctrlKey && e.code == "KeyA" && !letediting && e.target.nodeName !== "TEXTAREA") {
+        window.es.forEach(e => {
             if((e.exists) && (e._isphysical) && (MatchLayer(e))) {
                 e.selected = true;
             }
-            window.need_redraw = true;
-            window.need_GUIParams_update = true;
         });
+        window.need_redraw = true;
+        window.need_GUIParams_update = true;
     }
     if (e.ctrlKey && e.code == "KeyS" && canvas_focus) {
         e.preventDefault();
