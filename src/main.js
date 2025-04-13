@@ -2605,6 +2605,7 @@ function addUndoRedoErrorReporting() {
             old_DO_UNDO();
         } catch (err) {
             NewNote("Failed to undo action.", note_bad);
+            console.error(err);
         }
     }
 
@@ -2613,6 +2614,7 @@ function addUndoRedoErrorReporting() {
             old_DO_REDO();
         } catch (err) {
             NewNote("Failed to redo action.", note_bad);
+            console.error(err);
         }
     }
 }
