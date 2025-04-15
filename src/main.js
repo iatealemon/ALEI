@@ -2291,7 +2291,13 @@ function ServerRequest_handleMapData(mapCode) {
 function handleServerRequestResponse(request, operation, response) {
     if (response.indexOf("var es = new Array();") != -1) {
         clearSelectedObjects();
-        ServerRequest_handleMapData(response);
+        try{
+            ServerRequest_handleMapData(response);
+        }
+        catch (e) {
+            NewNote("ALEI: Failed to load map", note_bad);
+            console.error(e);
+        }
         getALEIMapDataFromALEIMapDataObject(); //map data object >>> aleiMapData
         loadALEIMapDataIntoUse(); //aleiMapData >>> data in use
         loadUIDMap();
