@@ -2309,6 +2309,10 @@ function handleServerRequestResponse(request, operation, response) {
             knownmaps.push(map.slice(1, -1))
         }
         aleiLog(logLevel.DEBUG, `Updated knownmaps with ${knownmaps.length} maps`);
+    }else if (response.startsWith('console.warn("Only custom images can be requested in this way')) {
+        // remove debugger annoyance and fix potential vulnerability
+        const idMatch = response.match(/\\"(.*?)\\" requested\."\);/s);
+        console.warn(`Only custom images can be requested in this way, but "${idMatch?.[1]}" requested.`);
     }else {
         aleiLog(logLevel.VERBOSE, `Evaling for request ${ANSI_YELLOW}"${request}"${ANSI_RESET} with operation of ${ANSI_YELLOW}"${operation}"${ANSI_RESET}: ${response}`)
         try {JS_eval(response);}
