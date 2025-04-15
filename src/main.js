@@ -2405,21 +2405,25 @@ function patchServerRequest() {
     // Which opens up to expected vulnerabilities.
     // Hopefully in future, ALEI will completely get rid of eval.
     window.ServerRequest = ALEI_ServerRequest;
-    // We are pretty much done, we have patched ServerRequest, so just roll with old eval.
-    // Oh and a note for myself incase i confuse myself: vanilla ServerRequest is synchrono
-    window.eval = JS_eval;
+
+    // wait for requests to finish and unpatch eval
+    (function recheck() {
+        if (Object.keys(window.same_request_blocking).length === 0) {
+            window.eval = JS_eval;
+            aleiLog(logLevel.DEBUG, "Unpatched eval");
+        }
+        else {
+            setTimeout(recheck, 50);
+        }
+    })();
+
     aleiLog(logLevel.DEBUG, "Patched ServerRequest");
 }
 
 window.eval = function(code) { // Temporarily overriding eval so we can patch ServerRequest as early as possible
-    if (window.ServerRequest !== undefined) { // ServerRequest is defined.
-        handleServerRequestResponse(null, null, code);
+    handleServerRequestResponse(null, null, code);
+    if (window.ServerRequest !== undefined) {
         patchServerRequest();
-    } else {
-        // Is not defined.
-        // Is this even possible in normal circumstances?
-        console.log(code);
-        debugger;
     }
 };
 
