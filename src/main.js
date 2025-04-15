@@ -2288,7 +2288,9 @@ function ServerRequest_handleMapData(mapCode) {
     if (aleiSettings.extendedTriggers && !html5ModeActive) parseExtendedTriggers(); // !html5ModeActive because extended triggers use switch execution
 }
 
+// response may also be a patch due to the fact that eval is patched. the result of the eval has to be returned so that functions get patched properly
 function handleServerRequestResponse(request, operation, response) {
+    let evalResult = undefined;
     if (response.indexOf("var es = new Array();") != -1) {
         clearSelectedObjects();
         try{
@@ -2315,13 +2317,14 @@ function handleServerRequestResponse(request, operation, response) {
         console.warn(`Only custom images can be requested in this way, but "${idMatch?.[1]}" requested.`);
     }else {
         aleiLog(logLevel.VERBOSE, `Evaling for request ${ANSI_YELLOW}"${request}"${ANSI_RESET} with operation of ${ANSI_YELLOW}"${operation}"${ANSI_RESET}: ${response}`)
-        try {JS_eval(response);}
+        try {evalResult = JS_eval(response);}
         catch(e) {
             NewNote("Eval error!", note_bad);
             console.error(e);
             aleiLog(logLevel.INFO, `Eval Error from ${request}, for op ${operation} whose response is ${response}`);
         }
     };
+    return evalResult;
 }
 
 function makeRequest(method, url, data) {
@@ -2431,10 +2434,10 @@ function patchServerRequest() {
 }
 
 window.eval = function(code) { // Temporarily overriding eval so we can patch ServerRequest as early as possible
-    handleServerRequestResponse(null, null, code);
     if (window.ServerRequest !== undefined) {
         patchServerRequest();
     }
+    return handleServerRequestResponse(null, null, code); // return in case "code" is a patch
 };
 
 function patchEvalSet() {
