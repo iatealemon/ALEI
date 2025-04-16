@@ -697,6 +697,20 @@ function updateTriggers() {
     addTrigger(422, "Experimental &#8250; Show message 'A' in chat said by Character 'B' (added by ALEI)", "string", "character");
     addTrigger(423, "Experimental &#8250; Draw custom image of decoration 'A' to current graphic at top-left of region 'B' (added by ALEI)", "decor", "region");
     addTrigger(424, "Experimental &#8250; Move region 'A' to lower body of Character slot-value variable 'B' (added by ALEI)", "region", "string");
+
+    // adds no gun option for "Set Character 'A' active weapon to Gun 'B'"
+    // patchSpecialValue adds the case for gun+none into special_value
+    special_values_table["gun+none"] = new Array();
+    special_values_table["gun+none"][-1] = "- No gun -";
+    special_values_table["gun+none"]["[listof]"] = "gun";
+    mark_pairs["trigger_type_B312"] = "gun+none";
+
+    // adds no vehicle option for "Put Character 'A' into the Vehicle 'B'"
+    // patchSpecialValue adds the case for vehicle+none into special_value
+    special_values_table["vehicle+none"] = new Array();
+    special_values_table["vehicle+none"][-1] = "- No vehicle -";
+    special_values_table["vehicle+none"]["[listof]"] = "vehicle";
+    mark_pairs["trigger_type_B13"] = "vehicle+none";
 }
 
 function updateObjects() {
@@ -2553,7 +2567,18 @@ function patchSpecialValue() {
         const oldCode = window.special_value.toString();
         const newCode = oldCode.replace("case 'door+none':", `case 'door+none': case 'gun+none':`);
         if (newCode === oldCode) {
-            aleiLog(logLevel.WARN, "special_value direct code replacement failed");
+            aleiLog(logLevel.WARN, "special_value direct code replacement failed (gun+none)");
+        } else {
+            window.special_value = eval(`(${newCode})`);
+        }
+    }
+
+    // add case for vehicle+none type
+    {
+        const oldCode = window.special_value.toString();
+        const newCode = oldCode.replace("case 'door+none':", `case 'door+none': case 'vehicle+none':`);
+        if (newCode === oldCode) {
+            aleiLog(logLevel.WARN, "special_value direct code replacement failed (vehicle+none");
         } else {
             window.special_value = eval(`(${newCode})`);
         }
@@ -3405,16 +3430,6 @@ function patchSkinList() {
     aleiLog(logLevel.DEBUG, "Patched SkinList");
 };
 
-// adds no gun option for "Set Character 'A' active weapon to Gun 'B'"
-// patchSpecialValue adds the case for gun+none into special_value
-function addNoGunOption() {
-    special_values_table["gun+none"] = new Array();
-    special_values_table["gun+none"][-1] = "- No gun -";
-    special_values_table["gun+none"]["[listof]"] = "gun";
-
-    mark_pairs["trigger_type_B312"] = "gun+none";
-}
-
 let alreadyStarted = false;
 let ALE_start = (async function() {
     if(alreadyStarted) return;
@@ -3541,7 +3556,6 @@ let ALE_start = (async function() {
     patchFindErrorsButton();
     patchSkinList();
     fixCharEscapingInCompiObj();
-    addNoGunOption();
 
     // load map again if map was already loaded but not successfully (in terms of alei)
     // map load is unsuccessful if it happens before alei is initialized
