@@ -2336,6 +2336,7 @@ function handleServerRequestResponse(request, operation, response) {
             NewNote("ALEI: Failed to load map", note_bad);
             console.error(e);
         }
+        sortEntitiesBetter();
         getALEIMapDataFromALEIMapDataObject(); //map data object >>> aleiMapData
         loadALEIMapDataIntoUse(); //aleiMapData >>> data in use
         loadUIDMap();
@@ -3429,6 +3430,33 @@ function patchSkinList() {
 
     aleiLog(logLevel.DEBUG, "Patched SkinList");
 };
+
+function sortEntitiesBetter() {
+    if (ActionArray.length > 0) {
+        ActionArray = [];
+    }
+    
+    function entitySortValue(entity) {
+        // smaller number means earlier in the draw order
+        switch(entity._class) {
+            case "bg":
+                return 0;
+            case "box":
+            case "door":
+                return 1;
+            case "decor":
+                return 2;
+            case "player":
+            case "enemy":
+            case "gun":
+                return 3;
+            default:
+                return 4;
+        }
+    }
+    
+    es.sort((a, b) => entitySortValue(a) - entitySortValue(b));
+}
 
 let alreadyStarted = false;
 let ALE_start = (async function() {
