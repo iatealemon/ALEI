@@ -17,11 +17,11 @@ export function makeALEIMapDataObject(data) {
     onEntitiesCreated([mapDataObject]);
 }
 
-export function makeBackupObject(aleiMapData) {
+export function makeBackupObject(dataAsText) {
     let backupObject = new E("decor");
     backupObject.pm.uid = nameOfBackupObject;
     backupObject.pm.model = "null";
-    writeToALEIMapDataObject(backupObject, aleiMapData);
+    backupObject.pm.text = escapeBadCharacters(dataAsText);
     es.push(backupObject);
     need_redraw = true;
     UpdateGUIObjectsList();

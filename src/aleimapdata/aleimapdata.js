@@ -1,5 +1,5 @@
 import { currentMapDataFormatVersion, isFormatUpToDate, updateMapDataFormat } from "./formatversions.js";
-import { makeALEIMapDataObject, findALEIMapDataObject, readFromALEIMapDataObject, writeToALEIMapDataObject } from "./handlemapdataobject.js";
+import { makeALEIMapDataObject, makeBackupObject, findALEIMapDataObject, readFromALEIMapDataObject, writeToALEIMapDataObject } from "./handlemapdataobject.js";
 
 const initialMapData = {
     v: currentMapDataFormatVersion,
@@ -26,7 +26,15 @@ export function getALEIMapDataFromALEIMapDataObject() {
         initializeALEIMapData();
     }
     else {
-        aleiMapData = readFromALEIMapDataObject(mapDataObject);
+        try {
+            aleiMapData = readFromALEIMapDataObject(mapDataObject);
+        }
+        catch (e) {
+            console.error(e);
+            NewNote("ALEI: Failed to read ALEI map data (trigger comments). The data was reset and a backup was created for the previous data.", note_bad);
+            makeBackupObject(mapDataObject.pm.text);
+            initializeALEIMapData();
+        }
         const upToDate = isFormatUpToDate(aleiMapData);
         if (!upToDate) {
             updateMapDataFormat(aleiMapData);

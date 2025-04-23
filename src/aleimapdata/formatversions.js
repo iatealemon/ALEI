@@ -25,7 +25,7 @@ export function isFormatUpToDate(aleiMapData) {
 }
 
 export function updateMapDataFormat(aleiMapData) {
-    makeBackupObject(aleiMapData);
+    makeBackupObject(JSON.stringify(aleiMapData));
     let oldVersion = aleiMapData.v;
     for (let i = oldVersion; i < currentMapDataFormatVersion; i++) {
         let nextVersion = i + 1;
