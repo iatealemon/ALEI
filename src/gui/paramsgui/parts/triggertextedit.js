@@ -22,7 +22,7 @@ export function addTriggerTextEdit(rparams, trigger) {
         const targetB = _encodeXMLChars(trigger.pm[`actions_${i}_targetB`]);
         addCodeLine(`${getOpName(actType)}( "${targetA}", "${targetB}" );`);
     }
-    if (aleiSettings.extendedTriggers && trigger.pm.extended) {
+    if (unsafeWindow.ExtendedTriggersLoaded && trigger.pm.extended) {
         for (let i = 0; i < trigger.pm.additionalActions.length; i++) {
             const actType = trigger.pm.additionalActions[i];
             if (actType == -1) continue;

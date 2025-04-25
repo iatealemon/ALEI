@@ -145,7 +145,7 @@ function UpdatePhysicalParams(paramname_arr, chvalue_arr, forcefully_create_para
  */
 function physicalParamExists(entity, paramname) {
     if (entity.pm.hasOwnProperty(paramname)) return true;
-    if (entity.pm.extended && aleiSettings.extendedTriggers) {
+    if (entity.pm.extended && unsafeWindow.ExtendedTriggersLoaded) {
         const match = paramname.match(triggerActionsRegex);
         return match !== null && Number(match[1]) <= entity.pm.totalNumOfActions;
     }

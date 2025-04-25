@@ -90,7 +90,7 @@ function getAdditionalActionsToDisplay(selection) {
     /** @type {{type: {value: *, same: boolean}, targetA: {value: *, same: boolean}, targetB: {value: *, same: boolean}, multiple: boolean}[]} */
     let additionalActions = [];
 
-    if (aleiSettings.extendedTriggers) {
+    if (unsafeWindow.ExtendedTriggersLoaded) {
         selection
             .filter(entity => entity.pm.extended)
             .forEach(entity => {
