@@ -1778,7 +1778,9 @@ document.addEventListener("mousedown", e => {
 });
 
 document.addEventListener("keydown", e => {
-    if(e.ctrlKey && e.code == "KeyA" && !letediting && e.target.nodeName !== "TEXTAREA") {
+    if (letediting || ignore_keys) return;
+
+    if(e.ctrlKey && e.code == "KeyA" && !["TEXTAREA", "INPUT"].includes(e.target.nodeName)) {
         window.es.forEach(e => {
             if((e.exists) && (e._isphysical) && (MatchLayer(e))) {
                 e.selected = true;
