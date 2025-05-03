@@ -1164,7 +1164,7 @@ function patchRandomizeName() {
             if(!takenUids.has(actualName)) return actualName;
             
             // Getting name before *
-            if(oldName.indexOf("*") !== -1) actualName = oldName.slice(0, oldName.indexOf("*"));
+            if(oldName.includes("*")) actualName = oldName.slice(0, oldName.lastIndexOf("*"));
 
             // Testing every number through bruteforce.
             let current = 1;
