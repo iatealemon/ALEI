@@ -341,13 +341,18 @@ function RenderSingleNonResizableObject(element, cns) {
 
     if(["player", "enemy"].includes(elemClass)) {
         let charImg = window.img_char_custom;
-        if (window.CACHED_CHARS[pm.char] !== undefined) {
-            if (window.CACHED_CHARS[pm.char].loaded) {
-                charImg = window.CACHED_CHARS[pm.char]
+        if (typeof pm.char === "string" && pm.char.charAt(0) === "c") {
+            if (window.CACHED_CHARS[pm.char] !== undefined) {
+                if (window.CACHED_CHARS[pm.char].loaded) {
+                    charImg = window.CACHED_CHARS[pm.char];
+                }
+            }
+            else {
+                getCustomCharImage(pm.char);
             }
         }
-        else if (typeof pm.char === "string" && pm.char.charAt(0) === "c") {
-            getCustomCharImage(pm.char);
+        else if (pm.char in window.img_chars_full) {
+            charImg = window.img_chars_full[pm.char];
         }
         draw_image(charImg, w2s_x(pm.x - 36), w2s_y(pm.y - 104), w2s_w(110), w2s_h(130));
     } else if ((elemClass == "decor") && (window.CACHED_DECORS[pm.model] !== undefined) && (!window.CACHED_DECORS[pm.model].native)) {
