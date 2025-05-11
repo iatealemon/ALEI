@@ -33,6 +33,8 @@ import { activateHTML5Mode, html5ModeActive } from "./html5mode.js";
 import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
 import { checkForUpdates } from "./updates.js";
 
+import { getCustomCharImage } from "./skin-preview.js";
+
 "use strict";
 
 document.fonts.load( "16px EuropeExt Regular" );
@@ -329,150 +331,218 @@ function updateRegionActivations() {
     region_activations[18] = "Actor not ally to player";
 };
 
+/** @type {{id: number, name: string, added?: boolean, renamed?: boolean}[]} */
+const allChars = [
+    { id: -1, name: "Death Match model" }, 
+    { id: 1, name: "Campaign Hero model" }, 
+    { id: 2, name: "Usurpation Soldier Minor" }, 
+    { id: 3, name: "Proxy" }, 
+    { id: 4, name: "Android T-01187" }, 
+    { id: 5, name: "Drone Controller" }, 
+    { id: 6, name: "Advanced Usurpation Soldier" }, 
+    { id: 7, name: "Civil Security Heavy" }, 
+    { id: 8, name: "Civil Security Lite" }, 
+    { id: 9, name: "Android SLC-56" }, 
+    { id: 10, name: "Skin #10", added: true }, // added by ALEI
+    { id: 11, name: "Civil Security Boss" }, 
+    { id: 12, name: "Civil Security Ghost" }, 
+    { id: 13, name: "Noir Lime" }, 
+    { id: 14, name: "Falkok" }, 
+    { id: 15, name: "Phoenix Falkok" }, 
+    { id: 16, name: "Grub" }, 
+    { id: 17, name: "Civil Security Ghost (visible)" }, 
+    { id: 18, name: "Star Defender (from 'eric gurt-star_defenders')", renamed: true }, // renamed by ALEI
+    { id: 19, name: "Raven by A Coniferous Chair" }, 
+    { id: 20, name: "Skin #20", added: true }, // added by ALEI
+    { id: 21, name: "PB:FTTP Star Defender" }, 
+    { id: 22, name: "PB:FTTP Marine" }, 
+    { id: 23, name: "PB:FTTP Soldier Rank 1" }, 
+    { id: 24, name: "PB:FTTP Soldier Rank 2" }, 
+    { id: 25, name: "PB:FTTP Soldier Rank 3" }, 
+    { id: 26, name: "PB:FTTP Soldier Rank 4" }, 
+    { id: 27, name: "Armored Grub" }, 
+    { id: 28, name: "Elite Grub" }, 
+    { id: 29, name: "Falkok Boss by Mr. Darks" }, 
+    { id: 30, name: "Skin #30", added: true }, // added by ALEI
+    { id: 31, name: "Reakhohsha Operative by darkstar 1" }, 
+    { id: 32, name: "Civil Protector by darkstar 1" }, 
+    { id: 33, name: "Android ATM-105 by darkstar 1" }, 
+    { id: 34, name: "Android DT-148 by Ditzy" }, 
+    { id: 35, name: "Zephyr by Ditzy" }, 
+    { id: 36, name: "Hermes by darkstar 1" }, 
+    { id: 37, name: "Hexagon by darkstar 1" }, 
+    { id: 38, name: "GoldenKnife Noir Lime", added: true }, // added by ALEI
+    { id: 39, name: "RootZ Noir Lime", added: true }, // added by ALEI
+    { id: 40, name: "Lite Hero" }, 
+    { id: 41, name: "Lite Hero 2" }, 
+    { id: 42, name: "Lite Hero 3" }, 
+    { id: 43, name: "Lite Hero 4" }, 
+    { id: 44, name: "Lite Hero 5" }, 
+    { id: 45, name: "Lite Hero 6" }, 
+    { id: 46, name: "Lite Hero 7" }, 
+    { id: 47, name: "Lite Hero 8" }, 
+    { id: 48, name: "Lite Hero 9" }, 
+    { id: 49, name: "Heavy Hero" }, 
+    { id: 50, name: "Skin #50", added: true }, // added by ALEI
+    { id: 60, name: "Skin #60", added: true }, // added by ALEI
+    { id: 61, name: "Proxy (No helmet)" }, 
+    { id: 62, name: "Skin #62", added: true }, // added by ALEI
+    { id: 69, name: "Usurpation Ranger" }, 
+    { id: 70, name: "Usurpation Destroyer" }, 
+    { id: 71, name: "Usurpation Soldier Major" }, 
+    { id: 72, name: "Proxy (White)" }, 
+    { id: 73, name: "Blue Player (Noir Lime)" }, 
+    { id: 74, name: "Red Player (Noir Lime)" }, 
+    { id: 75, name: "Blue Proxy" }, 
+    { id: 76, name: "Red Proxy" }, 
+    { id: 77, name: "Blue Civil Security Lite" }, 
+    { id: 78, name: "Red Civil Security Lite" }, 
+    { id: 79, name: "Blue Usurpation Soldier" }, 
+    { id: 80, name: "Red Usurpation Soldier" }, 
+    { id: 81, name: "Blue Android SLC-56" }, 
+    { id: 82, name: "Red Android SLC-56" }, 
+    { id: 83, name: "Blue Lite Hero" }, 
+    { id: 84, name: "Red Lite Hero" }, 
+    { id: 85, name: "Blue Falkok" }, 
+    { id: 86, name: "Red Falkok" }, 
+    { id: 87, name: "Blue Raven by A Coniferous Chair" }, 
+    { id: 88, name: "Red Raven by A Coniferous Chair" }, 
+    { id: 89, name: "Blue Civil Protector by darkstar 1" }, 
+    { id: 90, name: "Red Civil Protector by darkstar 1" }, 
+    { id: 130, name: "Mining Android by darkstar 1" }, 
+    { id: 131, name: "Crossfire Sentinel by Ditzy" }, 
+    { id: 132, name: "Crossfire Headhunter by Ditzy" }, 
+    { id: 133, name: "Federation Soldier by CakeSpider" }, 
+    { id: 134, name: "Vulture by darkstar 1" }, 
+    { id: 135, name: "Silk (armorless) by darkstar 1" }, 
+    { id: 136, name: "Silk by darkstar 1" }, 
+    { id: 137, name: "Civil Security Riot by eru_" }, 
+    { id: 138, name: "Avre by darkstar 1" }, 
+    { id: 139, name: "Civilian (male 1) by mrnat444" }, 
+    { id: 140, name: "Civilian (male 2) by mrnat444" }, 
+    { id: 141, name: "Civilian (male 3) by mrnat444" }, 
+    { id: 142, name: "Civilian (female 1) by mrnat444" }, 
+    { id: 143, name: "Civilian (female 2) by mrnat444" }, 
+    { id: 144, name: "Civilian (female 3) by mrnat444" }, 
+    { id: 145, name: "Civilian (male 1 equipped) by mrnat444" }, 
+    { id: 146, name: "Civilian (male 2 equipped) by mrnat444" }, 
+    { id: 147, name: "Worker (male) by mrnat444" }, 
+    { id: 148, name: "Worker (female) by mrnat444" }, 
+    { id: 149, name: "S.W.A.T (dark) by mrnat444" }, 
+    { id: 150, name: "S.W.A.T (brighter) by mrnat444" }, 
+    { id: 151, name: "Purple Xin", added: true }, // added by ALEI
+    { id: 152, name: "Golden Xin", added: true }, // added by ALEI
+    { id: 153, name: "Blue Xin", added: true }, // added by ALEI
+    { id: 154, name: "Red Xin", added: true }, // added by ALEI
+    { id: 155, name: "Amber Xin", added: true }, // added by ALEI
+    { id: 156, name: "Nirvana Noir Lime", added: true }, // added by ALEI
+    { id: 157, name: "Purple Gallynew", added: true }, // added by ALEI
+    { id: 158, name: "Golden Gallynew", added: true }, // added by ALEI
+    { id: 159, name: "Blue Gallynew", added: true }, // added by ALEI
+    { id: 160, name: "Red Gallynew", added: true }, // added by ALEI
+    { id: 161, name: "Amber Gallynew", added: true }, // added by ALEI
+    { id: 162, name: "Pinkine", added: true }, // added by ALEI
+    { id: 164, name: "Blue Heavy Hero (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 165, name: "Red Heavy Hero (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 198, name: "Blue Civil Security Heavy (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 199, name: "Red Civil Security Heavy (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 166, name: "Orakin (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 167, name: "Husk (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 168, name: "Hex (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 169, name: "Arrin (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 170, name: "Heavy Usurpation Soldier (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 171, name: "Cyber Grub by S1lk (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 172, name: "Grosk (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 173, name: "Futuristic Knight (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 175, name: "Serkova Insertion Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 176, name: "Xenos Scout (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 177, name: "Armored Trooper (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 163, name: "Raider (by Serpent) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 183, name: "Lt. Ferro (by Serpent) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 185, name: "Elurra (Masked) (by Lin) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 184, name: "Xenos Titan (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 195, name: "Wraith (by Ark633) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 178, name: "New Generation Marine (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 200, name: "Xenos Welder (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 201, name: "Xenos Special Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 193, name: "Xenos Marine (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 203, name: "Serkova Gunner Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 191, name: "Serkova Recon Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 204, name: "Serkova Grenader Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 202, name: "Serkova Assault Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 205, name: "Serkova Team Leader (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 206, name: "Serkova Resource Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 207, name: "Serkova Technician Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 211, name: "XBT-117 Android (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 186, name: "Drohnen Heavy (by Ark633) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 189, name: "Maroon (by Francis localhost) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 196, name: "Serkova Armored Unit (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 192, name: "Drohnen Drifter (by Ark633) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 208, name: "Serkova Grub (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 209, name: "Serkova Reinforced Grub (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 210, name: "Serkova Devastator Grub (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 181, name: "Huntsman (Night) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 182, name: "Huntsman (Swamp) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 190, name: "Drohnen Skirmisher (by Ark633) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 187, name: "Cromastakan (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 212, name: "Teneguilae (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 179, name: "Elurra (by Lin) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 188, name: "Sgt. Davais (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 213, name: "Walker (by Serpent) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 214, name: "Space Grub (by Broforce1) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 180, name: "Dark Proxy (by littlekk) (Flash-only)", renamed: true }, // renamed by ALEI
+    { id: 194, name: "Dark Android SLC-56 (by littlekk) (Flash-only)", renamed: true }, // renamed by ALEI
+    //{ id: -46333, name: "Skin #-46333 (Flash-only)" },
+    { id: 174, name: "Uncivil Proxy (Flash-only)", added: true }, // added by ALEI
+    { id: 197, name: "Phantom (from 'kiriakos gr96-phantom') (Flash-only)", added: true }, // added by ALEI
+    { id: 215, name: "Blue Phantom (from 'kiriakos gr96-phantom') (Flash-only)", added: true }, // added by ALEI
+    { id: 216, name: "Red Phantom (from 'kiriakos gr96-phantom') (Flash-only)", added: true }, // added by ALEI
+    { id: 217, name: "Misfit (Flash-only)", added: true }, // added by ALEI
+];
+
+/**
+ * adds chars that exist in game but not in ALE.  
+ * renames some chars.
+ */
 function updateSkins() {
-    // Adds skins that exist in game but not in ALE.
-    let charlists = [
-        [10, "Head Gib"],
-        [18, "Star Defender (play map ID 'eric gurt-star_defenders' to unlock it)"],
-        [20, "Arm Gib"],
-        [30, "Leg Gib"],
-        [50, "Heavy Hero (Only Head and Arms)"],
-        [60, "Proxy (Only Head and Arms)"],
-        [62, "Proxy (No Limbs)"],
+    function afterCharsLoaded() {
+        for (const char of allChars) {
+            const {id, name} = char;
+            if (char.added) {
+                const imageSrc = `chars_full/char${id.toString().padStart(4, "0")}.png`;
 
-        [38, "GoldenKnife Noir Lime"],
-        [39, "RootZ Noir Lime"],
+                //special_values_table["char"][id] = name;
+                CACHED_CHARS[id] = new Image();
+                CACHED_CHARS[id].src = imageSrc; // CACHED_CHARS image has no src in vanilla
+                CACHED_CHARS[id].loaded = false;
+                CACHED_CHARS[id].native = true;
+                CACHED_CHARS[id].onload = function() {
+                    CACHED_CHARS[id].loaded = true;
+                };
+                CUSTOM_IMAGES_APPROVED[id] = true;
 
-        [151, "Purple Xin"],
-        [152, "Golden Xin"],
-        [153, "Blue Xin"],
-        [154, "Red Xin"],
-        [155, "Amber Xin"],
+                img_chars_full[id] = new Image();
+                img_chars_full[id].src = imageSrc;
 
-        [156, "Nirvana Noir Lime"],
-
-        [157, "Purple Gallynew"],
-        [158, "Golden Gallynew"],
-        [159, "Blue Gallynew"],
-        [160, "Red Gallynew"],
-        [161, "Amber Gallynew"],
-
-        [162, "Pinkine"],
-        [163, "Raider (by Serpent)"],
-        [164, "Blue Heavy Hero"],
-        [165, "Red Heavy Hero"],
-        [166, "Orakin"],
-        [167, "Husk"],
-        [168, "Hex"],
-        [169, "Arrin"],
-        [170, "Heavy Usurpation Soldier"],
-
-        [171, "Cyber Grub by S1lk"],
-        [172, "Grosk"],
-        [173, "Futuristic Knight"],
-        [174, "Uncivil Proxy"],
-
-        [175, "Serkova Insertion Unit"],
-        [176, "Xenos Scout"],
-
-        [177, "Armored Trooper"],
-
-        [178, "New Generation Marine"],
-        [179, "Elurra (by Lin)"],
-        [180, "Dark Proxy (by littlekk)"],
-        [181, "Huntsman (Night)"],
-        [182, "Huntsman (Swamp)"],
-        [183, "Lt. Ferro (by Serpent)"],
-        [184, "Xenos Titan"],
-        [185, "Elurra (Masked) (by Lin)"],
-        [186, "Drohnen Heavy (by Ark633)"],
-        [187, "Cromastakan"],
-        [188, "Sgt. Davais"],
-        [189, "Maroon (by Francis localhost)"],
-        [190, "Drohnen Skirmisher (by Ark633)"],
-        [191, "Serkova Recon Unit"],
-        [192, "Drohnen Drifter (by Ark633)"],
-        [193, "Xenos Marine"],
-        [194, "Dark Android SLC-56 (by littlekk)"],
-        [195, "Wraith (by Ark633)"],
-        [196, "Serkova Armored Unit"],
-        [197, "Phantom (play map ID 'therealon3-phantom' to unlock it)"],
-        [198, "Blue Civil Security Heavy"],
-        [199, "Red Civil Security Heavy"],
-        [200, "Xenos Welder"],
-        [201, "Xenos Special Unit"],
-        [202, "Serkova Assault Unit"],
-        [203, "Serkova Gunner Unit"],
-        [204, "Serkova Grenader Unit"],
-        [205, "Serkova Team Leader"],
-        [206, "Serkova Resource Unit"],
-        [207, "Serkova Technician Unit"],
-        [208, "Serkova Grub"],
-        [209, "Serkova Reinforced Grub"],
-        [210, "Serkova Devastator Grub"],
-        [211, "XBT-117 Android"],
-        [212, "Teneguilae"],
-        [213, "Walker (by Serpent)"],
-        [214, "Space Grub (by Broforce1)"],
-        [215, "Blue Phantom (play map ID 'therealon3-phantom' to unlock it)"],
-        [216, "Red Phantom (play map ID 'therealon3-phantom' to unlock it)"],
-        [217, "Misfit"]
-    ]
-    for(let li = 0; li < charlists.length; li++) {
-        let charID = charlists[li][0];
-        let paddedCharID = charID.toString().padStart(4, "0")
-        let charName = charlists[li][1];
-        let src = "https://www.plazmaburst2.com/level_editor/chars_full/char" + paddedCharID + ".png"
-        VAL_TABLE['char'][charID] = _turnLinkIntoSkinSpan(src, charName);
-        img_chars_full[charID] = new Image();
-        img_chars_full[charID].src = 'chars_full/char' + paddedCharID + '.png';
-    }
-
-    if (!aleiSettings.html5Mode) {
-        let ids = Object.keys(VAL_TABLE["char"]);
-        ids = ids.map(str => parseInt(str));
-        let fromID = Math.max(...ids) + 1;
-        fetchSkinsFrom(fromID);
-    }
-}
-
-function _turnLinkIntoSkinSpan(src, charName) {
-    return '<span style=\'background:url(' + src + '); width: 16px; height: 16px; display: inline-block; background-position: center; background-position-x: 30%; background-position-y: 26%; background-size: 67px;vertical-align: -4px;\'></span> ' + charName;
-}
-
-async function fetchSkinsFrom(startingID) {
-    if(!isNative) return;
-    const requestsAtOnce = 5;
-    let requestsRunning = true;
-    let skinsAdded = [];
-
-    async function requestSkin(id) {
-        let paddedCharID = id.toString().padStart(4, "0");
-        let src = "https://www.plazmaburst2.com/level_editor/chars_full/char" + paddedCharID + ".png"
-        let response = await GM.xmlHttpRequest({ url: src }).catch(e => console.error(e));
-        if(response.status == 404) {
-            requestsRunning = false;
-            return;
+                special_values_table["char"][id] = `<span style='background:url(${img_chars_full[id].src}); width: 16px; height: 16px; display: inline-block; background-position: center; background-position-x: 30%; background-position-y: 26%; background-size: 67px;vertical-align: -4px;'></span> ${name}`;
+            }
+            else if (char.renamed) {
+                special_values_table["char"][id] = `<span style='background:url(${img_chars_full[id].src}); width: 16px; height: 16px; display: inline-block; background-position: center; background-position-x: 30%; background-position-y: 26%; background-size: 67px;vertical-align: -4px;'></span> ${name}`;
+            }
         }
-        VAL_TABLE["char"][id] = _turnLinkIntoSkinSpan(src, `Unknown Skin #${id}`);
-        skinsAdded.push(id);
+
+        aleiLog(logLevel.DEBUG, "Updated skins");
     }
-    async function requestBatch(id) {
-        let promises = [];
-        for (let i = 0; i < requestsAtOnce; i++) {
-            promises.push(requestSkin(id + i));
+
+    // call afterCharsLoaded when ALE has loaded chars
+    (function recheck() {
+        if (Object.keys(img_chars_full).length > 0) {
+            afterCharsLoaded();
         }
-        await Promise.all(promises);
-    }
-    let fromID = startingID;
-    while(requestsRunning) {
-        await requestBatch(fromID);
-        fromID += requestsAtOnce;
-    }
-    if(skinsAdded.length > 0) {
-        NewNote(`ALEI: There are ${skinsAdded.length} unregistered skins, please inform ALEI developer(s) about this. Check logs for more information`, `#00FFFF`);
-        aleiLog(logLevel.INFO, `Unregistered skins: ${skinsAdded}`);
-    }
+        else {
+            setTimeout(recheck, 50);
+        }
+    })();
 }
 
 function optimize() {
@@ -614,7 +684,10 @@ function updateDecors() {
             CACHED_DECORS[model] = new Image();
             CACHED_DECORS[model].src = src1;
             CACHED_DECORS[model].native = true;
-            CACHED_DECORS[model].loaded = true;
+            CACHED_DECORS[model].loaded = false;
+            CACHED_DECORS[model].onload = function() {
+                CACHED_DECORS[model].loaded = true;
+            };
             CUSTOM_IMAGES_APPROVED[model] = true; // approved cuz it's vanilla
 
             img_decors[model] = new Image();
@@ -1012,84 +1085,193 @@ function exportXML() {
 }
 ///////////////////////////////
 
-let imageContextMap = {};
-let last_element;
-let last_login;
-window.aleiContextRenameImage = function(id) {
-    var v = prompt('New name:', imageContextMap[id]);
-    CloseImageContext();
-    if ( v !== null ) {
-        ServerRequest(`a=get_images&for_class=${last_for_class}&set_title_for=${id}&value=${v}`, "rename_image");
-    }
-}
-window.aleiContextDeleteImage = function(id) {
-    let v = confirm(`Are you sure you want to delete ${imageContextMap[id]} ?`);
-    CloseImageContext();
-    if ( v ) {
-        last_element.style.opacity = '0.5';
-        ServerRequest(`a=get_images&for_class=${last_for_class}&delete=${id}`, 'delete_image' );
-    }
-}
-
-function ImageContext(id, eid, e, old_name, element, moderator_menu, awaiting_approval=false, login='?', approver='?', is_fav_menu = false) {
-    // console.log( id, eid, e, old_name, element, moderator_menu, awaiting_approval, login, approver, is_fav_menu );
-    imageContextMap[id] = old_name;
-    last_element = element;
-    last_login = login;
+/**
+ * refactored ImageContext.  
+ * differences:  
+ * - context menu is not shown for any native decors (it doesn't work well)  
+ * - quotes in the image name doesn't make it impossible to delete or rename it (happened because html/js got messed up)  
+ * - ServerRequest calls aren't contained in 1ms timeout (not necessary because ServerRequest isn't synchronous anymore)
+ * - no inline events. added data attributes
+ * @param {number} id 
+ * @param {number} is_skin - 0 for all decors/backgrounds (unused). 1-4 for chars (represents the permission level)
+ * @param {MouseEvent} e 
+ * @param {string} old_name 
+ * @param {HTMLElement} element 
+ * @param {boolean} moderator_menu 
+ * @param {boolean} awaiting_approval 
+ * @param {string} login 
+ * @param {string} approver 
+ * @param {boolean} is_fav_menu 
+ */
+function ImageContextMenu(id, is_skin, e, old_name, element, moderator_menu, awaiting_approval=false, login="?", approver="?", is_fav_menu=false) {
+    window.last_element = element;
+    window.last_login = login;
     e.preventDefault();
 
-    var image_context = document.getElementById('image_context');
+    if (element.parentElement.id === "list_native") return; // prevent context menu for all native images (normally it either errors or doesn't work well)
 
-    var str = '';
+    const contextMenu = document.getElementById("image_context");
 
+    contextMenu.style.left = e.clientX + "px";
+    contextMenu.style.top = e.clientY + "px";
+    contextMenu.style.display = "block";
+    
+    image_context_cancel_pad.style.display = "block";
+    
+    // prevent menu from going off screen
+    setTimeout(() => {
+        const menuHeight = contextMenu.getBoundingClientRect().height;
+        const menuBottom = e.clientY + menuHeight;
+        const menuBottomMax = window.innerHeight - 10;
+        if (menuBottom > menuBottomMax) {
+            contextMenu.style.top = (menuBottomMax - menuHeight) + "px";
+        }
+    }, 1);
+
+    // #region set html
+    const greyColor = "rgba(0,0,0,0.3)";
+    contextMenu.innerHTML = "";
     if (moderator_menu) {
-        str += `<div onclick="CloseImageContext(); setTimeout( function() { ServerRequest('a=get_images&for_class='+last_for_class+'&approve_for=${id}', 'approve_image' ); }, 1 );">Approve <img src="../images/ap.png" width="11" height="11"></div>`;
-        str += `<div onclick="CloseImageContext(); setTimeout( function() { ServerRequest('a=get_images&for_class='+last_for_class+'&reset_status_for=${id}', 'reset_approval_image' ); }, 1 );">Reset approval status</div>`;
-        str += `<div onclick="CloseImageContext(); setTimeout( function() { open_approved_decor_model = true; SaveFiltering(); search_phrase = '*by_login*'+last_login; UpdateImageList(); }, 1 );">Search for other approved images from &quot;${login}&quot;</div>`;
-        str += `<div onclick="" style="color:rgba(0,0,0,0.3)">Last status change by ${approver}</div>`;
-        str += `<div onclick="CloseImageContext(); setTimeout( function() { ServerRequest('a=get_images&for_class='+last_for_class+'&disapprove_for_all='+last_login, 'disapprove_image' ); }, 1 );">Disapprove all unreviewed from &quot;${login}&quot; <img src="../images/noap.png" width="11" height="11"><img src="../images/noap.png" width="11" height="11"><img src="../images/noap.png" width="11" height="11"></div>`;
-        str += `<div onclick="CloseImageContext(); setTimeout( function() { ServerRequest('a=get_images&for_class='+last_for_class+'&disapprove_for=${id}', 'disapprove_image' ); }, 1 );">Disapprove <img src="../images/noap.png" width="11" height="11"></div>`;
-
-    } else {
-        //console.log( login, curlogin );
-
-        if (login == curlogin && approver != '!') {
-            str += `<div onclick="aleiContextRenameImage(${id})">Rename</div>`; // We overwrite rename action to our own.
-
-            if (awaiting_approval) {
-                str += `<div onclick="" style="color:rgba(0,0,0,0.3)">Request Approval (already done)</div>`;
-                str += `<div onclick="CloseImageContext();  setTimeout( function() { ServerRequest('a=get_images&for_class='+last_for_class+'&deawait_approval_for=${id}', 'await_approval_status' ); }, 1 ); ">Exclude from approval review queue</div>`;
-            } else {
-                if (old_name == 'Untitled') {
-                    str += `<div onclick="alert('Proper name required for custom image - you will not be available to change name once image is approved.');" style="color:rgba(0,0,0,0.3)">Request Approval (proper name required)</div>`;
-                } else {
-                    str += `<div onclick="CloseImageContext();  setTimeout( function() { ServerRequest('a=get_images&for_class='+last_for_class+'&await_approval_for=${id}', 'await_approval_status' ); }, 1 ); ">Request Approval <img src="../images/ap.png" width="11" height="11"></div>`;
-                }
-                str += `<div onclick="" style="color:rgba(0,0,0,0.3)">Exclude from approval review queue (not in queue)</div>`;
-            }
-
-            str += `<div onclick="aleiContextDeleteImage(${id})">Delete <img src="../images/noap.png" width="11" height="11"></div>`;
-        } else {
-            str += `<div onclick="CloseImageContext(); setTimeout( function() { open_approved_decor_model = true; SaveFiltering(); search_phrase = '*by_login*'+last_login; UpdateImageList(); }, 1 );">Search for other approved images from &quot;${login}&quot;</div>`;
-        }
-
-        str += `<span style="display:block;">&nbsp;</span>`;
-        if (is_fav_menu) {
-            str += `<div onclick="CloseImageContext();  setTimeout( function() { ServerRequest('a=get_images&for_class='+last_for_class+'&favorite_del=${id}', 'favorite_status' ); }, 1 ); ">Remove from favorites</div>`;
-        } else {
-            str += `<div onclick="CloseImageContext();  setTimeout( function() { ServerRequest('a=get_images&for_class='+last_for_class+'&favorite_add=${id}', 'favorite_status' ); }, 1 ); ">Add to favorites</div>`;
-        }
-
+        contextMenu.insertAdjacentHTML("beforeend", `
+            <div data-action="approve">Approve <img src="../images/ap.png" class="appimg"></div>
+            <div data-action="reset approval">Reset approval status</div>
+            <div data-action="search author">Search for other approved images from &quot;${login}&quot;</div>
+            <div style="color:${greyColor}">Last status change by ${approver}</div>
+            <div data-action="disapprove unreviewed"
+                >Disapprove all unreviewed from &quot;${login}&quot; <
+                img src="../images/noap.png" class="noappimg"><
+                img src="../images/noap.png" class="noappimg"><
+                img src="../images/noap.png" class="noappimg"
+            ></div>
+            <div data-action="disapprove">Disapprove <img src="../images/noap.png" class="noappimg"></div>
+        `);
     }
+    else {
+        if (login === curlogin && approver !== "!") {
+            contextMenu.insertAdjacentHTML("beforeend", `
+                <div data-action="rename">Rename</div>
+                ${
+                    awaiting_approval
+                    ? `<div data-action="request approval" style="color:${greyColor}">Request Approval (already done)</div>`
+                    : old_name === "Untitled"
+                      ? `<div data-action="request approval" style="color:${greyColor}">Request Approval (proper name required)</div>`
+                      : `<div data-action="request approval">Request Approval <img src="../images/ap.png" class="appimg"></div>`
+                }
+                ${
+                    awaiting_approval
+                    ? `<div data-action="unrequest approval">Exclude from approval review queue</div>`
+                    : `<div data-action="unrequest approval" style="color:${greyColor}">Exclude from approval review queue (not in queue)</div>`
+                }
+                <div data-action="delete">Delete <img src="../images/noap.png" class="noappimg"></div>
+            `);
+        }
+        else
+        {
+            contextMenu.insertAdjacentHTML("beforeend", `
+                <div data-action="search author">Search for other approved images from &quot;${login}&quot;</div>
+            `);
+        }
+    }
+    contextMenu.insertAdjacentHTML("beforeend", `
+        <span style="display:block;">&nbsp;</span>
+        ${
+            is_fav_menu
+            ? `<div data-action="remove fav">Remove from favorites</div>`
+            : `<div data-action="add fav">Add to favorites</div>`
+        }
+    `);
+    if (last_for_class == "char" && (moderator_menu || (login === curlogin && approver !== "!"))) {
+        contextMenu.insertAdjacentHTML("beforeend", `
+            <span style="display:block;">&nbsp;</span>
+            <div data-action="set skin permission" data-value="1">${(is_skin == 1) ? "&#9679;" : "&#9676;"}&nbsp;&nbsp;Allowed in Custom Maps only</div>
+            <div data-action="set skin permission" data-value="2">${(is_skin == 2) ? "&#9679;" : "&#9676;"}&nbsp;&nbsp;Allowed in Custom Maps and by players</div>
+            <div data-action="set skin permission" data-value="3">${(is_skin == 3) ? "&#9679;" : "&#9676;"}&nbsp;&nbsp;Allowed in Custom Maps and by supporters</div>
+            <div data-action="set skin permission" data-value="4">${(is_skin == 4) ? "&#9679;" : "&#9676;"}&nbsp;&nbsp;Allowed by supporters only</div>
+        `);
+    }
+    // #endregion set html
 
-    image_context.innerHTML = str;
-
-    image_context.style.left = e.clientX;
-    image_context.style.top = e.clientY;
-    image_context.style.display = 'block';
-
-    image_context_cancel_pad.style.display = 'block';
-
+    // #region set js
+    contextMenu.querySelector(`[data-action="approve"]`)?.addEventListener("click", () => {
+        CloseImageContext();
+        ServerRequest(`a=get_images&for_class=${last_for_class}&approve_for=${id}`, "approve_image");
+    });
+    contextMenu.querySelector(`[data-action="reset approval"]`)?.addEventListener("click", () => {
+        CloseImageContext();
+        ServerRequest(`a=get_images&for_class=${last_for_class}&reset_status_for=${id}`, "reset_approval_image");
+    });
+    contextMenu.querySelector(`[data-action="search author"]`)?.addEventListener("click", () => {
+        CloseImageContext();
+        window[`open_approved_${last_for_class}`] = true;
+        SaveFiltering();
+        search_phrase = "*by_login*" + login;
+        UpdateImageList();
+    });
+    contextMenu.querySelector(`[data-action="disapprove unreviewed"]`)?.addEventListener("click", () => {
+        CloseImageContext();
+        ServerRequest(`a=get_images&for_class=${last_for_class}&disapprove_for_all=${login}`, "disapprove_image");
+    });
+    contextMenu.querySelector(`[data-action="disapprove"]`)?.addEventListener("click", () => {
+        CloseImageContext();
+        ServerRequest(`a=get_images&for_class=${last_for_class}&disapprove_for=${id}`, "disapprove_image");
+    });
+    contextMenu.querySelector(`[data-action="rename"]`)?.addEventListener("click", () => {
+        const v = prompt("New name:", old_name);
+        CloseImageContext();
+        if (v !== null) {
+            ServerRequest(`a=get_images&for_class=${last_for_class}&set_title_for=${id}&value=${v}`, "rename_image");
+        }
+    });
+    contextMenu.querySelector(`[data-action="request approval"]`)?.addEventListener("click", () => {
+        if (!awaiting_approval) {
+            if (old_name === "Untitled") {
+                alert("Proper name required for custom image - you will not be available to change name once image is approved.");
+            }
+            else {
+                CloseImageContext();
+                ServerRequest(`a=get_images&for_class=${last_for_class}&await_approval_for=${id}`, "await_approval_status");
+            }
+        }
+    });
+    contextMenu.querySelector(`[data-action="unrequest approval"]`)?.addEventListener("click", () => {
+        if (awaiting_approval) {
+            CloseImageContext();
+            ServerRequest(`a=get_images&for_class=${last_for_class}&deawait_approval_for=${id}`, "await_approval_status");
+        }
+    });
+    contextMenu.querySelector(`[data-action="delete"]`)?.addEventListener("click", () => {
+        const v = confirm(`Are you sure you want to delete "${old_name}"?`);
+        CloseImageContext();
+        if (v) {
+            element.style.opacity = "0.5";
+            const deletedClass = last_for_class;
+            ServerRequest(`a=get_images&for_class=${last_for_class}&delete=${id}`, "delete_image", function() {
+                const c_id = "c" + id;
+                if (deletedClass === "char") {
+                    URL.revokeObjectURL(CACHED_CHARS[c_id]?.src);
+                    delete CACHED_CHARS[c_id];
+                }
+                delete CACHED_DECORS[c_id];
+                delete CACHED_BGS[c_id];
+            });
+        }
+    });
+    contextMenu.querySelector(`[data-action="remove fav"]`)?.addEventListener("click", () => {
+        CloseImageContext();
+        ServerRequest(`a=get_images&for_class=${last_for_class}&favorite_del=${id}`, "favorite_status");
+    });
+    contextMenu.querySelector(`[data-action="add fav"]`)?.addEventListener("click", () => {
+        CloseImageContext();
+        ServerRequest(`a=get_images&for_class=${last_for_class}&favorite_add=${id}`, "favorite_status");
+    });
+    for (const element of contextMenu.querySelectorAll(`[data-action="set skin permission"]`)) {
+        element.addEventListener("click", () => {
+            CloseImageContext();
+            ServerRequest(`a=get_images&for_class=${last_for_class}&is_skin_set_for=${id}&is_skin_set_to=${element.dataset.value}`, "is_skin_set");
+        });
+    }
+    // #endregion set js
+    
     return false;
 }
 
@@ -2409,6 +2591,46 @@ function updateDecorList() {
     catch(e) {} // We assume we are not in decor list yet.
 }
 
+async function updateCharList() {
+    const listNative = document.getElementById("list_native");
+    if (listNative === null) return;
+
+    // remake list of native chars to add and rename chars
+    let html = "";
+    for (const {id, name} of allChars) {
+        const safeName = name.replaceAll("'", "\\'");
+        html += `
+            <div 
+                class="img_option"
+                onclick="CustomImageSelected('${id}', '${safeName}' )"
+                oncontextmenu="ImageContext(${id},0,event,'${safeName}',this,false,true,'Eric Gurt','-')"
+            >
+                <div class="skindiv" style="background:url(chars_full/char${id.toString().padStart(4, "0")}.png)"></div>
+                <div>${name}</div>
+            </div>
+        `;
+    }
+    listNative.innerHTML = html;
+
+    // add custom skin preview
+    const customCharListElements = [
+        document.getElementById("list_favorites"),
+        document.getElementById("list_approved"),
+        document.getElementById("list_personal_approved"),
+        document.getElementById("list_personal"),
+    ];
+    for (const listElement of customCharListElements) {
+        for (const skinDiv of listElement.getElementsByClassName("custom_skin_div")) {
+            const charID = skinDiv.firstElementChild.style.backgroundImage.slice(-7, -2);
+            skinDiv.dataset.charId = charID;
+            skinDiv.innerHTML = "";
+            getCustomCharImage(charID).then((img) => {
+                skinDiv.innerHTML = `<div style="background-image:url(${img.src}); background-position: 0% 50%; background-size: 130%;"></div>`;
+            });
+        }
+    }
+}
+
 async function ALEI_ServerRequest(request, operation, callback = null) {
     let response = await makeRequest("POST", `e_server.php?a=${request_a}`, request);
 
@@ -2420,10 +2642,15 @@ async function ALEI_ServerRequest(request, operation, callback = null) {
 
     try {
         handleServerRequestResponse(request, operation, response.response);
-        if (request.indexOf("a=get_images") != -1 && request.indexOf("for_class=decor_model") != -1) {
-            updateDecorList();
+        if (operation === "update_images") {
+            if (window.last_for_class === "decor_model") {
+                updateDecorList();
+            }
+            else if (window.last_for_class === "char") {
+                updateCharList();
+            }
+            window.ImageContext = ImageContextMenu;
         }
-        window.ImageContext = ImageContext;
         if (operation == 'save' || operation == 'load') {
             changes_made = false;
             if (operation == 'load') {
@@ -3234,195 +3461,107 @@ function fixCharEscapingInCompiObj() {
     window.compi_obj = eval(`(${newCode})`);
 }
 
+/**
+ * changes:
+ * - skin_preview_layout has zIndex 400 instead of 10
+ * - char json is not decoded here, this just displays it
+ * - perf_info has no effect
+ */
 function patchSkinList() {
     // Grabbed from source code
 
-    function _SkinOver( el, event, perf_info )
-    {
-        if ( skin_preview_layout == null )
-        {
-            skin_preview_layout = document.createElement( 'DIV' );
+    function _SkinOver(el, event, perf_info) {
+        if (skin_preview_layout == null) {
+            const sheet = CACHED_CHARS["c" + el.dataset.charId]?.spriteSheet;
+            const json = CACHED_CHARS["c" + el.dataset.charId]?.charJSON ?? null;
+
+            skin_preview_layout = document.createElement('DIV');
             skin_preview_layout.style.pointerEvents = 'none';
-            document.body.append( skin_preview_layout );
-            
+            document.body.append(skin_preview_layout);
+
             skin_preview_layout.style.top = '0px';
             skin_preview_layout.style.bottom = '0px';
             skin_preview_layout.style.width = '40%';
-            
-            if ( event.pageX < window.innerWidth / 2 )
-            skin_preview_layout.style.right = '0px';
+
+            if (event.pageX < window.innerWidth / 2)
+                skin_preview_layout.style.right = '0px';
             else
-            skin_preview_layout.style.left = '0px';
-        
+                skin_preview_layout.style.left = '0px';
+
             skin_preview_layout.style.backgroundRepeat = 'no-repeat';
             skin_preview_layout.style.boxSizing = 'border-box';
             skin_preview_layout.style.padding = '20px';
             skin_preview_layout.style.position = 'fixed';
             skin_preview_layout.style.zIndex = '400'; // Reserved
             //skin_preview_layout.style.backgroundColor = 'rgba(0,0,0,0.4)';
-            skin_preview_layout.style.backgroundImage = el.children[ 0 ].style.backgroundImage;
+            skin_preview_layout.style.backgroundImage = `url(${sheet?.src})`;
             skin_preview_layout.style.backgroundSize = '';
             skin_preview_layout.style.backgroundPositionX = '0%';
             skin_preview_layout.style.backgroundPositionY = '0%';
-            
-            skin_info = document.createElement( 'DIV' );
-            skin_preview_layout.append( skin_info );
-            
+
+            skin_info = document.createElement('DIV');
+            skin_preview_layout.append(skin_info);
+
             skin_info.style.textShadow = '0 2px 2px black';
             skin_info.style.fontSize = '14px';
             skin_info.style.fontFamily = 'monospace';
             skin_info.style.whiteSpace = 'pre';
-            skin_info.textContent = 'JSON decode result: Decoding...';
-            
+            //skin_info.textContent = 'JSON decode result: Decoding...';
+
+            if (json !== null) {
+                skin_info.textContent = 'JSON decode result: ' + JSON.stringify(json, null, "\n\t") + '\n\nWidth: '+sheet?.width+' px\n\nHeight: '+sheet?.height+' px';
+                if (json.blood_color.length == 7) {
+                    skin_info.innerHTML = skin_info.innerHTML.split('"' + json.blood_color + '"').join('<span style="color:' + json.blood_color + ';display: inline-block;background: black;border-radius: 9px;box-shadow: 0 0 0 5px black;filter: brightness(2);">"' + json.blood_color.split('0').join('O') + '" &#9679; </span>');
+                }
+            }
+            else {
+                skin_info.textContent = 'JSON decode result: Error\n\nMost likely this skin does not contain Skin Properties Code which can be generated at\nhttps://www.plazmaburst2.com/skin-properties-code-generator\n\nIt needs to be in the top left corner of uploaded skin image';
+                skin_info.style.color = '#ff9393';
+            }
+
             text_opacity = 1;
             SkinUpdateBackgroundColor();
-            
+
             //if ( !superuser )
-            skin_bg_update_interval = setInterval( SkinUpdateBackgroundColor, 32 );
-            
-            var img = new Image();
-            var url = el.children[ 0 ].style.backgroundImage;
-            var br1 = url.indexOf( '(' );
-            var br2 = url.indexOf( ')' );
-            if ( br1 != -1 )
-            if ( br2 != -1 )
-            {
-                url = el.children[ 0 ].style.backgroundImage.substring( br1+1, br2 );
-                
-                if ( url.charAt( 0 ) === '"' )
-                url = url.substring( 1, url.length - 1 );
-                
-                img.src = url;
-                
-                img.onload = function()
-                {
-                    if ( !skin_preview_layout )
-                    return;
-                
-                    img = { bitmap: img };
-                
-                    try
-                    {
-                        var t1 = Date.now();
-    
-                        var canvas = document.createElement( 'canvas' );
-                        canvas.width = 16;
-                        canvas.height = 128;
-    
-                        var ctx = canvas.getContext( '2d' );
-                        ctx.globalCompositeOperation = "copy";
-    
-                        var t2 = Date.now();
-    
-                        ctx.drawImage( img.bitmap, 0, 0 );
-    
-                        var t3 = Date.now();
-    
-                        var imageData = ctx.getImageData( 0, 0, canvas.width, canvas.height );
-    
-                        var t4 = Date.now();
-    
-                        var str_arr = [];
-                        var ReadData = ( from )=>
-                        {
-                            str_arr.push( ( imageData.data[ from ] > 127 ) ? '1' : '0' );
-                        };
-                        for ( var i = 0; i < imageData.data.length; i += 4 )
-                        {
-                            ReadData( i );
-                            ReadData( i+1 );
-                            ReadData( i+2 );
-                        }
-    
-                        var t5 = Date.now();
-    
-                        function binaryToString( binaryStr )
-                        {
-                            var text = '';
-                            for (var i = 0; i < binaryStr.length; i += 8) 
-                            {
-                                const byte = binaryStr.substring(i, i + 8);
-                                const decimal = parseInt(byte, 2);
-    
-                                if ( decimal === 0 )
-                                break;
-    
-                                text += String.fromCharCode(decimal);
-                            }
-                            return text;
-                        }
-    
-                        var str = str_arr.join('');
-    
-                        var t6 = Date.now();
-    
-                        var json_str = binaryToString( str );
-                        //var json = JSON.parse( json_str );
-    
-                        var t7 = Date.now();
-    
-                        //Object.assign( json, JSON.parse( json_str ) );
-                        var json = JSON.parse( json_str );
-    
-                        var t8 = Date.now();
-    
-                        skin_info.textContent = 'JSON decode result: ' + JSON.stringify( json, null, "\n\t" ) + '\n\nWidth: '+img.bitmap.width+' px\n\nHeight: '+img.bitmap.height+' px' + ( perf_info ? '\n\nParse took: '+(t8-t1)+' ms' : '' );
-                        
-                        if ( json.blood_color.length == 7 )
-                        skin_info.innerHTML = skin_info.innerHTML.split( '"' + json.blood_color + '"' ).join( '<span style="color:'+json.blood_color+';display: inline-block;background: black;border-radius: 9px;box-shadow: 0 0 0 5px black;filter: brightness(2);">"' + json.blood_color.split('0').join('O') + '" &#9679; </span>' );
-                
-                        //debugger;
-                    }
-                    catch(e)
-                    {
-                        skin_info.textContent = 'JSON decode result: Error: ' + e + '\n\nMost likely this skin does not contain Skin Properties Code which can be generated at\nhttps://www.plazmaburst2.com/skin-properties-code-generator\n\nIt needs to be in the top left corner of uploaded skin image';
-                        skin_info.style.color = '#ff9393';
-                    }
-    
-                };
-            }
+            skin_bg_update_interval = setInterval(SkinUpdateBackgroundColor, 32);
         }
     }
-    function _SkinUpdateBackgroundColor()
-    {
+    function _SkinUpdateBackgroundColor() {
         var t = Date.now();
-        var r = 100 + Math.sin( t / 4000 ) * 50;
-        var g = 100 + Math.sin( t / 4100 ) * 50;
-        var b = 100 + Math.sin( t / 4200 ) * 50;
-        
-        var av = ( r + g + b ) / 3;
-        
+        var r = 100 + Math.sin(t / 4000) * 50;
+        var g = 100 + Math.sin(t / 4100) * 50;
+        var b = 100 + Math.sin(t / 4200) * 50;
+
+        var av = (r + g + b) / 3;
+
         r = r * 0.5 + av * 0.5;
         g = g * 0.5 + av * 0.5;
         b = b * 0.5 + av * 0.5;
-        
-        skin_preview_layout.style.backgroundColor = 'rgba('+r+','+g+','+b+',0.8)';
-        
-        text_opacity = Math.min( 1, text_opacity + 0.05 );
-        skin_info.style.opacity = Math.max( 0, text_opacity );
+
+        skin_preview_layout.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ',0.8)';
+
+        text_opacity = Math.min(1, text_opacity + 0.05);
+        skin_info.style.opacity = Math.max(0, text_opacity);
     }
-    function _SkinMouseMove( event )
-    {
-        if ( skin_preview_layout )
-        {
-            skin_preview_layout.style.backgroundPositionX = Math.max( 0, Math.min( 100, event.offsetX * 1.4 - 20 ) ) + '%';
-            skin_preview_layout.style.backgroundPositionY = Math.max( 0, Math.min( 100, event.offsetY * 1.4 - 20 ) ) + '%';
-            
-            text_opacity = ( 1 + text_opacity ) * 0.7 - 1;
+    function _SkinMouseMove(event) {
+        if (skin_preview_layout) {
+            skin_preview_layout.style.backgroundPositionX = Math.max(0, Math.min(100, event.offsetX * 1.4 - 20)) + '%';
+            skin_preview_layout.style.backgroundPositionY = Math.max(0, Math.min(100, event.offsetY * 1.4 - 20)) + '%';
+
+            text_opacity = (1 + text_opacity) * 0.7 - 1;
         }
     }
-    function _SkinOut( el )
-    {
+    function _SkinOut(el) {
         //if ( superuser )
         //return;
-        
+
         skin_info.remove();
         skin_info = null;
-    
+
         skin_preview_layout.remove();
         skin_preview_layout = null;
-        
-        clearInterval( skin_bg_update_interval );
+
+        clearInterval(skin_bg_update_interval);
     }
 
     window.SkinOver = _SkinOver;

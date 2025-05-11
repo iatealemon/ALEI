@@ -4,6 +4,7 @@ import { aleiLog, logLevel } from "../../log.js";
 import { asRadians, mod } from "../../math.js"
 import { fixedVisualBBoxes } from "./fixedbboxes.js";
 import { canvasThemes, setHighLightedObjEdgeColors } from "./canvasthemes.js";
+import { getCustomCharImage } from "../../skin-preview.js";
 
 let window = unsafeWindow;
 
@@ -338,11 +339,16 @@ function RenderSingleNonResizableObject(element, cns) {
         ctx.scale(-1, 1);
     }
 
-    let isCustomChar = false;
-
     if(["player", "enemy"].includes(elemClass)) {
-        isCustomChar = typeof pm.char === "string" && pm.char.charAt(0) === "c";
-        const charImg = isCustomChar ? window.img_char_custom : window.img_chars_full[pm.char];
+        let charImg = window.img_char_custom;
+        if (window.CACHED_CHARS[pm.char] !== undefined) {
+            if (window.CACHED_CHARS[pm.char].loaded) {
+                charImg = window.CACHED_CHARS[pm.char]
+            }
+        }
+        else if (typeof pm.char === "string" && pm.char.charAt(0) === "c") {
+            getCustomCharImage(pm.char);
+        }
         draw_image(charImg, w2s_x(pm.x - 36), w2s_y(pm.y - 104), w2s_w(110), w2s_h(130));
     } else if ((elemClass == "decor") && (window.CACHED_DECORS[pm.model] !== undefined) && (!window.CACHED_DECORS[pm.model].native)) {
         if(decorRequestsOnProgress.indexOf(pm.model) !== -1) {
@@ -391,47 +397,7 @@ function RenderSingleNonResizableObject(element, cns) {
     if(transformedDecor) ctx.restore();
     if(factor == -1) ctx.restore();
 
-    if (isCustomChar) RenderCustomCharText(element);
     RenderNRObjectBox(element, color, layerAlpha * opacityFactor);
-}
-
-function RenderCustomCharText(element) {
-    const pm = element.pm;
-
-    const seed = parseInt(pm.char.substring(1));
-
-    function seededRandom(s) {
-        s = Math.sin(s) * 10000;
-        return s - Math.floor(s);
-    }
-
-    let r = seededRandom(seed);
-    let g = seededRandom(seed + 1);
-    let b = seededRandom(seed + 2);
-
-    const max_v = Math.max(r, g, b);
-    if (max_v > 0) {
-        r /= max_v;
-        g /= max_v;
-        b /= max_v;
-    }
-
-    r = Math.round(127 + r * 127);
-    g = Math.round(127 + g * 127);
-    b = Math.round(127 + b * 127);
-
-    ctx.save();
-
-    ctx.font = "normal " + w2s_w(8) + "px Arial";
-    ctx.textAlign = "center";
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-
-    ctx.fillText(special_values_table["char"][pm.char] ?? pm.char,
-        w2s_x(pm.x),
-        w2s_y(pm.y - 80)
-    );
-
-    ctx.restore();
 }
 
 function GetObjectCoordAndSize(element) {
