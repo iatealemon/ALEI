@@ -35,6 +35,10 @@ function createCanvasThemeMap(overwrites={}) {
             region: {col: "#FFD52B", edgeCol: "#FFB03C", edgeOpacityFactor: 0.5, buttonOpacityFactor: 0.5},
             bg: {col: "#000", edgeCol: "#910000", edgeOpacityFactor: 0.3, coloredOpacityFactor: 0.22}
         },
+        spawnAreaValidColor: "#00ff00",
+        spawnAreaValidOpacity: 0.5,
+        spawnAreaBorderColor: "#ff0000",
+        spawnAreaBorderOpacity: 0.8,
     };
 
     /** checks if an object is a Plain Old Javascript Object */

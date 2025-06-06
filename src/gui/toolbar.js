@@ -2,7 +2,7 @@ import { aleiSettings } from "../storage/settings.js";
 import { aleiLog, logLevel } from "../log.js";
 import { themeNames, aleiThemesCount } from "./css/themes.js";
 import { writeStorage } from "../storage/storageutils.js";
-import { makeNewColorWindow } from "./colorpicker/colorwindow.js";
+import * as spawnAreas from "../spawn-areas.js";
 
 unsafeWindow.ALEI_CustomSnapping = () => {
     let snapping = prompt("Enter snapping:", "");
@@ -188,26 +188,36 @@ function addAleiThemeButtons() {
     }
 }
 
-function addWindowCategoryToToolbar() {
-    const elementAtEnd = document.querySelector('a[onmousedown="ShowTexturesSet(false);"]').previousElementSibling.previousElementSibling;
+// adds render spawn areas buttons under "preview quality: low/high" buttons
+function addRenderSpawnAreasOptions() {
+    const hideButtonToolClass = aleiSettings.renderSpawnAreas ? "tool_btn" : "tool_btn2";
+    const showButtonToolClass = aleiSettings.renderSpawnAreas ? "tool_btn2" : "tool_btn";
 
-    elementAtEnd.insertAdjacentHTML("beforebegin", 
-        '<span class="gui_sel_info">Windows:<br></span>' +
-        '<div style="height:5px"></div>'
-    );
+    const prevElement = document.querySelector(`a[onmousedown="PreviewQualitySet(true);"]`).nextElementSibling.nextElementSibling;
+    prevElement.insertAdjacentHTML("afterend", `
+        <br>
+        <span class="gui_sel_info">
+            Spawn areas:
+            <br>
+        </span>
+        <div style="height:5px"></div>
+        <a class="${hideButtonToolClass} tool_wid" style="width:32px;">Hide</a
+        ><a class="${showButtonToolClass} tool_wid" style="width:32px;">Show</a
+        ><br>
+        <div class="q"></div>
+    `);
+    const hideButton = prevElement.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling;
+    const showButton = hideButton.nextElementSibling;
 
-    const colorWindowButton = document.createElement("a");
-    colorWindowButton.className = "tool_btn tool_wid";
-    colorWindowButton.textContent = "Color picker";
-    colorWindowButton.addEventListener("click", () => makeNewColorWindow(null));
+    function setSetting(value) {
+        aleiSettings.renderSpawnAreas = value;
+        writeStorage("ALEI_Renderer_SpawnAreas", value);
+        if (value) spawnAreas.scheduleUpdate();
+        unsafeWindow.UpdateTools();
+    }
 
-    elementAtEnd.insertAdjacentElement("beforebegin", colorWindowButton);
-
-    elementAtEnd.insertAdjacentHTML("beforebegin", 
-        '<br>' +
-        '<div class="q"></div>' +
-        '<br>'
-    );
+    hideButton.addEventListener("click", () => setSetting(false));
+    showButton.addEventListener("click", () => setSetting(true));
 }
 
 function onToolUpdate() {
@@ -216,7 +226,7 @@ function onToolUpdate() {
     addRematchUIDOptions();
     addShowObjectNamesOptions();
     addAleiThemeButtons();
-    //addWindowCategoryToToolbar(); // currently obsolete
+    addRenderSpawnAreasOptions();
 }
 
 export function patchUpdateTools() {

@@ -34,6 +34,7 @@ import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
 import { checkForUpdates } from "./updates.js";
 
 import { getCustomCharImage } from "./skin-preview.js";
+import * as spawnAreas from "./spawn-areas.js";
 
 "use strict";
 
@@ -2281,6 +2282,90 @@ function patch_m_down() {
     }
 }
 
+// directly copied from the code except for a few changes (checking x1 !== 0 || y1 !== 0, calling spawnAreas.scheduleUpdate)
+function patch_m_move() {
+    window.m_move = function(e) {
+        if (e != undefined)
+            m_update(e);
+
+        if (m_mistake_drag) {
+            if (Math.abs(mouse_x - m_drag_x) > GRID_SNAPPING * 0.5 || Math.abs(mouse_y - m_drag_y) > GRID_SNAPPING * 0.5) {
+                m_mistake_drag = false;
+            }
+        }
+        else {
+            if (m_drag_screen) {
+                var x1, y1;
+
+                x1 = s2w_w(m_drag_x - mouse_x);
+                y1 = s2w_h(m_drag_y - mouse_y);
+
+                m_drag_x = mouse_x;
+                m_drag_y = mouse_y;
+
+                dis_from_x += x1;
+                dis_to_x += x1;
+                dis_from_y += y1;
+                dis_to_y += y1;
+            }
+            if (m_drag_selected) {
+                var x1, y1;
+                x1 = Math.round((mouse_wx - m_drag_wx) / GRID_SNAPPING) * GRID_SNAPPING;
+                y1 = Math.round((mouse_wy - m_drag_wy) / GRID_SNAPPING) * GRID_SNAPPING;
+                if (x1 !== 0 || y1 !== 0) {
+                    for (var i = 0; i < es.length; i++)
+                        if (es[i].exists)
+                            if (MatchLayer(es[i]) || paint_draw_mode)
+                                if (es[i].selected)
+                                    if (es[i]._isphysical) {
+                                        es[i].pm.x += x1;
+                                        es[i].pm.y += y1;
+                                        if (aleiSettings.renderSpawnAreas && spawnAreas.classes.has(es[i]._class)) spawnAreas.scheduleUpdate();
+                                    }
+                    m_drag_wx += x1;
+                    m_drag_wy += y1;
+                }
+            }
+            if (m_drag_resize) {
+                var x1, y1;
+                x1 = Math.round((mouse_wx - m_drag_wx) / GRID_SNAPPING) * GRID_SNAPPING;
+                y1 = Math.round((mouse_wy - m_drag_wy) / GRID_SNAPPING) * GRID_SNAPPING;
+                if (x1 !== 0 || y1 !== 0) {
+                    for (var i = 0; i < es.length; i++)
+                        if (es[i].exists)
+                            if (MatchLayer(es[i]) || paint_draw_mode)
+                                if (es[i].selected)
+                                    if (es[i]._isphysical)
+                                        if (es[i]._isresizable) {
+                                            if (m_drag_moveresize == 'LT' || m_drag_moveresize == 'L' || m_drag_moveresize == 'LB') {
+                                                es[i].pm.x += x1;
+                                                es[i].pm.w -= x1;
+                                            }
+                                            if (m_drag_moveresize == 'RT' || m_drag_moveresize == 'R' || m_drag_moveresize == 'RB') {
+                                                es[i].pm.w += x1;
+                                            }
+                                            if (m_drag_moveresize == 'LT' || m_drag_moveresize == 'T' || m_drag_moveresize == 'RT') {
+                                                es[i].pm.y += y1;
+                                                es[i].pm.h -= y1;
+                                            }
+                                            if (m_drag_moveresize == 'LB' || m_drag_moveresize == 'B' || m_drag_moveresize == 'RB') {
+                                                es[i].pm.h += y1;
+                                            }
+                                            es[i].fixPos();
+
+                                            if (aleiSettings.renderSpawnAreas && spawnAreas.classes.has(es[i]._class)) spawnAreas.scheduleUpdate();
+                                        }
+                    m_drag_wx += x1;
+                    m_drag_wy += y1;
+                }
+            }
+        }
+        need_redraw = true;
+
+        UpdateOpacities();
+    }
+}
+
 function PasteFromClipBoard(ClipName) {
     var clipboard = new Object();
     if (sessionStorage[ClipName] == undefined) {
@@ -2526,6 +2611,7 @@ function handleServerRequestResponse(request, operation, response) {
         loadUIDMap();
         loadParameterMap();
         if (aleiSettings.ocmEnabled) loadOCM();
+        if (aleiSettings.renderSpawnAreas) spawnAreas.scheduleUpdate();
     }else if (response.indexOf("knownmaps = [") !== -1) {
         window.knownmaps = [];
         for (let map of response.match(/"(.*?)"/g)) {
@@ -3648,6 +3734,7 @@ let ALE_start = (async function() {
     addTopButton("ALEI Settings", showSettings);
 
     patch_m_down();
+    patch_m_move();
     addSessionSync();
     addTriggerIDs();
     patchShowHideButton();

@@ -4,6 +4,7 @@ import { getParameterValueParts, replaceParamValueUID, _encodeXMLChars } from ".
 import { ocmHandleEntityUIDChange, ocmHandleEntityParametersChange } from "../ocm/ocm.js";
 import { updateUIDMap } from "./uidmap.js";
 import { parameterMap, updateParameterMap } from "./parametermap.js";
+import * as spawnAreas from "../spawn-areas.js";
 
 export let REGION_EXECUTE_PARAM_ID; // set in updateParameters
 
@@ -263,6 +264,12 @@ function setPhysicalParam(entityIndex, paramname, newValue) {
                 ocmHandleEntityParametersChange(es[entityIndex]);
                 undoEvalString += `ocmHandleEntityParametersChange(es[${entityIndex}]);`;
                 redoEvalString += `ocmHandleEntityParametersChange(es[${entityIndex}]);`;
+            }
+
+            if (spawnAreas.classes.has(es[entityIndex]._class) && spawnAreas.params.has(paramname)) {
+                if (aleiSettings.renderSpawnAreas) spawnAreas.scheduleUpdate();
+                undoEvalString += `if (aleiSettings.renderSpawnAreas) scheduleSpawnAreasUpdate();`;
+                redoEvalString += `if (aleiSettings.renderSpawnAreas) scheduleSpawnAreasUpdate();`;
             }
         }
     }

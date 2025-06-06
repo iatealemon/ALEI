@@ -1,9 +1,10 @@
 import { outgoingConnectionsMap, incomingConnectionsMap } from "../../ocm/ocm.js";
 import { aleiSettings } from "../../storage/settings.js";
 import { aleiLog, logLevel } from "../../log.js";
-import { asRadians, mod } from "../../math.js"
+import { asRadians, mod, easeOutExpo } from "../../math.js"
 import { fixedVisualBBoxes } from "./fixedbboxes.js";
 import { canvasThemes, setHighLightedObjEdgeColors } from "./canvasthemes.js";
+import * as spawnAreas from "../../spawn-areas.js";
 import { getCustomCharImage } from "../../skin-preview.js";
 
 let window = unsafeWindow;
@@ -892,6 +893,25 @@ function RenderCrossCursor() {
     );
 }
 
+function RenderSpawnAttemptRegion() {
+    const { minX, minY, maxX, maxY } = spawnAreas.guessRegion.bounds;
+    const x = w2s_x(minX);
+    const y = w2s_y(minY);
+    const w = w2s_w(maxX - minX);
+    const h = w2s_h(maxY - minY);
+    _DrawRectangle(currentTheme.spawnAreaBorderColor, currentTheme.spawnAreaBorderOpacity, x, y, w, h, true);
+}
+
+export function RenderValidSpawnRegion() {
+    for (const rect of spawnAreas.validRegion.rects) {
+        const x = w2s_x(rect.minX);
+        const y = w2s_y(rect.minY);
+        const w = w2s_w(rect.maxX - rect.minX);
+        const h = w2s_h(rect.maxY - rect.minY);
+        _DrawRectangle(currentTheme.spawnAreaValidColor, currentTheme.spawnAreaValidOpacity, x, y, w, h, false);
+    }
+}
+
 function RenderFrame() {
     if(!window.need_redraw) return;
     canvasWidth = window.screenX;
@@ -914,15 +934,21 @@ function RenderFrame() {
     RenderAllObjects();
     RenderSelectionBox();
     RenderCrossCursor();
+    if (aleiSettings.renderSpawnAreas) {
+        RenderSpawnAttemptRegion();
+        RenderValidSpawnRegion();
+    }
 }
 
 function DisplayStatistics() {
     let element = document.getElementById("gui-render-info");
     let fpsText;
     let renderedObjectsCountText;
+    let approxRandomSpawnChanceText;
     if (element !== null) {
         fpsText = element.children[0];
         renderedObjectsCountText = element.children[1];
+        approxRandomSpawnChanceText = element.children[2];
     }
     else {
         element = document.createElement("div");
@@ -934,13 +960,29 @@ function DisplayStatistics() {
         renderedObjectsCountText = document.createElement("p");
         renderedObjectsCountText.className = "gui-render-info__text";
 
+        approxRandomSpawnChanceText = document.createElement("p");
+        approxRandomSpawnChanceText.className = "gui-render-info__text";
+        approxRandomSpawnChanceText.title = "The approximated probability of getting a fully random (failed) spawn in DM or TDM modes";
+        approxRandomSpawnChanceText.innerHTML = `Random spawn chance: <span color="rgb(0, 255, 0)">0%</span>`;
+
         element.appendChild(fpsText);
         element.appendChild(renderedObjectsCountText);
+        element.appendChild(approxRandomSpawnChanceText);
 
         window.right_panel.childNodes[0].insertBefore(element, document.getElementById("gui_params"));
     }
     fpsText.textContent = `Renderer FPS: ${displayFPS}`;
     renderedObjectsCountText.textContent = `Rendered Object: ${totalRenderedObjects} / ${window.es.length}`;
+    if (!aleiSettings.renderSpawnAreas) {
+        approxRandomSpawnChanceText.style.display = "none";
+    }
+    else {
+        approxRandomSpawnChanceText.style.display = "initial";
+        approxRandomSpawnChanceText.firstElementChild.textContent = Math.round(spawnAreas.approxRandomSpawnChance * 100) + "%";
+        const r = easeOutExpo(spawnAreas.approxRandomSpawnChance, 5) * 255;
+        const g = 255 - r;
+        approxRandomSpawnChanceText.firstElementChild.style.color = `rgb(${r}, ${g}, 0)`;
+    }
     /*let text = " ";
     text += `Renderer FPS: ${displayFPS} <br>`;
     text += `Rendered Object: ${totalRenderedObjects} / ${window.es.length}`;

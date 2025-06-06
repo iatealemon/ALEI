@@ -2,6 +2,7 @@ import { aleiSettings, storageKeysMap } from "../storage/settings.js";
 import { writeStorage } from "../storage/storageutils.js";
 import { aleiLog, logLevel } from "../log.js";
 import { loadOCM, clearOCM } from "../ocm/ocm.js";
+import * as spawnAreas from "../spawn-areas.js";
 
 let settingsMenu;
 let settingButtonsPerKey;
@@ -100,6 +101,11 @@ export function createALEISettingsMenu() {
                 <button class="settings-button" data-value="true">Yes</button>
                 <button class="settings-button" data-value="false">No</button>
             </div>
+            <div class="settings-item" data-key="renderSpawnAreas">
+                <div class="settings-label" title="Render valid DM/TDM spawn areas (custom renderer setting).">[R] Render spawn areas:</div>
+                <button class="settings-button" data-value="true">Yes</button>
+                <button class="settings-button" data-value="false">No</button>
+            </div>
             <div class="settings-item settings-item--requires-refresh" data-key="html5Mode">
                 <div class="settings-label" title="Hide options and features not available on the HTML5 port of PB2. Requires a page refresh.">HTML5 mode:</div>
                 <button class="settings-button" data-value="true">Yes</button>
@@ -162,6 +168,7 @@ export function createALEISettingsMenu() {
             }
         },
         showSameParameters: () => { need_GUIParams_update = true; },
+        renderSpawnAreas: (value) => { if (value) spawnAreas.scheduleUpdate(); },
     }
 
     function settingValueSelected(settingKey, storageKey, value, callback) {

@@ -3,11 +3,13 @@ import { addEntitiesToParameterMap } from "./parametermap.js";
 import { ocmHandleEntitiesCreation } from "../ocm/ocm.js";
 import { aleiSettings } from "../storage/settings.js";
 import { aleiLog, logLevel } from "../log.js";
+import * as spawnAreas from "../spawn-areas.js";
 
 export function onEntitiesCreated(newEntities) {
     addEntitiesToUIDMap(newEntities);
     addEntitiesToParameterMap(newEntities);
     if (aleiSettings.ocmEnabled) ocmHandleEntitiesCreation(newEntities);
+    if (aleiSettings.renderSpawnAreas && newEntities.some(entity => spawnAreas.classes.has(entity._class))) spawnAreas.scheduleUpdate();
 }
 
 export let SelectedObjects = [];
@@ -34,6 +36,13 @@ export function patchEntityClass() {
 
         result.fixPos = function() {}; // For proper snapping.
 
+        result.fixWidths = (function(old) {
+            return function() {
+                old.call(this);
+                if (spawnAreas.classes.has(this._class)) spawnAreas.scheduleUpdate();
+            }
+        })(result.fixWidths);
+
         result.Remove = () => { // Better be safe...
             NewNote(`ALEI: This absolutely should not happen, please report to ALEI developers, error: E.Remove got called when it shouldn't be`, `#FF0000`);
             debugger;
@@ -49,6 +58,16 @@ export function patchEntityClass() {
                         SelectedObjects.splice(SelectedObjects.indexOf(receiver), 1);
                     }
                 }
+
+                if (key === "exists") {
+                    const oldValue = target.exists;
+                    if (value !== oldValue) {
+                        if (aleiSettings.renderSpawnAreas && spawnAreas.classes.has(target._class)) {
+                            spawnAreas.scheduleUpdate();
+                        }
+                    }
+                }
+
                 return Reflect.set(target, key, value, receiver);
             }
         });

@@ -29,6 +29,7 @@ export const storageKeysMap = {
     boxRendering: "ALEI_Renderer_PreviewWalls", 
     showTextPlaceholderDecors: "ALEI_Renderer_ShowTextPlaceholderDecors",
     html5Mode: "ALEI_HTML5Mode",
+    renderSpawnAreas: "ALEI_Renderer_SpawnAreas",
 };
 
 // initialize settings
@@ -56,6 +57,7 @@ export const aleiSettings = {
     boxRendering:               readStorage("ALEI_Renderer_PreviewWalls",               false,          stringToBool),
     showTextPlaceholderDecors:  readStorage("ALEI_Renderer_ShowTextPlaceholderDecors",  true,           stringToBool),
     html5Mode:                  readStorage("ALEI_HTML5Mode",                           false,          stringToBool),
+    renderSpawnAreas:           readStorage("ALEI_Renderer_SpawnAreas",                 false,          stringToBool),
 };
 
 // necessary cuz aleiSettings is used in some patches. also it's useful to be able to access it in console
