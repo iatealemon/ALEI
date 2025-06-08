@@ -2257,23 +2257,7 @@ function patch_m_down() {
         og_mdown(e);
 
         if (es.length > previousEsLength) { // New element is made.
-
             onEntitiesCreated(es.slice(previousEsLength));
-
-            let element = es[es.length - 1];
-            if (!("x" in element.pm)) return;
-            // We now have to do job of fixPos, we cannot set fixPos to have it argument-based directly because of scoping
-            // So we have to do it ourselves.
-            let pm = element.pm;
-            let round = function(num) {
-                return Math.round(num / GRID_SNAPPING) * GRID_SNAPPING
-            }
-            pm.x = round(pm.x);
-            pm.y = round(pm.y);
-            if (element._isresizable) {
-                pm.w = round(pm.w);
-                pm.h = round(pm.h);
-            }
 
             // Now we just update.
             window.need_GUIParams_update = true;

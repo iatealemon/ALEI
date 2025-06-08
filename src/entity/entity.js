@@ -34,8 +34,6 @@ export function patchEntityClass() {
         }
         else if(_class == "region") result.pm.uses_timer = false;
 
-        result.fixPos = function() {}; // For proper snapping.
-
         result.fixWidths = (function(old) {
             return function() {
                 old.call(this);
