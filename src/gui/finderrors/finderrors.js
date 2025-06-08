@@ -18,3 +18,37 @@ export function patchFindErrorsButton() {
         }
     }
 }
+
+export function addErrorCheckingToSave() {
+    unsafeWindow.SaveThisMap = (function(old) {
+        return function(...args) {
+            old.call(this, ...args);
+
+            if (aleiSettings.errorCheckOnSave) {
+                const existingEntities = es.filter(entity => entity.exists);
+            
+                const requirementsStatus = checkRequirements(existingEntities);
+                const errors = checkErrors(existingEntities);
+                const ambiguousRefs = checkAmbiguousRefs();
+    
+                let errorMessage = `Errors were found. Click "Find Errors" for more information.`;
+                let counter = 0;
+
+                if (Object.values(requirementsStatus).includes(false)) {
+                    counter++;
+                    errorMessage += `<br>${counter}. Some requirements for the map to be playable are not met.`;
+                }
+                if (errors.size > 0) {
+                    counter++;
+                    errorMessage += `<br>${counter}. Some objects have red errors.`;
+                }
+                if (ambiguousRefs.size > 0) {
+                    counter++;
+                    errorMessage += `<br>${counter}. Some object references are ambiguous due to objects having shared names.`;
+                }
+
+                if (counter > 0) NewNote(errorMessage, note_bad);
+            }
+        }
+    })(unsafeWindow.SaveThisMap);
+}

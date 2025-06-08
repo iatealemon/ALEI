@@ -111,6 +111,11 @@ export function createALEISettingsMenu() {
                 <button class="settings-button" data-value="true">Yes</button>
                 <button class="settings-button" data-value="false">No</button>
             </div>
+            <div class="settings-item settings-item" data-key="errorCheckOnSave">
+                <div class="settings-label" title="Automatically check for errors when saving the map.">Check errors on save:</div>
+                <button class="settings-button" data-value="true">Yes</button>
+                <button class="settings-button" data-value="false">No</button>
+            </div>
         </div>
     `;
 
