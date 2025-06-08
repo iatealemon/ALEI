@@ -190,6 +190,7 @@ function updateSounds() {
     SVTS['wea_m202'] = 'Rocket Launcher CS-Barrage';
     SVTS['wea_moonhawk_railgun'] = 'Crossfire CR-34 Marauder';
     SVTS['wea_ph01'] = 'Crossfire CR-54 Viper';
+    SVTS['wea_plasma_smg'] = 'Plasma Pistol'; // rename from "Plasma shotgun" which is incorrect and taken
     SVTS['wea_plasma_shotgun'] = 'Plasma Shotgun';
     SVTS['wea_rail_alt2'] = 'Falkonian PSI Cutter';
     SVTS['wea_thetoppestkek_shotgun_nxs25'] = 'Shotgun NXS-25';
