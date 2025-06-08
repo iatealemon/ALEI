@@ -73,9 +73,7 @@
 }
 
 
-.errors-tab,
-.requirements-tab,
-.numrefs-tab {
+.basic-tab {
     display: flex;
     flex-direction: column;
     gap: 20px;

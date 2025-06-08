@@ -1,3 +1,6 @@
+import { uidMap } from "../../entity/uidmap.js";
+import { parameterMap } from "../../entity/parametermap.js";
+
 export const requirementsData = {
     playerExists: {
         description: "Map has at least 1 player",
@@ -47,6 +50,30 @@ export function checkErrors(entities) {
     });
     
     return errors;
+}
+
+/**
+ * @returns {Map<E, Set<string>>}
+ */
+export function checkAmbiguousRefs() {
+    const sharedUIDs = new Set(
+        [...uidMap.entries()]
+            .filter(([_, uidHavers]) => [...uidHavers].filter(entity => entity.exists).length >= 2)
+            .map(([uid, _]) => uid)
+    );
+
+    const ambiguousRefs = new Map();
+    for (const uid of sharedUIDs) {
+        for (const [referringEntity, referringParams] of parameterMap.get(uid)?.entries() ?? []) {
+            if (!referringEntity.exists || referringParams.size === 0) continue;
+
+            ambiguousRefs.set(referringEntity, new Set());
+            for (const paramName of referringParams) {
+                ambiguousRefs.get(referringEntity).add(paramName);
+            }
+        }
+    }
+    return ambiguousRefs;
 }
 
 const entityParamTypes = new Set(["vehicle+none+any", "trigger", "trigger+none", "song+none", "vehicle", "timer", "pushf", "door", "door+none", "barrel", "decor", "lamp", "gun", "gun+none", "region", "water", "character"]);

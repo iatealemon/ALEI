@@ -7,14 +7,17 @@ const windowTitle = "Find errors result";
 /**
  * @param {Object<string, boolean>} requirementsStatus 
  * @param {Map<E, Set<string>>} errors 
+ * @param {Map<E, Set<string>>} ambiguousRefs 
  * @param {Map<E, Set<string>>} numericalRefs 
  */
-export function displayErrorCheckGUI(requirementsStatus, errors, numericalRefs) {
+export function displayErrorCheckGUI(requirementsStatus, errors, ambiguousRefs, numericalRefs) {
     const unfilledRequirementCount = Object.values(requirementsStatus).filter(value => value === false).length;
     const errorCount = errors.values().reduce((accumulator, set) => accumulator + set.size, 0);
+    const ambiguousRefCount = ambiguousRefs.values().reduce((accumulator, set) => accumulator + set.size, 0);
     const numericalRefCount = numericalRefs.values().reduce((accumulator, set) => accumulator + set.size, 0);
     const hasUnfilledRequirement = unfilledRequirementCount > 0;
     const hasError = errorCount > 0;
+    const hasAmbiguousRef = ambiguousRefCount > 0;
     const hasNumericalRef = numericalRefCount > 0;
 
     const emptyParamsTableHTML = `
@@ -34,7 +37,7 @@ export function displayErrorCheckGUI(requirementsStatus, errors, numericalRefs) 
     draggableWindow.setAttribute("data-title", windowTitle);
     draggableWindow.style.left = "500px";
     draggableWindow.style.top = "300px";
-    draggableWindow.setDimensions(500, 400);
+    draggableWindow.setDimensions(650, 450);//(500, 400);
     draggableWindow.insertAdjacentHTML("beforeend", `
         <div slot="content">
             <div class="tab-view-container">
@@ -57,6 +60,15 @@ export function displayErrorCheckGUI(requirementsStatus, errors, numericalRefs) 
                         </div>
                         <span class="tab-label-info">${errorCount}</span>
                     </div>
+                    <div class="tab-label" data-tab="ambiguous-refs">
+                        <div class="tab-label-text">
+                            <div class="tab-label-icon-container">
+                                <span class="${hasAmbiguousRef ? "error-icon" : "checkmark-icon"}"></span>
+                            </div>
+                            Ambiguous references
+                        </div>
+                        <span class="tab-label-info">${ambiguousRefCount}</span>
+                    </div>
                     <div class="tab-label" data-tab="numerical-refs">
                         <div class="tab-label-text">
                             <div class="tab-label-icon-container">
@@ -68,15 +80,22 @@ export function displayErrorCheckGUI(requirementsStatus, errors, numericalRefs) 
                     </div>
                 </div>
                 <div class="tabpanel">
-                    <div class="requirements-tab hidden-tab">
+                    <div class="basic-tab hidden-tab" data-tab="requirements">
                         <span class="tab-text">These are the requirements for the map to be playable.</span>
                         <div>${getRequirementTextsHTML(requirementsStatus)}</div>
                     </div>
-                    <div class="errors-tab hidden-tab">
+                    <div class="basic-tab hidden-tab" data-tab="errors">
                         <span class="tab-text">These are all the <span class="error" style="font-size: 12px">ERROR!</span>'s on the map.</span>
                         ${hasError ? emptyParamsTableHTML : `<span class="tab-text">(no errors to show)</span>`}
                     </div>
-                    <div class="numrefs-tab hidden-tab">
+                    <div class="basic-tab hidden-tab" data-tab="ambiguous-refs">
+                        <span class="tab-text">
+                            These are all the ambiguous references on the map.
+                            <span class="more-info" title="An ambiguous reference is when a parameter refers to an object by a name that multiple objects have. It likely makes the map not work as intended. Fix it by renaming the objects that share a name."></span>
+                        </span>
+                        ${hasAmbiguousRef ? emptyParamsTableHTML : `<span class="tab-text">(no ambiguous references to show)</span>`}
+                    </div>
+                    <div class="basic-tab hidden-tab" data-tab="numerical-refs">
                         <span class="tab-text">
                             These are all the numerical references on the map.
                             <span class="more-info" title="A numerical reference is when a parameter refers to an object using its number id instead of its uid (name). Numerical references aren't necessarily errors but they can cause bugs that are hard to find."></span>
@@ -93,21 +112,26 @@ export function displayErrorCheckGUI(requirementsStatus, errors, numericalRefs) 
     const tabs = {
         requirements: {
             label: slottedContent.querySelector(`.tab-label[data-tab="requirements"]`),
-            tab: slottedContent.querySelector(".requirements-tab")
+            tab: slottedContent.querySelector(`.basic-tab[data-tab="requirements"`)
         },
         errors: {
             label: slottedContent.querySelector(`.tab-label[data-tab="errors"]`),
-            tab: slottedContent.querySelector(".errors-tab")
+            tab: slottedContent.querySelector(`.basic-tab[data-tab="errors"`)
+        },
+        ambiguousRefs: {
+            label: slottedContent.querySelector(`.tab-label[data-tab="ambiguous-refs"]`),
+            tab: slottedContent.querySelector(`.basic-tab[data-tab="ambiguous-refs"`)
         },
         numericalRefs: {
             label: slottedContent.querySelector(`.tab-label[data-tab="numerical-refs"]`),
-            tab: slottedContent.querySelector(".numrefs-tab")
+            tab: slottedContent.querySelector(`.basic-tab[data-tab="numerical-refs"`)
         },
     };
 
     let selectedTab = null
     if (hasUnfilledRequirement) selectedTab = "requirements";
     else if (hasError)          selectedTab = "errors";
+    else if (hasAmbiguousRef)   selectedTab = "ambiguousRefs";
     else if (hasNumericalRef)   selectedTab = "numericalRefs";
 
     function selectTab(id) {
@@ -130,9 +154,11 @@ export function displayErrorCheckGUI(requirementsStatus, errors, numericalRefs) 
 
     tabs.requirements.label?.addEventListener("click", () => switchSelectedTab("requirements"));
     tabs.errors.label?.addEventListener("click", () => switchSelectedTab("errors"));
+    tabs.ambiguousRefs.label?.addEventListener("click", () => switchSelectedTab("ambiguousRefs"));
     tabs.numericalRefs.label?.addEventListener("click", () => switchSelectedTab("numericalRefs"));
 
     
+    tabs.ambiguousRefs.tab?.querySelector(".more-info")?.addEventListener("dblclick", (event) => alert(event.currentTarget.title));
     tabs.numericalRefs.tab?.querySelector(".more-info")?.addEventListener("dblclick", (event) => alert(event.currentTarget.title));
 
 
@@ -185,6 +211,9 @@ export function displayErrorCheckGUI(requirementsStatus, errors, numericalRefs) 
 
     const errorsTable = tabs.errors.tab.querySelector(".params-table");
     if (errorsTable !== null) initializeParamsTable(errorsTable, errors);
+
+    const ambigrefsTable = tabs.ambiguousRefs.tab.querySelector(".params-table");
+    if (ambigrefsTable !== null) initializeParamsTable(ambigrefsTable, ambiguousRefs);
 
     const numrefsTable = tabs.numericalRefs.tab.querySelector(".params-table");
     if (numrefsTable !== null) initializeParamsTable(numrefsTable, numericalRefs);
