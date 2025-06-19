@@ -11,7 +11,7 @@
 .alei-comment-box__text-element {
     color: var(--comment-color);
     font-size: 11px;
-    font-family: "Liberation Mono", "Courier New", monospace;
+    font-family: "JetBrains Mono Italic", "Liberation Mono", "Courier New", monospace;
     font-style: italic;
     line-height: 1.5em;
 }

@@ -17,3 +17,10 @@
         url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/DejaVuLGCSansMono.woff") format("woff"),
         url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/DejaVuLGCSansMono.ttf") format("truetype");
 }
+
+@font-face {
+    font-family: "JetBrains Mono Italic";
+    font-display: block;
+    src: 
+        url("https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/JetBrainsMono-Italic.woff2") format("woff2");
+}
