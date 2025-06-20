@@ -19,21 +19,8 @@
 }
 
 @font-face {
-    font-family: "JetBrains Mono Italic";
-    font-display: block;
-    src: 
-        url("https://raw.githubusercontent.com/iatealemon/ALEI/refs/heads/main/resources/JetBrainsMono-Italic.woff2") format("woff2");
-}
-
-@font-face {
     font-family: "JetBrains Mono Medium Italic";
     font-display: block;
     src: 
         url("https://raw.githubusercontent.com/iatealemon/ALEI/refs/heads/main/resources/JetBrainsMono-MediumItalic.woff2") format("woff2");
-}
-@font-face {
-    font-family: "JetBrains Mono Regular";
-    font-display: block;
-    src: 
-        url("https://raw.githubusercontent.com/iatealemon/ALEI/refs/heads/main/resources/JetBrainsMono-Regular.woff2") format("woff2");
 }
