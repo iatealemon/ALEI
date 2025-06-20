@@ -41,6 +41,8 @@ import * as spawnAreas from "./spawn-areas.js";
 document.fonts.load( "16px EuropeExt Regular" );
 document.fonts.load( "16px DejaVu Sans Mono" );
 document.fonts.load( "16px JetBrains Mono Italic" );
+document.fonts.load( "16px JetBrains Mono Regular" );
+document.fonts.load( "16px JetBrains Mono Medium Italic" );
 
 let window = unsafeWindow;
 let isNative;
