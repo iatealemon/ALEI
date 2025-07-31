@@ -2186,6 +2186,14 @@ function doTooltip() {
     aleiLog(logLevel.DEBUG, "Added tooltip.")
 }
 
+function handleMultipleImages( files ) {
+    console.log( files );
+    for (let file of files) {
+        let arg = {target: {files: [file]}};
+        handleImage(arg); // Call original function
+    }
+};
+
 function patchDecorUpload() {
     // Allows for multiple uploads.
     let imageLoader = $id("imageLoader");
@@ -2196,12 +2204,29 @@ function patchDecorUpload() {
     imageLoader.addEventListener("change", function(e) {
         let files = e.target.files;
         NewNote(`ALEI: Will upload ${files.length} bg/decor(s).`, "#2595FF");
-        for (let file of files) {
-            let arg = {target: {files: [file]}};
-            handleImage(arg); // Call original function
-        }
+        handleMultipleImages( files );
     }, false)
 }
+
+function patchMrCustomImage() {
+    let mrcustom_image = $id("mrcustom_image");
+
+    mrcustom_image.ondragover = function( event ) {
+        event.preventDefault(); //  Prevent from accidentally opening files
+
+        //  I have no idea how will I style this for accessibility
+        // mrcustom_image.className = "mrpopup drag-over";
+    };
+    mrcustom_image.ondragleave = function( event ) {
+        mrcustom_image.className = "mrpopup";
+    };
+
+    mrcustom_image.ondrop = function( event ) {
+        event.preventDefault(); //  Prevent from accidentally opening files
+        
+        handleMultipleImages( event.dataTransfer.files );
+    };
+};
 
 ///////////////////////////////
 
@@ -3720,6 +3745,7 @@ let ALE_start = (async function() {
     addTopButton("Insert XML", insertXMLUserInput);
     addTopButton("ALEI Settings", showSettings);
 
+    patchMrCustomImage();
     patch_m_down();
     patch_m_move();
     addSessionSync();
