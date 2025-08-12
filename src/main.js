@@ -334,6 +334,12 @@ function updateRegionActivations() {
     region_activations[18] = "Actor not ally to player";
 };
 
+function updateEngineMarkNames() {
+    let engine_mark = VAL_TABLE['engine_mark'];
+    
+    engine_mark['no_auto_revive'] = "Disable AI actors from reviving allies";
+};
+
 /** @type {{id: number, name: string, added?: boolean, renamed?: boolean}[]} */
 const allChars = [
     { id: -1, name: "Death Match model" }, 
@@ -2187,7 +2193,6 @@ function doTooltip() {
 }
 
 function handleMultipleImages( files ) {
-    console.log( files );
     for (let file of files) {
         let arg = {target: {files: [file]}};
         handleImage(arg); // Call original function
@@ -3722,6 +3727,7 @@ let ALE_start = (async function() {
 
     updateStyles();
     updateRegionActivations();
+    updateEngineMarkNames();
     updateSkins();
     updateSounds();
     updateVoicePresets();
