@@ -1,6 +1,6 @@
 import { aleiSettings } from "../../../storage/settings.js";
 import { _encodeXMLChars } from "../../../entity/parameterutils.js";
-import { html5ModeActive } from "../../../html5mode.js";
+import { aleiExtendedTriggerActionLimit } from "../../../html5mode.js";
 
 /**
  * @param {E} trigger 
@@ -13,9 +13,9 @@ export function addTriggerTextEdit(rparams, trigger) {
     addCodeLine(`uid: ${trigger.pm.uid}`);
     addCodeLine(`enabled: ${trigger.pm.enabled}`);
     addCodeLine(`maxcalls: ${trigger.pm.maxcalls}`);
-    if (!html5ModeActive) addCodeLine(`execute: ${trigger.pm.execute}`);
+    addCodeLine(`execute: ${trigger.pm.execute}`);
     addCodeLine("");
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= aleiExtendedTriggerActionLimit; i++) {
         const actType = trigger.pm[`actions_${i}_type`];
         if (actType == -1) continue;
         const targetA = _encodeXMLChars(trigger.pm[`actions_${i}_targetA`]);

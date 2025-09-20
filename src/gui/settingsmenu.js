@@ -67,7 +67,7 @@ export function createALEISettingsMenu() {
                 <button class="settings-button" data-value="false">Disabled</button>
             </div>
             <div class="settings-item settings-item--requires-refresh" data-key="extendedTriggers">
-                <div class="settings-label" title="Enable or disable triggers with more than 10 actions. Requires a page refresh.">Extended triggers:</div>
+                <div class="settings-label" title="Enable or disable triggers with more than 10 actions (100 if in HTML5 mode). Requires a page refresh.">Extended triggers:</div>
                 <button class="settings-button" data-value="true">Enabled</button>
                 <button class="settings-button" data-value="false">Disabled</button>
             </div>

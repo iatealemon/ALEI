@@ -1,5 +1,6 @@
 import { uidMap } from "../../entity/uidmap.js";
 import { parameterMap } from "../../entity/parametermap.js";
+import { aleiExtendedTriggerActionLimit } from "../../html5mode.js";
 
 export const requirementsData = {
     playerExists: {
@@ -114,7 +115,7 @@ function* iterateParams(entity) {
     for (let i = 0; i < (entity.pm.additionalActions?.length ?? 0); i++) {
         const actionID = entity.pm.additionalActions[i];
         for (const AorB of ["A", "B"]) {
-            const paramName = `actions_${i+11}_target${AorB}`;
+            const paramName = `actions_${ i + ( aleiExtendedTriggerActionLimit + 1 ) } }_target${AorB}`;
             const paramValue = entity.pm[`additionalParam${AorB}`][i];
             const paramType = mark_pairs[`trigger_type_${AorB}${actionID}`] ?? null;
             yield { paramName, paramValue, paramType };
@@ -137,7 +138,7 @@ function getParamType(entity, paramName) {
         }
     }
     else {
-        const paramIndex = FindMachingParameterID(paramName, entity._class);
+        const paramIndex = FindMatchingParameterID(paramName, entity._class);
         if (paramIndex === -1) return null; // parameter is unregistered
         return param_type[paramIndex][1];
     }

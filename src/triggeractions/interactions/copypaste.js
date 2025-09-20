@@ -5,6 +5,7 @@ import { stopTriggerActionDrag } from "./dragndrop/dragndrop.js";
 import { getTriggerActions, hasEmptyActions, setParametersFromActionArray } from "../actionarray.js";
 
 import { aleiLog, logLevel } from "../../log.js";
+import { aleiExtendedTriggerActionLimit } from "../../html5mode.js";
 
 const doNothingAction = -1;
 
@@ -21,7 +22,7 @@ export function copyTriggerActions() {
 
     const selectedTrigger = SelectedObjects[0];
 
-    const maxActionNum = 10 + (selectedTrigger.pm.additionalActions?.length ?? 0);
+    const maxActionNum = aleiExtendedTriggerActionLimit + (selectedTrigger.pm.additionalActions?.length ?? 0);
     const orderedSelection = getOrderedSelectedActions();
     let actions = [];
     for (const actionNum of orderedSelection) {
@@ -30,7 +31,7 @@ export function copyTriggerActions() {
             continue;
         }
         let action = { type: doNothingAction, targetA: 0, targetB: 0 };
-        if (actionNum <= 10) {
+        if (actionNum <= aleiExtendedTriggerActionLimit) {
             // normal trigger action
             action.type    = selectedTrigger.pm[`actions_${actionNum}_type`];
             action.targetA = selectedTrigger.pm[`actions_${actionNum}_targetA`];
@@ -38,7 +39,7 @@ export function copyTriggerActions() {
         }
         else {
             // additional trigger action
-            const index = actionNum - 11;
+            const index = actionNum - ( aleiExtendedTriggerActionLimit + 1 );
             action.type    = selectedTrigger.pm.additionalActions[index];
             action.targetA = selectedTrigger.pm.additionalParamA[index];
             action.targetB = selectedTrigger.pm.additionalParamB[index];

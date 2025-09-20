@@ -29,7 +29,7 @@ import { readStorage, writeStorage } from "./storage/storageutils.js";
 import { patchForInteractableTriggerActions } from "./triggeractions/interactability.js";
 
 import { parse as alescriptParse } from "./alescript.js";
-import { activateHTML5Mode, html5ModeActive } from "./html5mode.js";
+import { activateHTML5Mode, html5ModeActive, aleiExtendedTriggerActionLimit } from "./html5mode.js";
 import { aleiLog, logLevel, ANSI_RESET, ANSI_YELLOW } from "./log.js";
 import { checkForUpdates } from "./updates.js";
 
@@ -325,14 +325,15 @@ function updateStyles() {
     ThemeSet(_th);
 }
 
-function updateRegionActivations() {
+//  No longer needed after an update to vanilla ALE
+/* function updateRegionActivations() {
 
-    /** @type { Array } */
     let region_activations = VAL_TABLE['region_activation'];
 
     region_activations[17] = "Actor";
     region_activations[18] = "Actor not ally to player";
 };
+*/
 
 function updateEngineMarkNames() {
     let engine_mark = VAL_TABLE['engine_mark'];
@@ -1722,11 +1723,11 @@ function addTriggerActionCount(value, scrollToBottom=true){
         selectedTrigger.pm["additionalActions"] = new Array();
         selectedTrigger.pm["additionalParamA"] = new Array();
         selectedTrigger.pm["additionalParamB"] = new Array();
-        selectedTrigger.pm["totalNumOfActions"] = 10;
+        selectedTrigger.pm["totalNumOfActions"] = aleiExtendedTriggerActionLimit;
         selectedTrigger.pm["extended"] = true;
 
         NewNote("Converted this to an extended trigger.", note_passive);
-        NewNote("Behind the scenes, this creates 1 trigger for every additional 9 trigger actions. Be mindful about your number of triggers.", note_neutral);
+        NewNote(`Behind the scenes, this creates 1 trigger for every additional ${aleiExtendedTriggerActionLimit - 1} trigger actions. Be mindful about your number of triggers.`, note_neutral);
     }
 
     selectedTrigger.pm["totalNumOfActions"] += value;
@@ -1738,7 +1739,7 @@ function addTriggerActionCount(value, scrollToBottom=true){
         const upperBound = selectedTrigger.pm.additionalActions.length
         const startIndex = Math.max(0, upperBound + value);
         for (let i = startIndex; i < upperBound; i++) {
-            const actionNum = i + 11;
+            const actionNum = i + ( aleiExtendedTriggerActionLimit + 1 );
             removedParamNames.push(`actions_${actionNum}_type`);
             removedParamValues.push(selectedTrigger.pm.additionalActions[i]);
 
@@ -1751,8 +1752,8 @@ function addTriggerActionCount(value, scrollToBottom=true){
         parameterMapHandleParametersRemoval(selectedTrigger, removedParamNames, removedParamValues);
     }
 
-    // It has less than 10 trigger actions, let's convert this extended trigger back to a normal trigger.
-    if(selectedTrigger.pm["totalNumOfActions"] <= 10 || isNaN(selectedTrigger.pm["totalNumOfActions"])){
+    // It has less than 10 or 100 trigger actions, let's convert this extended trigger back to a normal trigger.
+    if(selectedTrigger.pm["totalNumOfActions"] <= aleiExtendedTriggerActionLimit || isNaN(selectedTrigger.pm["totalNumOfActions"])){
         delete selectedTrigger.pm["additionalActions"];
         delete selectedTrigger.pm["additionalParamA"];
         delete selectedTrigger.pm["additionalParamB"];
@@ -3057,7 +3058,7 @@ function extendTriggerList() {
 
         // Disallow skip trigger actions every 9th trigger action for triggers.
         if(
-            Number(match && match[1]) % 9 === 0 && match[2] === 'type' && skipTriggerActions.includes(Number(val1))
+            Number(match && match[1]) % aleiExtendedTriggerActionLimit - 1 === 0 && match[2] === 'type' && skipTriggerActions.includes(Number(val1))
         ){
             NewNote("Due to how extended triggers is implemented, skip trigger actions are disabled every 9th trigger action. Leave a 'Do Nothing' trigger action here instead.", note_bad);
             return;
@@ -3132,6 +3133,8 @@ function extendTriggerList() {
         const gapBetweenTrigger = 40;
         const executeTriggerAction = 99; // Required for main -> child if we want main trigger's maxcalls be in effect.
         const switchExecutionAction = 363;
+        
+        const triggersToCreate_number = aleiExtendedTriggerActionLimit - 1;
 
         // Keep a reference to all the newly generated triggers, so we can delete them in the end.
         let allGeneratedTriggers = new Array();
@@ -3148,14 +3151,14 @@ function extendTriggerList() {
             if(entity._class !== "trigger") continue;
             if(!entity.pm["extended"])      continue;
 
-            // The first trigger can only store 9 actions, as the last one is required to execute the next one.
-            // Let's push the 10th one to the front of respective arrays.
-            entity.pm["additionalActions"].unshift(entity.pm["actions_10_type"]);
-            entity.pm["additionalParamA"].unshift(entity.pm["actions_10_targetA"]);
-            entity.pm["additionalParamB"].unshift(entity.pm["actions_10_targetB"]);
+            // The first trigger can only store 9 or 99 actions, as the last one is required to execute the next one.
+            // Let's push the 10th or 100th one to the front of respective arrays.
+            entity.pm["additionalActions"].unshift(entity.pm[`actions_${aleiExtendedTriggerActionLimit}_type`]);
+            entity.pm["additionalParamA"].unshift(entity.pm[`actions_${aleiExtendedTriggerActionLimit}_targetA`]);
+            entity.pm["additionalParamB"].unshift(entity.pm[`actions_${aleiExtendedTriggerActionLimit}_targetB`]);
 
             // Calculate and create the number of triggers we need.
-            const triggersToCreate = Math.floor((entity.pm["totalNumOfActions"] - 1) / 9);
+            const triggersToCreate = Math.floor((entity.pm["totalNumOfActions"] - 1) / triggersToCreate_number);
             let   startX = entity.pm["x"] + gapBetweenTrigger;
             const startY = entity.pm["y"];
 
@@ -3172,21 +3175,21 @@ function extendTriggerList() {
 
                 // If it's the first trigger, let the main extended trigger point to this.
                 if(i == 0){
-                    entity.pm[`actions_10_type`] = executeTriggerAction;
-                    entity.pm[`actions_10_targetA`] = name;
+                    entity.pm[`actions_${aleiExtendedTriggerActionLimit}_type`] = executeTriggerAction;
+                    entity.pm[`actions_${aleiExtendedTriggerActionLimit}_targetA`] = name;
                     newTrigger.pm["maxcalls"] = -1;
                 }
 
                 // If not the last trigger, point to the next trigger.
                 if(i < triggersToCreate - 1){
                     name = `${entity.pm["uid"]}'s extended trigger no: ${i + 1}.`
-                    newTrigger.pm[`actions_10_type`] = switchExecutionAction;
-                    newTrigger.pm[`actions_10_targetA`] = name;
+                    newTrigger.pm[`actions_${aleiExtendedTriggerActionLimit}_type`] = switchExecutionAction;
+                    newTrigger.pm[`actions_${aleiExtendedTriggerActionLimit}_targetA`] = name;
                 }
 
                 // Set trigger action and parameters
-                for(let actionNum = 1; actionNum < 10; actionNum++){
-                    let index = i * 9 + (actionNum - 1);    // 0-8, 9-17, 18-26, ...
+                for(let actionNum = 1; actionNum < aleiExtendedTriggerActionLimit; actionNum++){
+                    let index = i * triggersToCreate_number + (actionNum - 1);    // 0-8, 9-17, 18-26, ...
 
                     newTrigger.pm[`actions_${actionNum}_type`]    = entity.pm["additionalActions"][index] === undefined ? -1 : entity.pm["additionalActions"][index];
                     newTrigger.pm[`actions_${actionNum}_targetA`] = entity.pm["additionalParamA"][index]  === undefined ? 0 :  entity.pm["additionalParamA"][index];
@@ -3224,9 +3227,9 @@ function extendTriggerList() {
             entity.pm["additionalParamA"] = allAdditionalParamA[index];
             entity.pm["additionalParamB"] = allAdditionalParamB[index];
 
-            // Restore the 10th trigger action from arrays
-            entity.pm[`actions_10_type`]    = entity.pm["additionalActions"].shift();
-            entity.pm[`actions_10_targetA`] = entity.pm["additionalParamA"].shift();
+            // Restore the 10th or 100th trigger action from arrays
+            entity.pm[`actions_${aleiExtendedTriggerActionLimit}_type`]    = entity.pm["additionalActions"].shift();
+            entity.pm[`actions_${aleiExtendedTriggerActionLimit}_targetA`] = entity.pm["additionalParamA"].shift();
             entity.pm["additionalParamB"].shift();
             index++;
         }
@@ -3243,10 +3246,13 @@ function extendTriggerList() {
 
     /**
      *  This function is responsible for compiling the text portion of the trigger action when saved.
-     *  It is further patched to support more than 10 trigger actions.
+     *  It is further patched to support more than 10 or 100 trigger actions.
      */
     function CompileTrigger() {
         const skipTriggerActions = [123, 361, 364, 365];
+
+        //  Naming is hard. - Molis
+        const action_count_less = aleiExtendedTriggerActionLimit - 1;
 
         if(SelectedObjects.length != 1){
             return;
@@ -3324,8 +3330,8 @@ function extendTriggerList() {
         let hasEncounteredSkipTrigger = false;
         // Retrieve all the trigger action.
         for (let i = 0; i < new_trigger_actions.length; i++) {
-            // A skip trigger action for every 9th trigger action. Add a do nothing trigger action.
-            if((i + 1) % 9 === 0 && skipTriggerActions.includes(new_trigger_actions[i][0])){
+            // A skip trigger action for every 9th or 99th trigger action. Add a do nothing trigger action.
+            if((i + 1) % action_count_less === 0 && skipTriggerActions.includes(new_trigger_actions[i][0])){
                 new_trigger_actions.splice(i, 0, [-1, 0, 0]);
                 hasEncounteredSkipTrigger = true;
             }
@@ -3339,7 +3345,7 @@ function extendTriggerList() {
             NewNote("Skip trigger actions encountered in every 9th trigger action. Inserted an 'Do Nothing' trigger action.", note_neutral);
         }
 
-        const currentActionsCount = !selectedTrigger.pm.extended ? 10 : selectedTrigger.pm.totalNumOfActions;
+        const currentActionsCount = !selectedTrigger.pm.extended ? aleiExtendedTriggerActionLimit : selectedTrigger.pm.totalNumOfActions;
         if (new_trigger_actions.length > currentActionsCount) {
             // extend trigger to fit new number of actions
             const diff = new_trigger_actions.length - currentActionsCount;
@@ -3414,8 +3420,11 @@ function parseExtendedTriggers(){
         let iterationCount = 1;
         let previousTotalNumOfActions = entity.pm["totalNumOfActions"];
 
+        const number_of_additional_actions_total = aleiExtendedTriggerActionLimit - 1;
+        const previous_number_of_additional_actions_total = aleiExtendedTriggerActionLimit + 1;
+
         // Create extended trigger's additional properties.
-        entity.pm["totalNumOfActions"] = 9;
+        entity.pm["totalNumOfActions"] = number_of_additional_actions_total;
         entity.pm["additionalActions"] = new Array();
         entity.pm["additionalParamA"] = new Array();
         entity.pm["additionalParamB"] = new Array();
@@ -3424,22 +3433,22 @@ function parseExtendedTriggers(){
 
         // Iterate through the linked list, pointed by the 10th trigger action.
         let nextTriggerIndex = es.findIndex(e => 
-            (e.pm["uid"] === currentTrigger.pm["actions_10_targetA"]) && 
+            (e.pm["uid"] === currentTrigger.pm[`actions_${aleiExtendedTriggerActionLimit}_targetA`]) && 
             (
-                (currentTrigger.pm["actions_10_type"] == switchExecutionAction) || // Backwards compatibility
-                (currentTrigger.pm["actions_10_type"] == executeTriggerAction)     // Current system
+                (currentTrigger.pm[`actions_${aleiExtendedTriggerActionLimit}_type`] == switchExecutionAction) || // Backwards compatibility
+                (currentTrigger.pm[`actions_${aleiExtendedTriggerActionLimit}_type`] == executeTriggerAction)     // Current system
             )
         )
         while(nextTriggerIndex !== -1){
             let nextTrigger = es[nextTriggerIndex];
 
             // Retrieve all trigger actions.
-            for(let i = 1; i <= 9; ++i){
+            for(let i = 1; i <= number_of_additional_actions_total; ++i){
                 // The very first entry of additional actions and parameters belongs to action 10
                 if(i === 1 && iterationCount === 1){
-                    entity.pm["actions_10_type"] = nextTrigger.pm[`actions_1_type`];
-                    entity.pm["actions_10_targetA"] = nextTrigger.pm[`actions_1_targetA`];
-                    entity.pm["actions_10_targetB"] = nextTrigger.pm[`actions_1_targetB`];
+                    entity.pm[`actions_${aleiExtendedTriggerActionLimit}_type`] = nextTrigger.pm[`actions_1_type`];
+                    entity.pm[`actions_${aleiExtendedTriggerActionLimit}_targetA`] = nextTrigger.pm[`actions_1_targetA`];
+                    entity.pm[`actions_${aleiExtendedTriggerActionLimit}_targetB`] = nextTrigger.pm[`actions_1_targetB`];
                     continue;
                 }
 
@@ -3448,14 +3457,14 @@ function parseExtendedTriggers(){
                 entity.pm["additionalParamB"].push(nextTrigger.pm[`actions_${i}_targetB`]);
             }
 
-            entity.pm["totalNumOfActions"] += 9;
+            entity.pm["totalNumOfActions"] += number_of_additional_actions_total;
 
             // Remove those auto generated triggers
             es.splice(nextTriggerIndex, 1);
 
             // Continue iterating
             currentTrigger = nextTrigger;
-            nextTriggerIndex = es.findIndex(e => e.pm["uid"] === currentTrigger.pm["actions_10_targetA"] && currentTrigger.pm["actions_10_type"] === switchExecutionAction);
+            nextTriggerIndex = es.findIndex(e => e.pm["uid"] === currentTrigger.pm[`actions_${aleiExtendedTriggerActionLimit}_targetA`] && currentTrigger.pm[`actions_${aleiExtendedTriggerActionLimit}_type`] === switchExecutionAction);
 
             // Protect users from potential infinite iteration.
             iterationCount++;
@@ -3471,7 +3480,7 @@ function parseExtendedTriggers(){
             let isAllEmpty = true;
 
             for(let i = previousTotalNumOfActions + 1; i < entity.pm["totalNumOfActions"]; i++){
-                if(entity.pm["additionalActions"][i - 11] != doNothingTriggerAction){
+                if(entity.pm["additionalActions"][i - previous_number_of_additional_actions_total] != doNothingTriggerAction){
                     isAllEmpty = false;
                     break;
                 }
@@ -3726,7 +3735,7 @@ let ALE_start = (async function() {
     initTheme();
 
     updateStyles();
-    updateRegionActivations();
+    // updateRegionActivations();
     updateEngineMarkNames();
     updateSkins();
     updateSounds();
@@ -3769,7 +3778,7 @@ let ALE_start = (async function() {
     if(aleiSettings.enableTooltips) {
         doTooltip();
     }
-    if (aleiSettings.extendedTriggers && !html5ModeActive) { // !html5ModeActive because extended triggers use switch execution
+    if (aleiSettings.extendedTriggers) {
         extendTriggerList();
         window.ExtendedTriggersLoaded = true;
     }

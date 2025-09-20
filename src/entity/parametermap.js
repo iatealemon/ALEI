@@ -1,6 +1,7 @@
 import { getParameterValueParts } from "./parameterutils.js";
 import { aleiSettings } from "../storage/settings.js";
 import { aleiLog, logLevel } from "../log.js";
+import { aleiExtendedTriggerActionLimit } from "../html5mode.js";
 
 /**
  * debug mode checks the validity of the parameter map after each update and reports any problems. causes lag
@@ -43,12 +44,12 @@ function addEntityToParameterMap(entity) {
     if (aleiSettings.extendedTriggers && entity.pm.extended) {
         entity.pm.additionalParamA?.forEach((paramValue, paramIndex) => {
             if (typeof paramValue != "string") return;
-            const paramName = `actions_${paramIndex+11}_targetA`;
+            const paramName = `actions_${paramIndex + ( aleiExtendedTriggerActionLimit + 1 )}_targetA`;
             addData(entity, paramName, paramValue);
         });
         entity.pm.additionalParamB?.forEach((paramValue, paramIndex) => {
             if (typeof paramValue != "string") return;
-            const paramName = `actions_${paramIndex+11}_targetB`;
+            const paramName = `actions_${paramIndex + ( aleiExtendedTriggerActionLimit + 1 )}_targetB`;
             addData(entity, paramName, paramValue);
         });
     }

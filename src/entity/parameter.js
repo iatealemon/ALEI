@@ -5,6 +5,7 @@ import { ocmHandleEntityUIDChange, ocmHandleEntityParametersChange } from "../oc
 import { updateUIDMap } from "./uidmap.js";
 import { parameterMap, updateParameterMap } from "./parametermap.js";
 import * as spawnAreas from "../spawn-areas.js";
+import { aleiExtendedTriggerActionLimit } from "../html5mode.js";
 
 export let REGION_EXECUTE_PARAM_ID; // set in updateParameters
 
@@ -196,10 +197,10 @@ function setPhysicalParam(entityIndex, paramname, newValue) {
     let partialEvalStringOfSetPm;
 
     const match = paramname.match(triggerActionsRegex);
-    if (match && Number(match[1]) > 10) {
+    if (match && Number(match[1]) > aleiExtendedTriggerActionLimit) {
         // paramname is an additional parameter of an extended trigger
 
-        const actionIndex = Number(match[1]) - 11; // action_11_... starts at element 0
+        const actionIndex = Number(match[1]) - ( aleiExtendedTriggerActionLimit + 1 ); // action_11_... starts at element 0
         const propertyName = {
             type: "additionalActions",
             targetA: "additionalParamA",
@@ -306,13 +307,13 @@ function updateUIDReferences(oldUID, newUID) {
             
             let oldParamValue;
             const match = paramName.match(triggerActionsRegex);
-            if (match && Number(match[1]) > 10) {
+            if (match && Number(match[1]) > aleiExtendedTriggerActionLimit) {
                 const propertyName = {
                     type: "additionalActions",
                     targetA: "additionalParamA",
                     targetB: "additionalParamB"
                 }[match[2]];
-                oldParamValue = connectionPartner.pm[propertyName][Number(match[1]) - 11];
+                oldParamValue = connectionPartner.pm[propertyName][Number(match[1]) - ( aleiExtendedTriggerActionLimit + 1 )];
             }
             else {
                 oldParamValue = connectionPartner.pm[paramName];

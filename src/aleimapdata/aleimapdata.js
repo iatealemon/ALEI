@@ -1,3 +1,4 @@
+import { aleiExtendedTriggerActionLimit } from "../html5mode.js";
 import { currentMapDataFormatVersion, isFormatUpToDate, updateMapDataFormat } from "./formatversions.js";
 import { makeALEIMapDataObject, makeBackupObject, findALEIMapDataObject, readFromALEIMapDataObject, writeToALEIMapDataObject } from "./handlemapdataobject.js";
 
@@ -78,7 +79,7 @@ export function updateALEIMapData() {
 
         // exclude comments that have a higher position than the trigger's maximum
         let commentsDataToAdd = {};
-        const maxActionNum = obj.pm.extended === true ? obj.pm.totalNumOfActions : 10;
+        const maxActionNum = obj.pm.extended === true ? obj.pm.totalNumOfActions : aleiExtendedTriggerActionLimit;
         for (const position in obj.comments) {
             if (parseInt(position) < maxActionNum) {
                 commentsDataToAdd[position] = obj.comments[position];

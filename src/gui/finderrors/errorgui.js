@@ -1,4 +1,5 @@
 import { SelectedObjects, clearSelectedObjects } from "../../entity/entity.js";
+import { aleiExtendedTriggerActionLimit } from "../../html5mode.js";
 
 import { requirementsData } from "./errorcheck.js";
 
@@ -257,7 +258,7 @@ function* generateParamsTableRowData(paramsMap) {
             return `Act. ${actionNum} ${lastPart}`;
         }
         else {
-            const paramIndex = FindMachingParameterID(paramName, entity._class);
+            const paramIndex = FindMatchingParameterID(paramName, entity._class);
             if (paramIndex === -1) return paramName;
             return param_type[paramIndex][2];
         }
@@ -279,7 +280,7 @@ function* generateParamsTableRowData(paramsMap) {
             targetB: "additionalParamB"
         }[match[2]];
 
-        return entity.pm[arrayName]?.[actionNum - 11] ?? undefined;
+        return entity.pm[arrayName]?.[actionNum - ( aleiExtendedTriggerActionLimit + 1 )] ?? undefined;
     }
 
     for (const [entity, params] of paramsMap) {

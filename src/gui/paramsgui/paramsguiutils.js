@@ -59,7 +59,7 @@ function getNormalParamsToDisplay(selection) {
 
     for (const entity of selection) {
         for (const parameter in entity.pm) {
-            const indexInParamType = FindMachingParameterID(parameter, entity._class);
+            const indexInParamType = FindMatchingParameterID(parameter, entity._class);
             if (indexInParamType === -1 || dontCheck.has(indexInParamType)) continue;
             if (!normalParams.has(indexInParamType)) {
                 normalParams.set(indexInParamType, {

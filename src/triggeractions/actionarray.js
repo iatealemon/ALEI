@@ -1,3 +1,5 @@
+import { aleiExtendedTriggerActionLimit } from "../html5mode.js";
+
 const doNothingAction = -1;
 
 /**
@@ -7,7 +9,7 @@ const doNothingAction = -1;
 export function getTriggerActions(trigger) {
     let triggerActions = [];
 
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= aleiExtendedTriggerActionLimit; i++) {
         triggerActions.push({
             type: trigger.pm[`actions_${i}_type`],
             targetA: trigger.pm[`actions_${i}_targetA`],

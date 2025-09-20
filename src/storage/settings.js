@@ -57,7 +57,7 @@ export const aleiSettings = {
     originalSelectOverlay:      readStorage("ALEI_Renderer_OriginalSelectOverlay",      false,          stringToBool),
     boxRendering:               readStorage("ALEI_Renderer_PreviewWalls",               false,          stringToBool),
     showTextPlaceholderDecors:  readStorage("ALEI_Renderer_ShowTextPlaceholderDecors",  true,           stringToBool),
-    html5Mode:                  readStorage("ALEI_HTML5Mode",                           false,          stringToBool),
+    html5Mode:                  readStorage("ALEI_HTML5Mode",                           true,           stringToBool),
     renderSpawnAreas:           readStorage("ALEI_Renderer_SpawnAreas",                 false,          stringToBool),
     errorCheckOnSave:           readStorage("ALEI_ErrorCheckOnSave",                    true,           stringToBool),
 };

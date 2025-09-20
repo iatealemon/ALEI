@@ -5,6 +5,7 @@ import { makeCommentBox, setCurrentCommentedTrigger,
     setCommentsResizeObserverTarget, setupCommentBoxAfterAddedToDOM } from "../comments/commenttextarea.js";
 import { addParamSideButtons } from "../paramsidebuttons/paramsidebuttons.js";
 import { makeTriggerActionsInteractable } from "../../../triggeractions/interactability.js";
+import { aleiExtendedTriggerActionLimit } from "../../../html5mode.js";
 
 const triggerActionParamRegex = /^actions_(\d+)_(type|targetA|targetB)$/;
 
@@ -41,6 +42,7 @@ function getNormalParamsHTML(paramsToDisplay) {
     let labelClass = "pa1 p_u1 r_lt";
     let fieldClass = "pa2 p_u2 r_rt";
     let index = 0;
+    let trigger_action_count = 0;
     const lastIndex = paramsToDisplay.normal.size - 1;
     for (const [paramIndex, paramData] of paramsToDisplay.normal.entries()) {
         // remove top rounding (r_lt, r_rt)
@@ -65,16 +67,28 @@ function getNormalParamsHTML(paramsToDisplay) {
             const match = paramName.match(triggerActionParamRegex);
             if (match !== null && match[2] === "type") {
                 const actionNum = match[1];
-                html += `<div class="trigger-action" data-action-num="${actionNum}">`;
+                trigger_action_count = actionNum;
+                if ( actionNum <= aleiExtendedTriggerActionLimit ) {
+                    html += `<div class="trigger-action" data-action-num="${actionNum}">`;
+                }
             }
         }
 
-        html += `
-            <div class="p_i">
-                <span class="${labelClass}">${title}:</span
-                ><span class="${fieldClass}" onclick="letedit(this, '${paramType}')" onmouseover="letover(this, '${paramType}')" id="pm_${paramName}">${paramVal}</span>
-            </div>
-        `;
+        console.log( paramName );
+
+        //  this is the most complicated code ever.
+        if (
+            ( paramType === "trigger_type" && trigger_action_count <= aleiExtendedTriggerActionLimit ) ||
+            ( ( paramName.startsWith( "actions_" ) && paramType === "nochange" ) && trigger_action_count <= aleiExtendedTriggerActionLimit ) ||
+            !paramName.startsWith( "actions_" ) //  stupid hack, somehow.
+        ) {
+            html += `
+                <div class="p_i">
+                    <span class="${labelClass}">${title}:</span
+                    ><span class="${fieldClass}" onclick="letedit(this, '${paramType}')" onmouseover="letover(this, '${paramType}')" id="pm_${paramName}">${paramVal}</span>
+                </div>
+            `;
+        }
 
         // add closing tag for trigger action parameters container
         if (paramName.endsWith("_targetB")) {
@@ -96,7 +110,7 @@ function getAdditionalParamsHTML(paramsToDisplay) {
     if (paramsToDisplay.additional.length > 0) {
         const lastIndex = paramsToDisplay.additional.length - 1;
         paramsToDisplay.additional.forEach((actionData, i) => {
-            const actionNum = i + 11;
+            const actionNum = i + ( aleiExtendedTriggerActionLimit + 1 );
             const typeParamVal =    (!actionData.multiple || (actionData.type.same    && aleiSettings.showSameParameters)) ? GenParamVal("trigger_type", actionData.type.value) : "<nochange>...</nochange>";
             const targetAParamVal = (!actionData.multiple || (actionData.targetA.same && aleiSettings.showSameParameters)) ? GenParamVal("nochange", actionData.targetA.value)  : "<nochange>...</nochange>";
             const targetBParamVal = (!actionData.multiple || (actionData.targetB.same && aleiSettings.showSameParameters)) ? GenParamVal("nochange", actionData.targetB.value)  : "<nochange>...</nochange>";

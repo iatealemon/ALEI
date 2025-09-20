@@ -39,7 +39,7 @@ function optimizeFindMachingParameterID() {
         }
     }
 
-    unsafeWindow.FindMachingParameterID = (fm_parameter, fm_class) => {
+    unsafeWindow.FindMatchingParameterID = (fm_parameter, fm_class) => {
         return paramTypeMap[fm_class]?.[fm_parameter] ?? -1;
     };
 }
