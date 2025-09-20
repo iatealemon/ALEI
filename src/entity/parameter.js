@@ -5,7 +5,7 @@ import { ocmHandleEntityUIDChange, ocmHandleEntityParametersChange } from "../oc
 import { updateUIDMap } from "./uidmap.js";
 import { parameterMap, updateParameterMap } from "./parametermap.js";
 import * as spawnAreas from "../spawn-areas.js";
-import { aleiExtendedTriggerActionLimit } from "../html5mode.js";
+import { aleiExtendedTriggerActionLimit, html5ModeActive } from "../html5mode.js";
 
 export let REGION_EXECUTE_PARAM_ID; // set in updateParameters
 
@@ -18,6 +18,7 @@ export function updateParameters() {
     add("moving", "bool", "Is moving", "door");
     add("tarx", "value", "Target X", "door");
     add("tary", "value", "Target Y", "door");
+    add("mute", "bool", "Is muted", "door"); //  Recent H5 update
     // Adding our own parameter.
     add("__id", "value", "Object ID", "*");
     add("__priority", "value", "Object priority", "*");
@@ -50,7 +51,7 @@ export function updateParameters() {
 }
 
 const triggerActionsRegex = /^actions_(\d+)_(targetA|targetB|type)$/;
-const boolParams = new Set(["flare", "vis", "enabled", "friction", "loop", "s", "moving", "execute", "uses_timer"]);
+const boolParams = new Set(["flare", "vis", "enabled", "friction", "loop", "s", "moving", "mute", "execute", "uses_timer"]);
 const stringParams = new Set(["uid", "c", "url", "text"]);
 
 export function patchUpdatePhysicalParam() {

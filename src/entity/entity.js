@@ -4,6 +4,7 @@ import { ocmHandleEntitiesCreation } from "../ocm/ocm.js";
 import { aleiSettings } from "../storage/settings.js";
 import { aleiLog, logLevel } from "../log.js";
 import * as spawnAreas from "../spawn-areas.js";
+import { html5ModeActive } from "../html5mode.js";
 
 export function onEntitiesCreated(newEntities) {
     addEntitiesToUIDMap(newEntities);
@@ -33,6 +34,9 @@ export function patchEntityClass() {
             result.pm = Object.fromEntries(entries);
         }
         else if(_class == "region") result.pm.uses_timer = false;
+        else if(_class == "door" && html5ModeActive) {
+            result.pm.mute = false;
+        }
 
         result.fixWidths = (function(old) {
             return function() {

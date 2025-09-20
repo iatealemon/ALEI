@@ -74,8 +74,6 @@ function getNormalParamsHTML(paramsToDisplay) {
             }
         }
 
-        console.log( paramName );
-
         //  this is the most complicated code ever.
         if (
             ( paramType === "trigger_type" && trigger_action_count <= aleiExtendedTriggerActionLimit ) ||
