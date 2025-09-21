@@ -68,8 +68,9 @@ export function createALEISettingsMenu() {
             </div>
             <div class="settings-item settings-item--requires-refresh" data-key="extendedTriggers">
                 <div class="settings-label" title="Enable or disable triggers with more than 10 actions (100 if in HTML5 mode). Requires a page refresh.">Extended triggers:</div>
-                <button class="settings-button" data-value="true">Enabled</button>
-                <button class="settings-button" data-value="false">Disabled</button>
+                <button class="settings-button settings-button--disabled" data-value="true">Enabled</button>
+                <button class="settings-button settings-button--disabled" data-value="false">Disabled</button>
+                <div style="font-size: 12px; opacity: 0.8;" title="(due to severe bugs)">Temporarily disabled</div>
             </div>
             <div class="settings-item" data-key="orderedNaming">
                 <div class="settings-label" title="Ensure similar object names are numbered sequentially.">Ordered Naming:</div>
@@ -206,7 +207,9 @@ export function createALEISettingsMenu() {
 
         for (const settingsButton of settingsItem.getElementsByClassName("settings-button")) {
             const value = formatValue(settingKey, settingsButton.dataset.value);
-            settingsButton.addEventListener("click", () => settingValueSelected(settingKey, storageKey, value, callback));
+            if (!settingsButton.classList.contains("settings-button--disabled")) {
+                settingsButton.addEventListener("click", () => settingValueSelected(settingKey, storageKey, value, callback));
+            }
 
             // good to keep in mind that the button value gets cast into string when using it as a property key
             settingButtonsPerKey[settingKey][value] = settingsButton

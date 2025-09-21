@@ -44,6 +44,11 @@
     color: var(--settings-menu-button-hover-color);
 }
 
+.settings-button--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .settings-button--width-auto {
     width: auto;
     padding: 0 6px;
