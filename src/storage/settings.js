@@ -62,7 +62,7 @@ export const aleiSettings = {
     errorCheckOnSave:           readStorage("ALEI_ErrorCheckOnSave",                    true,           stringToBool),
 };
 
-aleiSettings.extendedTriggers = false; // disable temporarily until save bug is fixed
+aleiSettings.extendedTriggers = true; // disable temporarily until save bug is fixed
 
 // necessary cuz aleiSettings is used in some patches. also it's useful to be able to access it in console
 unsafeWindow.aleiSettings = aleiSettings;

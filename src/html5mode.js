@@ -7,7 +7,12 @@ const html5Sounds = new Set(["am_base","am_wind","android_die","android_die_1","
 const charExistsInHTML5 = (id) => id <= 150;
 
 export let html5ModeActive = false;
-export let aleiExtendedTriggerActionLimit = 10;
+export let aleiExtendedTriggerActionLimit = 100;
+
+if (localStorage.getItem("ALEI_skipforced100actionlimit")) {
+    aleiExtendedTriggerActionLimit = 10;
+    localStorage.removeItem("ALEI_skipforced100actionlimit");
+}
 
 export function activateHTML5Mode() {
     // downgradeTriggerActionsToHTML5();
