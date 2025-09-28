@@ -61,7 +61,7 @@ function createExtensionTriggers(mainTrigger, actionList) {
     const newTriggers = new Array(newTriggersCount);
     let newTriggerX = mainTrigger.pm.x;
     let newTriggerY = mainTrigger.pm.y + 30;
-    let act_i = 9; // skip first 9 trigger actions which are already in the main trigger
+    let act_i = 99; // skip first 99 trigger actions which are already in the main trigger
     for (let i = 0; i < newTriggersCount; i++) {
         const newTrigger = new E("trigger");
         newTrigger.pm.uid = `${mainTrigger.pm.uid}'s extended trigger no: ${i}.`;

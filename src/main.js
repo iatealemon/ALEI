@@ -1728,6 +1728,7 @@ function addTriggerActionCount(value, scrollToBottom=true){
         selectedTrigger.pm["additionalParamB"] = new Array();
         selectedTrigger.pm["totalNumOfActions"] = aleiExtendedTriggerActionLimit;
         selectedTrigger.pm["extended"] = true;
+        selectedTrigger["extendedAndParsed"] = true;
 
         NewNote("Converted this to an extended trigger.", note_passive);
         NewNote(`Behind the scenes, this creates 1 trigger for every additional ${aleiExtendedTriggerActionLimit - 1} trigger actions. Be mindful about your number of triggers.`, note_neutral);
