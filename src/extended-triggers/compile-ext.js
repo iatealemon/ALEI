@@ -1,4 +1,3 @@
-const doNothingAction = -1;
 const executeTriggerAction = 99;
 const switchTriggerAction = 363;
 
@@ -60,7 +59,7 @@ function createExtensionTriggers(mainTrigger, actionList) {
     const newTriggersCount = Math.ceil(actionList.length / 99) - 1;
     const newTriggers = new Array(newTriggersCount);
     let newTriggerX = mainTrigger.pm.x;
-    let newTriggerY = mainTrigger.pm.y + 30;
+    let newTriggerY = mainTrigger.pm.y + 20;
     let act_i = 99; // skip first 99 trigger actions which are already in the main trigger
     for (let i = 0; i < newTriggersCount; i++) {
         const newTrigger = new E("trigger");

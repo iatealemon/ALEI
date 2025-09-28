@@ -3095,6 +3095,7 @@ function extendTriggerList() {
         compileAllExtendedTriggers();
         oldSaveThisMap(temp_to_real_compile_data, callback);
         parseAllExtendedTriggers();
+        UpdateGUIObjectsList();
     }
 
     /**

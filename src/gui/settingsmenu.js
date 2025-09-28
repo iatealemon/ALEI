@@ -112,8 +112,13 @@ export function createALEISettingsMenu() {
                 <button class="settings-button" data-value="true">Yes</button>
                 <button class="settings-button" data-value="false">No</button>
             </div>
-            <div class="settings-item settings-item" data-key="errorCheckOnSave">
+            <div class="settings-item" data-key="errorCheckOnSave">
                 <div class="settings-label" title="Automatically check for errors when saving the map.">Check errors on save:</div>
+                <button class="settings-button" data-value="true">Yes</button>
+                <button class="settings-button" data-value="false">No</button>
+            </div>
+            <div class="settings-item settings-item--requires-refresh" data-key="experimentalExtTriggers">
+                <div class="settings-label" title="Enable the experimental rewritten extended triggers (incomplete and may have bugs).">Exp. extended triggers:</div>
                 <button class="settings-button" data-value="true">Yes</button>
                 <button class="settings-button" data-value="false">No</button>
             </div>

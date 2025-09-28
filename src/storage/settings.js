@@ -31,6 +31,7 @@ export const storageKeysMap = {
     html5Mode: "ALEI_HTML5Mode",
     renderSpawnAreas: "ALEI_Renderer_SpawnAreas",
     errorCheckOnSave: "ALEI_ErrorCheckOnSave",
+    experimentalExtTriggers: "ALEI_ExperimentalExtTriggers",
 };
 
 // initialize settings
@@ -60,9 +61,10 @@ export const aleiSettings = {
     html5Mode:                  readStorage("ALEI_HTML5Mode",                           true,           stringToBool),
     renderSpawnAreas:           readStorage("ALEI_Renderer_SpawnAreas",                 false,          stringToBool),
     errorCheckOnSave:           readStorage("ALEI_ErrorCheckOnSave",                    true,           stringToBool),
+    experimentalExtTriggers:    readStorage("ALEI_ExperimentalExtTriggers",             false,           stringToBool),
 };
 
-aleiSettings.extendedTriggers = true; // disable temporarily until save bug is fixed
+aleiSettings.extendedTriggers = aleiSettings.experimentalExtTriggers;
 
 // necessary cuz aleiSettings is used in some patches. also it's useful to be able to access it in console
 unsafeWindow.aleiSettings = aleiSettings;
