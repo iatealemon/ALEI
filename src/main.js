@@ -3290,20 +3290,17 @@ function patchStartNewMap() {
     window.StartNewMap = eval("(" + newCode + ")");
 }
 
-function fixCharEscapingInCompiObj() {
+function fix100thActionInCompiObj() {
     const oldCode = window.compi_obj.toString();
     const newCode = oldCode.replace(
-        /(?<=if\s*\(\s*typeof\s*\(?\s*pars\s*\)?\s*==\s*'?\w+'?\s*\)\s*\{).*?(?=\})/s, 
-        `
-        pars = pars.replaceAll("&quot;", '"').replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
-        pars = pars.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-        `
+        /action_id\s*\<\s*trigger_actions_limit/, 
+        `action_id <= trigger_actions_limit`
     );
     if (oldCode === newCode) {
         aleiLog(logLevel.WARN, "compi_obj direct code replacement failed");
     }
 
-    window.compi_obj = eval(`(${newCode})`);
+    window.compi_obj = eval.call(window, `(${newCode})`);
 }
 
 /**
@@ -3573,7 +3570,7 @@ let ALE_start = (async function() {
     patchFindErrorsButton();
     addErrorCheckingToSave();
     patchSkinList();
-    fixCharEscapingInCompiObj();
+    fix100thActionInCompiObj();
 
     // load map again if map was already loaded but not successfully (in terms of alei)
     // map load is unsuccessful if it happens before alei is initialized
