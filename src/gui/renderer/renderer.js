@@ -5,6 +5,7 @@ import { asRadians, mod, easeOutExpo } from "../../math.js"
 import { fixedVisualBBoxes } from "./fixedbboxes.js";
 import { canvasThemes, setHighLightedObjEdgeColors } from "./canvasthemes.js";
 import * as spawnAreas from "../../spawn-areas.js";
+import * as wallTextures from "../../wall-textures/wall-textures.js";
 import { getCustomCharImage } from "../../skin-preview.js";
 
 let window = unsafeWindow;
@@ -165,7 +166,8 @@ function RenderSingleResizableObject(element, cns) {
             edgeColor = "#333";
         }
         else if((elemClass == "box") && (aleiSettings.boxRendering)) {
-            let image = boxModelImages[pm.m];
+            wallTextures.drawWallTextures(ctx);
+            /*let image = boxModelImages[pm.m];
             if(image == undefined) {
                 image = new Image();
                 boxModelImages[pm.m] = image;
@@ -195,7 +197,7 @@ function RenderSingleResizableObject(element, cns) {
             ctx.rect(s2w_x(0), s2w_y(0), s2w_w(canvasWidth), s2w_h(canvasHeight));
             ctx.fill();
 
-            ctx.restore();
+            ctx.restore();*/
 
 
         }
