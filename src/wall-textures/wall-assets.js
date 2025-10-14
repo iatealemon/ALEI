@@ -15,7 +15,7 @@ for (const mat in wallMaterials) {
 }
 wallSpriteKeys = [...new Set(wallSpriteKeys)];
 
-const resourcesBasePath = "https://raw.githubusercontent.com/Molisson/ALEI/refs/heads/main/resources/";
+const resourcesBasePath = "https://raw.githubusercontent.com/iatealemon/ALEI/refs/heads/main/resources/";
 
 const wallTextureAssets = {};
 for (const spriteKey of wallSpriteKeys) {
@@ -25,7 +25,11 @@ for (const spriteKey of wallSpriteKeys) {
     image.onload = () => {
         image.loaded = true;
     };
+    image.onerror = (e) => {
+        console.error(e);
+    };
     wallTextureAssets[spriteKey] = image;
+    console.log(image);
 }
 
 const cachedImagePatterns = new Map();
