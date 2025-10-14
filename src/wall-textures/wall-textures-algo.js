@@ -15,8 +15,8 @@ export function getWallTextureImages(walls) {
     const events = walls
         .flatMap((wall, index) => {
             return [
-                { y: wall.y,               minX: wall.x, maxX: wall.x + wall.width, side: TOP,    wallMaterial: wall.material, wallPriority: index, depth: 0 },
-                { y: wall.y + wall.height, minX: wall.x, maxX: wall.x + wall.width, side: BOTTOM, wallMaterial: wall.material, wallPriority: index, depth: 0 },
+                { y: wall.pm.y,             minX: wall.pm.x, maxX: wall.pm.x + wall.pm.w, side: TOP,    wallMaterial: wall.pm.m, wallPriority: index, depth: 0 },
+                { y: wall.pm.y + wall.pm.h, minX: wall.pm.x, maxX: wall.pm.x + wall.pm.w, side: BOTTOM, wallMaterial: wall.pm.m, wallPriority: index, depth: 0 },
             ];
         })
         // sort by y while putting TOP first
@@ -202,7 +202,7 @@ class WallRenderingSegmentTree {
 
 function getWallSegmentSprites(segment) {
     const parts = wallMaterials[segment.material]?.sprites[segment.side];
-    if (parts === undefined) return;
+    if (parts === undefined) return [];
 
     const segWidth = segment.end - segment.start;
 

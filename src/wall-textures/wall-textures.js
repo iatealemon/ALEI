@@ -34,16 +34,17 @@ function drawSprite(ctx, sprite) {
 }
 
 function drawTilingSprite(ctx, tilingSprite) {
-    const pattern = getPatternForWallImage(tilingSprite.image);
+    const pattern = getPatternForWallImage(ctx, tilingSprite.image);
     const sx = unsafeWindow.w2s_x(tilingSprite.x);
+    const sy = unsafeWindow.w2s_y(tilingSprite.y);
     const sTileX = unsafeWindow.w2s_x(tilingSprite.tileX);
     const sw = unsafeWindow.w2s_w(tilingSprite.width);
     const sh = unsafeWindow.w2s_w(tilingSprite.image.height);
 
     ctx.save();
-    ctx.translate(sx + sTileX);
+    ctx.translate(sx + sTileX, 0);
     ctx.fillStyle = pattern;
-    ctx.fillRect(-sTileX, sw, sh);
+    ctx.fillRect(-sTileX, sy, sw, sh);
     ctx.restore();
 }
 

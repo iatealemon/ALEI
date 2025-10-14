@@ -25,11 +25,7 @@ for (const spriteKey of wallSpriteKeys) {
     image.onload = () => {
         image.loaded = true;
     };
-    image.onerror = (e) => {
-        console.error(e);
-    };
     wallTextureAssets[spriteKey] = image;
-    console.log(image);
 }
 
 const cachedImagePatterns = new Map();
