@@ -4,8 +4,8 @@ function makeSprite(image, x, y) {
     return { tiling: false, image, x, y };
 }
 
-function makeTilingSprite(image, x, y, width, tileX) {
-    return { tiling: true, image, x, y, width, tileX };
+function makeTilingSprite(image, x, y, width) {
+    return { tiling: true, image, x, y, width };
 }
 
 const TOP = 0;
@@ -13,6 +13,7 @@ const BOTTOM = 1;
 
 export function getWallTextureImages(walls) {
     const events = walls
+        .filter(wall => wall.pm.w > 0 && wall.pm.h >= 0)
         .flatMap((wall, index) => {
             return [
                 { y: wall.pm.y,             minX: wall.pm.x, maxX: wall.pm.x + wall.pm.w, side: TOP,    wallMaterial: wall.pm.m, wallPriority: index, depth: 0 },
@@ -162,33 +163,24 @@ class WallRenderingSegmentTree {
         const allowedWallCount = this.nodeSide[node] === TOP ? 1 : 0; // 1 wall allowed for top side because That's The Wall
         if (this.nodeWallCount[node] <= allowedWallCount) {
             if (this.nodeBubblingWallCount[node] <= allowedWallCount && this.nodeDepth[node] >= this.currentDepth) {
+                const start = this.coords[left];
+                const end = this.coords[right];
+                const material = this.nodeMaterial[node];
+                const side = this.nodeSide[node] === TOP ? "top" : "bottom";
+
                 const prev = result[result.length - 1];
-                const adjacent = prev !== undefined && prev.end === this.coords[left];
-                const sameMaterial = prev !== undefined && prev.material === this.nodeMaterial[node];
-                const sameSide = prev !== undefined && ((prev.side === "top") === (this.nodeSide[node] === TOP));
+                const adjacent = prev !== undefined && prev.end === start;
+                const sameMaterial = prev !== undefined && prev.material === material;
+                const sameSide = prev !== undefined && prev.side === side;
                 if (!adjacent || !sameSide) {
-                    result.push({
-                        start: this.coords[left], 
-                        end: this.coords[right], 
-                        material: this.nodeMaterial[node], 
-                        side: this.nodeSide[node] === TOP ? "top" : "bottom", 
-                        hasLeftCorner: true,
-                        hasRightCorner: true,
-                    });
+                    result.push({ start, end, material, side, hasLeftCorner: true, hasRightCorner: true, });
                 }
                 else if (sameMaterial) {
-                    prev.end = this.coords[right];
+                    prev.end = end;
                 }
                 else {
                     prev.hasRightCorner = false;
-                    result.push({
-                        start: this.coords[left], 
-                        end: this.coords[right], 
-                        material: this.nodeMaterial[node], 
-                        side: this.nodeSide[node] === TOP ? "top" : "bottom", 
-                        hasLeftCorner: false,
-                        hasRightCorner: true,
-                    });
+                    result.push({ start, end, material, side, hasLeftCorner: false, hasRightCorner: true, });
                 }
             }
             else if (right - left > 1) {
@@ -215,14 +207,13 @@ function getWallSegmentSprites(segment) {
             const x = part.offsetX ?? 0;
             const y = (part.offsetY ?? 0) + (segment.side === "bottom" ? -image.height : 0);
             const width = segWidth + (part.widthAdjustment ?? 0);
-            const tileX = -segment.start - (part.offsetX ?? 0);
-            sprites.push(makeTilingSprite(image, x, y, width, tileX));
+            sprites.push(makeTilingSprite(image, x, y, width));
         }
     }
 
     if (parts.left !== undefined) {
         const part = parts.left;
-        if (segment.hasLeftCorner || !(part.requiresCorner ?? true)) {
+        if ((segment.hasLeftCorner && segWidth >= 20) || !(part.requiresCorner ?? true)) {
             const image = getWallTextureImage(part.sprite);
             if (image !== undefined && image.loaded) {
                 const x = part.offsetX ?? 0;
@@ -234,7 +225,7 @@ function getWallSegmentSprites(segment) {
 
     if (parts.right !== undefined) {
         const part = parts.right;
-        if (segment.hasRightCorner || !(part.requiresCorner ?? true)) {
+        if ((segment.hasRightCorner && segWidth >= 20) || !(part.requiresCorner ?? true)) {
             const image = getWallTextureImage(part.sprite);
             if (image !== undefined && image.loaded) {
                 const x = (part.offsetX ?? 0) + segWidth - image.width;

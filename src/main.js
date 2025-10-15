@@ -2638,6 +2638,7 @@ function handleServerRequestResponse(request, operation, response) {
         loadParameterMap();
         if (aleiSettings.ocmEnabled) loadOCM();
         if (aleiSettings.renderSpawnAreas) spawnAreas.scheduleUpdate();
+        wallTextures.setDirty();
     }else if (response.indexOf("knownmaps = [") !== -1) {
         window.knownmaps = [];
         for (let map of response.match(/"(.*?)"/g)) {

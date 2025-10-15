@@ -1,11 +1,10 @@
 import { getWallTextureImages } from "./wall-textures-algo.js";
-import { getPatternForWallImage } from "./wall-assets.js";
 
-export const params = new Set(["x", "y", "w", "h"]);
+export const params = new Set(["x", "y", "w", "h", "m"]);
 
 let dirty = true;
 
-/** @type {({tiling: false, image: HTMLImageElement, x: number, y: number} | {tiling: true, image: HTMLImageElement, x: number, y: number, width: number, tileX: number})[]} */
+/** @type {({tiling: false, image: HTMLImageElement, x: number, y: number} | {tiling: true, image: HTMLImageElement, x: number, y: number, width: number})[]} */
 let cachedSprites = [];
 
 function clearCache() {
@@ -14,37 +13,43 @@ function clearCache() {
 
 export function setDirty() {
     dirty = true;
+    unsafeWindow.need_redraw = true;
+    console.log("set dirty");
 }
 unsafeWindow.wallTexturesSetDirty = setDirty; // add to window so it can be used in undo/redo
 
 export function drawWallTextures(ctx) {
+    console.log(dirty);
     if (dirty) update();
+
+    ctx.save();
+
+    ctx.globalAlpha = 1;
+    const scale = 1 / unsafeWindow.zoom;
+    ctx.translate(unsafeWindow.w2s_x(0), unsafeWindow.w2s_y(0));
+    ctx.scale(scale, scale);
 
     for (const sprite of cachedSprites) {
         (sprite.tiling ? drawTilingSprite : drawSprite)(ctx, sprite);
     }
+
+    ctx.restore();
 }
 
 function drawSprite(ctx, sprite) {
-    const sx = unsafeWindow.w2s_x(sprite.x);
-    const sy = unsafeWindow.w2s_y(sprite.y);
-    const sw = unsafeWindow.w2s_w(sprite.image.width);
-    const sh = unsafeWindow.w2s_h(sprite.image.height);
-    ctx.drawImage(sprite.image, sx, sy, sw, sh);
+    ctx.drawImage(sprite.image, sprite.x, sprite.y, sprite.image.width, sprite.image.height);
 }
 
 function drawTilingSprite(ctx, tilingSprite) {
-    const pattern = getPatternForWallImage(ctx, tilingSprite.image);
-    const sx = unsafeWindow.w2s_x(tilingSprite.x);
-    const sy = unsafeWindow.w2s_y(tilingSprite.y);
-    const sTileX = unsafeWindow.w2s_x(tilingSprite.tileX);
-    const sw = unsafeWindow.w2s_w(tilingSprite.width);
-    const sh = unsafeWindow.w2s_w(tilingSprite.image.height);
+    if (tilingSprite.image.pattern === undefined) {
+        tilingSprite.image.pattern = ctx.createPattern(tilingSprite.image, "repeat");
+    }
+    const pattern = tilingSprite.image.pattern;
 
     ctx.save();
-    ctx.translate(sx + sTileX, 0);
+    ctx.translate(0, tilingSprite.y);
     ctx.fillStyle = pattern;
-    ctx.fillRect(-sTileX, sy, sw, sh);
+    ctx.fillRect(tilingSprite.x, 0, tilingSprite.width, tilingSprite.image.height);
     ctx.restore();
 }
 

@@ -160,13 +160,12 @@ function RenderSingleResizableObject(element, cns) {
     }
 
     if(window.SHOW_TEXTURES) {
-        if((elemClass == "box") && !(aleiSettings.boxRendering)) {
+        if(elemClass == "box") {
             color = "#000";
             opacityFactor = 1;
             edgeColor = "#333";
         }
-        else if((elemClass == "box") && (aleiSettings.boxRendering)) {
-            wallTextures.drawWallTextures(ctx);
+        else if(elemClass == "box") {
             /*let image = boxModelImages[pm.m];
             if(image == undefined) {
                 image = new Image();
@@ -253,7 +252,7 @@ function RenderSingleResizableObject(element, cns) {
         edgeOpacityFactor = currentTheme.selectEdgeOpacityFactor;
     }
 
-    if(!( (window.SHOW_TEXTURES) && ( (elemClass == "bg") || ((elemClass == "box") && aleiSettings.boxRendering) ) )) _DrawRectangle(color, layerAlpha * opacityFactor, x, y, w, h, false); // Object itself.
+    if(!( (window.SHOW_TEXTURES) && (elemClass == "bg") )) _DrawRectangle(color, layerAlpha * opacityFactor, x, y, w, h, false); // Object itself.
     if(!window.SHOW_TEXTURES) _DrawRectangle(edgeColor, layerAlpha * edgeOpacityFactor, x, y, w, h, true); // Edge.
 }
 
@@ -934,6 +933,9 @@ function RenderFrame() {
     RenderBackground();
     RenderGrid();
     RenderAllObjects();
+    if (aleiSettings.boxRendering) {
+        wallTextures.drawWallTextures(ctx);
+    }
     RenderSelectionBox();
     RenderCrossCursor();
     if (aleiSettings.renderSpawnAreas) {
